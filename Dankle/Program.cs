@@ -4,7 +4,8 @@
 	{
 		static void Main()
 		{
-			
+			var computer = new Computer();
+			computer.Run();
 		}
 	}
 }
