@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,10 +13,14 @@ namespace Dankle
 		public Thread Thread { get; protected set; }
 		public abstract string Name { get; }
 
+		private readonly BlockingCollection<IMessage> Messages = new(new ConcurrentQueue<IMessage>());
+		private readonly Dictionary<Type, Action<IMessage>> Handlers = [];
+
 		public Component(Computer computer)
 		{
 			Thread = new(Process);
 			Computer = computer;
+			Init();
 		}
 
 		public void Run()
@@ -23,6 +28,35 @@ namespace Dankle
 			Thread.Start();
 		}
 
-		protected abstract void Process();
+		public void WaitUntilFinish()
+		{
+			Thread.Join();
+		}
+
+		protected virtual void Init() { }
+
+		protected virtual void Process()
+		{
+			while (true)
+			{
+				var msg = Messages.Take();
+				Handlers[msg.GetType()](msg);
+			}
+		}
+
+		protected void RegisterHandler<T, TOut>(Func<T, TOut> handler) where T : Message<TOut>
+		{
+			Handlers[typeof(T)] = (i) =>
+			{
+				if (i is T msg) msg.Output.SetResult(handler(msg));
+				else throw new ArgumentException($"Invalid message handler for {typeof(T).Name}");
+			};
+		}
+
+		protected TOut Send<T, TOut>(T msg) where T : Message<TOut>
+		{
+			Messages.Add((IMessage)msg);
+			return msg.Output.Task.Result;
+		}
 	}
 }

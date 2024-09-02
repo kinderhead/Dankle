@@ -37,16 +37,19 @@ namespace Dankle
 			throw new ArgumentException($"Could not find object with type {typeof(T).Name}");
 		}
 
-		public void Run()
+		public void Run(bool blockThread = true)
 		{
 			foreach (var i in Components)
 			{
 				i.Run();
 			}
 
-			foreach (var i in Components)
+			if (blockThread)
 			{
-				i.Thread.Join();
+				foreach (var i in Components)
+				{
+					i.WaitUntilFinish();
+				}
 			}
 		}
 	}
