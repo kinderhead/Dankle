@@ -12,10 +12,9 @@ namespace Dankle.Components
 
 		protected override void Process()
 		{
-			while (true)
+			while (ShouldStop)
 			{
-				Console.WriteLine("Gaming");
-				Thread.Sleep(1000);
+				HandleMessage(false);
 			}
 		}
 	}

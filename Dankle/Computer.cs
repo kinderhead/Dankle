@@ -52,5 +52,13 @@ namespace Dankle
 				}
 			}
 		}
+
+		public void Stop()
+		{
+			foreach (var i in Components)
+			{
+				i.Stop();
+			}
+		}
 	}
 }

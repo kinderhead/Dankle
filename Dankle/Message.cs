@@ -11,9 +11,14 @@ namespace Dankle
 
 	}
 
-	public abstract class Message<TOut>
+	public abstract class Message<TOut> : IMessage
 	{
 		public TaskCompletionSource<TOut> Output = new();
-		public required Component Source;
+		public Component? Source;
+	}
+
+	public class StopMessage : Message<bool>
+	{
+
 	}
 }

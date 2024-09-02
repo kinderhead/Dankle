@@ -13,6 +13,8 @@ namespace Dankle
 		public Thread Thread { get; protected set; }
 		public abstract string Name { get; }
 
+		protected bool ShouldStop = false;
+
 		private readonly BlockingCollection<IMessage> Messages = new(new ConcurrentQueue<IMessage>());
 		private readonly Dictionary<Type, Action<IMessage>> Handlers = [];
 
@@ -20,6 +22,13 @@ namespace Dankle
 		{
 			Thread = new(Process);
 			Computer = computer;
+
+			RegisterHandler((StopMessage i) =>
+			{
+				ShouldStop = true;
+				return true;
+			});
+
 			Init();
 		}
 
@@ -33,13 +42,31 @@ namespace Dankle
 			Thread.Join();
 		}
 
+		public void Stop()
+		{
+			Send<StopMessage, bool>(new StopMessage());
+			WaitUntilFinish();
+		}
+
 		protected virtual void Init() { }
 
 		protected virtual void Process()
 		{
-			while (true)
+			while (!ShouldStop)
+			{
+				HandleMessage(true);
+			}
+		}
+
+		protected void HandleMessage(bool block)
+		{
+			if (block)
 			{
 				var msg = Messages.Take();
+				Handlers[msg.GetType()](msg);
+			}
+			else if (Messages.TryTake(out var msg))
+			{
 				Handlers[msg.GetType()](msg);
 			}
 		}
@@ -55,7 +82,7 @@ namespace Dankle
 
 		protected TOut Send<T, TOut>(T msg) where T : Message<TOut>
 		{
-			Messages.Add((IMessage)msg);
+			Messages.Add(msg);
 			return msg.Output.Task.Result;
 		}
 	}
