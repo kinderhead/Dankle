@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Register : Argument
+	public class Register : Argument<ushort>
 	{
-		public byte Index;
-
-		public override void Build(byte type, Func<ushort> supply)
-		{
-			Index = type;
-		}
+		public override ushort Read(CPUCore core, byte type, Func<ushort> supply, ushort[] registers) => registers[type];
+		public override void Write(ushort value, CPUCore core, byte type, Func<ushort> supply, ushort[] registers) => registers[type] = value;
 	}
 }

@@ -13,6 +13,8 @@ namespace Dankle.Components
 		private readonly byte[] Data = new byte[size];
 
 		public byte Read(uint addr, Component? source = null) => Send<MemoryReadMsg, byte>(new MemoryReadMsg { Address = addr, Source = source });
+		public ushort Read16(uint addr, Component? source = null) => Utils.Merge(Read(addr), Read(addr + 1));
+
 		public bool Write(uint addr, byte val, Component? source = null) => Send<MemoryWriteMsg, bool>(new MemoryWriteMsg { Address = addr, Value = val, Source = source });
 
 		protected override void Init()
