@@ -10,9 +10,14 @@ namespace Dankle.Components
 	{
 		public override string Name => "CPUCore";
 
+		private readonly ushort[] Registers = new ushort[16];
+
+		private ushort ProgramCounter => Registers[15];
+		private ushort StackPointer => Registers[14];
+
 		protected override void Process()
 		{
-			while (ShouldStop)
+			while (!ShouldStop)
 			{
 				HandleMessage(false);
 			}
