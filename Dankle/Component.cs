@@ -28,8 +28,6 @@ namespace Dankle
 				ShouldStop = true;
 				return true;
 			});
-
-			Init();
 		}
 
 		public void Run()
@@ -47,8 +45,6 @@ namespace Dankle
 			Send<StopMessage, bool>(new StopMessage());
 			WaitUntilFinish();
 		}
-
-		protected virtual void Init() { }
 
 		protected virtual void Process()
 		{

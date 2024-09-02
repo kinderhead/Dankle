@@ -6,22 +6,24 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components
 {
-	public class Memory(Computer computer, long size) : Component(computer)
+	public class Memory : Component
 	{
 		public override string Name => "Memory";
 
-		private readonly byte[] Data = new byte[size];
+		private readonly byte[] Data;
 
-		public byte Read(uint addr, Component? source = null) => Send<MemoryReadMsg, byte>(new MemoryReadMsg { Address = addr, Source = source });
-		public ushort Read16(uint addr, Component? source = null) => Utils.Merge(Read(addr), Read(addr + 1));
-
-		public bool Write(uint addr, byte val, Component? source = null) => Send<MemoryWriteMsg, bool>(new MemoryWriteMsg { Address = addr, Value = val, Source = source });
-
-		protected override void Init()
-		{
+        public Memory(Computer computer, long size) : base(computer)
+        {
+            Data = new byte[size];
+			
 			RegisterHandler((MemoryReadMsg i) => HandleRead(i.Address));
 			RegisterHandler((MemoryWriteMsg i) => HandleWrite(i.Address, i.Value));
 		}
+
+        public byte Read(uint addr, Component? source = null) => Send<MemoryReadMsg, byte>(new MemoryReadMsg { Address = addr, Source = source });
+		public ushort Read16(uint addr, Component? source = null) => Utils.Merge(Read(addr, source), Read(addr + 1, source));
+
+		public bool Write(uint addr, byte val, Component? source = null) => Send<MemoryWriteMsg, bool>(new MemoryWriteMsg { Address = addr, Value = val, Source = source });
 
 		private byte HandleRead(uint addr)
 		{

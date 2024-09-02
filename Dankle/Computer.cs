@@ -11,6 +11,9 @@ namespace Dankle
 	{
 		private readonly List<Component> Components = [];
 
+		private readonly byte[] Memory;
+		private readonly Lock MemoryLock = new();
+
 		public Computer()
 		{
 			AddComponent<CPUCore>();
@@ -35,6 +38,16 @@ namespace Dankle
 			}
 
 			throw new ArgumentException($"Could not find object with type {typeof(T).Name}");
+		}
+
+		public byte ReadMem(uint addr)
+		{
+			lock (MemoryLock) return Memory[addr];
+		}
+
+		public void WriteMem(uint addr, byte val)
+		{
+			lock (MemoryLock) Memory[addr] = val;
 		}
 
 		public void Run(bool blockThread = true)
