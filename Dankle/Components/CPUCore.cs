@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,10 @@ namespace Dankle.Components
 	{
 		public override string Name => "CPUCore";
 
-		private readonly ushort[] Registers = new ushort[16];
+		public readonly ConcurrentDictionary<int, ushort> Registers = new(Enumerable.Range(0, 16).ToDictionary(i => i, i => (ushort)0));
 
-		private ushort ProgramCounter => Registers[15];
-		private ushort StackPointer => Registers[14];
+		public ushort ProgramCounter => Registers[15];
+		public ushort StackPointer => Registers[14];
 
 		protected override void Process()
 		{

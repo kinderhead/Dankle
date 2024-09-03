@@ -2,20 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Dankle
 {
-	public class Computer
+	public class Computer : IDisposable
 	{
 		private readonly List<Component> Components = [];
 
 		private readonly byte[] Memory;
 		private readonly Lock MemoryLock = new();
 
-		public Computer()
+		public Computer(int memSize)
 		{
+			Memory = new byte[memSize];
 			AddComponent<CPUCore>();
 		}
 
@@ -45,9 +47,30 @@ namespace Dankle
 			lock (MemoryLock) return Memory[addr];
 		}
 
-		public void WriteMem(uint addr, byte val)
+		public ushort ReadMem16(uint addr)
 		{
-			lock (MemoryLock) Memory[addr] = val;
+			lock (MemoryLock) return Utils.Merge(Memory[addr + 1], Memory[addr]);
+		}
+
+		public T ReadMem<T>(uint addr) where T : INumber<T>
+		{
+			if (typeof(T) == typeof(byte)) return (T)(INumber<byte>)ReadMem(addr);
+			else if (typeof(T) == typeof(ushort)) return (T)(INumber<ushort>)ReadMem16(addr);
+			throw new ArgumentException($"Invalid type {typeof(T).Name}");
+		}
+
+		public void WriteMem<T>(uint addr, T val) where T : INumber<T>
+		{
+			if (val is byte b) lock (MemoryLock) Memory[addr] = b;
+			else if (val is ushort s)
+			{
+				lock (MemoryLock)
+				{
+					Memory[addr] = (byte)(s >> 8);
+					Memory[addr + 1] = (byte)s;
+				}
+			}
+			else throw new ArgumentException($"Invalid type {typeof(T).Name}");
 		}
 
 		public void Run(bool blockThread = true)
@@ -72,6 +95,12 @@ namespace Dankle
 			{
 				i.Stop();
 			}
+		}
+
+		public void Dispose()
+		{
+			Stop();
+			GC.SuppressFinalize(this);
 		}
 	}
 }
