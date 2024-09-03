@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Pointer<T> : Argument<T> where T : INumber<T>
+	public class Pointer<T>(CPUCore core, byte type, Func<ushort> supply) : Argument<T>(core, type, supply) where T : INumber<T>
 	{
-		public override T Read(CPUCore core, byte type, Func<ushort> supply) => core.Computer.ReadMem<T>(GetAddress(core, type, supply));
-		public override void Write(T value, CPUCore core, byte type, Func<ushort> supply) => core.Computer.WriteMem(GetAddress(core, type, supply), value);
+        public override T Read() => Core.Computer.ReadMem<T>(GetAddress());
+		public override void Write(T value) => Core.Computer.WriteMem(GetAddress(), value);
 
-		public static uint GetAddress(CPUCore core, byte type, Func<ushort> supply) => type switch
+		public uint GetAddress() => Type switch
 		{
-			0b0010 => Utils.Merge(supply(), supply()),
+			0b0010 => Utils.Merge(Supply(), Supply()),
 
 			// We love it when C# pretends that uint is long
-			0b0011 => (uint)(Utils.Merge(supply(), supply()) + (short)core.Registers[supply()]),
-			0b0100 => (uint)(Utils.Merge(core.Registers[supply()], core.Registers[supply()]) + (short)supply()),
-			0b0101 => (uint)(Utils.Merge(core.Registers[supply()], core.Registers[supply()]) + (short)core.Registers[supply()]),
+			0b0011 => (uint)(Utils.Merge(Supply(), Supply()) + (short)Core.Registers[Supply()]),
+			0b0100 => (uint)(Utils.Merge(Core.Registers[Supply()], Core.Registers[Supply()]) + (short)Supply()),
+			0b0101 => (uint)(Utils.Merge(Core.Registers[Supply()], Core.Registers[Supply()]) + (short)Core.Registers[Supply()]),
 
-			_ => throw new ArgumentException($"Invalid type {type} for pointer argument"),
+			_ => throw new ArgumentException($"Invalid type {Type} for pointer argument"),
 		};
 	}
 }

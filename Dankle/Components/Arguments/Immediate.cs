@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Immediate : Argument<ushort>
+	public class Immediate(CPUCore core, byte type, Func<ushort> supply) : Argument<ushort>(core, type, supply)
 	{
-		public override ushort Read(CPUCore core, byte type, Func<ushort> supply) => supply();
-		public override void Write(ushort value, CPUCore core, byte type, Func<ushort> supply) => throw new InvalidOperationException("Cannot write to an immediate value");
+        public override ushort Read() => Supply();
+		public override void Write(ushort value) => throw new InvalidOperationException("Cannot write to an immediate value");
 	}
 }
