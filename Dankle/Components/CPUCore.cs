@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components
 {
-	public class CPUCore(Computer computer) : Component(computer)
+	public class CPUCore : Component
 	{
 		public override string Name => "CPU Core";
 
@@ -17,12 +17,25 @@ namespace Dankle.Components
 		public ushort ProgramCounter { get => Registers[15]; set => Registers[15] = value; }
 		public ushort StackPointer { get => Registers[14]; set => Registers[14] = value; }
 
+		public bool ShouldStep = false;
+
+		public CPUCore(Computer computer) : base(computer)
+		{
+			RegisterHandler((CPUStepMsg i) =>
+			{
+				Cycle();
+				return !ShouldStop;
+			});
+		}
+
+		public void Step(Component? source = null) => Send<CPUStepMsg, bool>(new CPUStepMsg { Source = source });
+
 		protected override void Process()
 		{
 			while (!ShouldStop)
 			{
-				HandleMessage(false);
-				Cycle();
+				HandleMessage(ShouldStep);
+				if (!ShouldStep) Cycle();
 			}
 		}
 
@@ -38,5 +51,10 @@ namespace Dankle.Components
 			var op = GetNextWord();
 			Instruction.Get(op).Execute(this, GetNextWord);
 		}
+	}
+
+	public class CPUStepMsg : Message<bool>
+	{
+
 	}
 }

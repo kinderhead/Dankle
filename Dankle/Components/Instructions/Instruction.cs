@@ -17,7 +17,14 @@ namespace Dankle.Components.Instructions
 		public void Execute(CPUCore core, Func<ushort> supply)
 		{
 			var info = supply();
+			var data = new byte[4];
 
+			data[0] = (byte)(info & 0x000F);
+			data[1] = (byte)((info >> 4) & 0x000F);
+			data[2] = (byte)((info >> 8) & 0x000F);
+			data[3] = (byte)((info >> 12) & 0x000F);
+
+			Handle(new(core, data, supply));
 		}
 
 		protected abstract void Handle(Context ctx);
@@ -34,15 +41,20 @@ namespace Dankle.Components.Instructions
 			throw new ArgumentException($"Unknown opcode {opcode:X}");
 		}
 
-		protected class Context
+		protected class Context(CPUCore core, byte[] data, Func<ushort> supply)
 		{
-			public readonly byte[] Data;
-			public readonly CPUCore Core;
-			public readonly Func<ushort> Supply;
+			public readonly byte[] Data = data;
+			public readonly CPUCore Core = core;
+			public readonly Func<ushort> Supply = supply;
 
 			private int ArgIndex = 0;
 
 			public T Arg<T>() where T : IArgument => (T?)Activator.CreateInstance(typeof(T), Core, Data[ArgIndex++], Supply) ?? throw new ArgumentException($"Invalid argument type {typeof(T).Name}");
+		}
+
+		static Instruction()
+		{
+			Register<Halt>();
 		}
 	}
 }

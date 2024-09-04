@@ -37,11 +37,12 @@ namespace Dankle
 
 		public void WaitUntilFinish()
 		{
-			Thread.Join();
+			if (Thread.IsAlive) Thread.Join();
 		}
 
 		public void Stop()
 		{
+			if (ShouldStop || !Thread.IsAlive) return;
 			Send<StopMessage, bool>(new StopMessage());
 			WaitUntilFinish();
 		}
