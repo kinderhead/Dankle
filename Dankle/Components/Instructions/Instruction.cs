@@ -19,10 +19,10 @@ namespace Dankle.Components.Instructions
 			var info = supply();
 			var data = new byte[4];
 
-			data[0] = (byte)(info & 0x000F);
-			data[1] = (byte)((info >> 4) & 0x000F);
-			data[2] = (byte)((info >> 8) & 0x000F);
-			data[3] = (byte)((info >> 12) & 0x000F);
+			data[3] = (byte)(info & 0x000F);
+			data[2] = (byte)((info >> 4) & 0x000F);
+			data[1] = (byte)((info >> 8) & 0x000F);
+			data[0] = (byte)((info >> 12) & 0x000F);
 
 			Handle(new(core, data, supply));
 		}
@@ -38,7 +38,7 @@ namespace Dankle.Components.Instructions
 		public static Instruction Get(ushort opcode)
 		{
 			if (Instructions.TryGetValue(opcode, out var insn)) return insn;
-			throw new ArgumentException($"Unknown opcode {opcode:X}");
+			throw new ArgumentException($"Unknown opcode 0x{opcode:X4}");
 		}
 
 		protected class Context(CPUCore core, byte[] data, Func<ushort> supply)
@@ -55,6 +55,9 @@ namespace Dankle.Components.Instructions
 		static Instruction()
 		{
 			Register<Halt>();
+			Register<Noop>();
+			Register<Load>();
+			Register<Store>();
 		}
 	}
 }

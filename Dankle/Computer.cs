@@ -15,6 +15,8 @@ namespace Dankle
 		private readonly byte[] Memory;
 		private readonly Lock MemoryLock = new();
 
+		public bool StoppingOrStopped { get; private set; }
+
 		public Computer(int memSize)
 		{
 			Memory = new byte[memSize];
@@ -91,6 +93,7 @@ namespace Dankle
 
 		public void Stop()
 		{
+			StoppingOrStopped = true;
 			foreach (var i in Components)
 			{
 				i.Stop();

@@ -19,4 +19,17 @@ namespace Dankle.Components.Arguments
 			_ => throw new ArgumentException($"Invalid type {type} for 16 bit any argument"),
 		};
 	}
+
+	public class Any16Num(CPUCore core, byte type, Func<ushort> supply) : Argument<ushort>(core, type, supply)
+	{
+		public override ushort Read() => GetArg(Type).Read();
+		public override void Write(ushort value) => GetArg(Type).Write(value);
+
+		public Argument<ushort> GetArg(byte type) => type switch
+		{
+			0b0000 => new Immediate(Core, Type, Supply),
+			0b0010 or 0b0011 or 0b0100 or 0b0101 => new Pointer<ushort>(Core, Type, Supply),
+			_ => throw new ArgumentException($"Invalid type {type} for 16 bit any argument"),
+		};
+	}
 }
