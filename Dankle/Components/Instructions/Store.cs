@@ -13,10 +13,23 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.Arg<Any16Num>();
+			var dest = ctx.Arg<Pointer<ushort>>();
 			var src = ctx.Arg<Register>();
 
 			dest.Write(src.Read());
+		}
+	}
+
+	public class Store8 : Instruction
+	{
+		public override ushort Opcode => 5;
+
+		protected override void Handle(Context ctx)
+		{
+			var dest = ctx.Arg<Pointer<byte>>();
+			var src = ctx.Arg<Register>();
+
+			dest.Write((byte)src.Read());
 		}
 	}
 }

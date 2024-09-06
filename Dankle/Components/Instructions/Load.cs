@@ -19,4 +19,17 @@ namespace Dankle.Components.Instructions
 			dest.Write(src.Read());
 		}
 	}
+
+	public class Load8 : Instruction
+	{
+		public override ushort Opcode => 4;
+
+		protected override void Handle(Context ctx)
+		{
+			var dest = ctx.Arg<Register>();
+			var src = ctx.Arg<Any16Num>();
+
+			dest.Write((byte)src.Read());
+		}
+	}
 }

@@ -49,12 +49,54 @@ namespace DankleTest
 			using var computer = GetComputer();
 			var core = computer.GetComponent<CPUCore>();
 
+			computer.WriteMem<ushort>(0, 2);
+			computer.WriteMem<ushort>(2, 0x1000);
+			computer.WriteMem<ushort>(4, 0xFE68);
+			core.Step();
+			Assert.AreEqual(0xFE68, core.Registers[1]);
+		}
+
+		[TestMethod]
+		public void TestST()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
 			core.Registers[4] = 15;
 			computer.WriteMem<ushort>(0, 3);
 			computer.WriteMem<ushort>(2, 0x3400);
-			computer.WriteMem<ushort>(4, 0xFE68);
+			computer.WriteMem<ushort>(4, 0);
+			computer.WriteMem<ushort>(6, 50);
 			core.Step();
-			Assert.AreEqual(0xFE68, comp);
+			Assert.AreEqual(15, computer.ReadMem<ushort>(50));
+		}
+
+		[TestMethod]
+		public void TestLD8()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			computer.WriteMem<ushort>(0, 4);
+			computer.WriteMem<ushort>(2, 0x5000);
+			computer.WriteMem<byte>(4, 0x68);
+			core.Step();
+			Assert.AreEqual(0x68, core.Registers[5]);
+		}
+
+		[TestMethod]
+		public void TestST8()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			core.Registers[4] = 15;
+			computer.WriteMem<ushort>(0, 3);
+			computer.WriteMem<ushort>(2, 0x3400);
+			computer.WriteMem<ushort>(4, 0);
+			computer.WriteMem<ushort>(6, 50);
+			core.Step();
+			Assert.AreEqual(15, computer.ReadMem<ushort>(50));
 		}
 	}
 }

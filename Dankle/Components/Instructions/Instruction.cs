@@ -57,7 +57,9 @@ namespace Dankle.Components.Instructions
 			Register<Halt>();
 			Register<Noop>();
 			Register<Load>();
+			Register<Load8>();
 			Register<Store>();
+			Register<Store8>();
 		}
 	}
 }
