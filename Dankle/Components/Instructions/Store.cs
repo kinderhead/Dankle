@@ -13,8 +13,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.Arg<Pointer<ushort>>();
-			var src = ctx.Arg<Register>();
+			var dest = ctx.GetNextArg<Pointer<ushort>>();
+			var src = ctx.GetNextArg<Register>();
 
 			dest.Write(src.Read());
 		}
@@ -26,8 +26,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.Arg<Pointer<byte>>();
-			var src = ctx.Arg<Register>();
+			var dest = ctx.GetNextArg<Pointer<byte>>();
+			var src = ctx.GetNextArg<Register>();
 
 			dest.Write((byte)src.Read());
 		}

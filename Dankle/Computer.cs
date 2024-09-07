@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dankle
 {
@@ -17,7 +18,7 @@ namespace Dankle
 
 		public bool StoppingOrStopped { get; private set; }
 
-		public Computer(int memSize)
+		public Computer(uint memSize)
 		{
 			Memory = new byte[memSize];
 			AddComponent<CPUCore>();
@@ -44,35 +45,32 @@ namespace Dankle
 			throw new ArgumentException($"Could not find object with type {typeof(T).Name}");
 		}
 
-		public byte ReadMem(uint addr)
+		public byte[] ReadMem(uint addr, uint size)
 		{
-			lock (MemoryLock) return Memory[addr];
-		}
-
-		public ushort ReadMem16(uint addr)
-		{
-			lock (MemoryLock) return Utils.Merge(Memory[addr + 1], Memory[addr]);
-		}
-
-		public T ReadMem<T>(uint addr) where T : INumber<T>
-		{
-			if (typeof(T) == typeof(byte)) return (T)(INumber<byte>)ReadMem(addr);
-			else if (typeof(T) == typeof(ushort)) return (T)(INumber<ushort>)ReadMem16(addr);
-			throw new ArgumentException($"Invalid type {typeof(T).Name}");
-		}
-
-		public void WriteMem<T>(uint addr, T val) where T : INumber<T>
-		{
-			if (val is byte b) lock (MemoryLock) Memory[addr] = b;
-			else if (val is ushort s)
+			var data = new byte[size];
+			lock (MemoryLock)
 			{
-				lock (MemoryLock)
-				{
-					Memory[addr] = (byte)(s >> 8);
-					Memory[addr + 1] = (byte)s;
-				}
+				Array.Copy(Memory, addr, data, 0, size);
 			}
-			else throw new ArgumentException($"Invalid type {typeof(T).Name}");
+			return data;
+		}
+
+		public byte ReadMem(uint addr) => ReadMem<byte>(addr);
+		public T ReadMem<T>(uint addr) where T : IBinaryInteger<T> => T.ReadBigEndian(ReadMem(addr, TypeInfo<T>.Size), TypeInfo<T>.IsUnsigned);
+
+		public void WriteMem(uint addr, byte[] data)
+		{
+			lock (MemoryLock)
+			{
+				data.CopyTo(Memory, addr);
+			}
+		}
+
+		public void WriteMem<T>(uint addr, T val) where T : IBinaryInteger<T>
+		{
+			var data = new byte[TypeInfo<T>.Size];
+			val.WriteBigEndian(data);
+			WriteMem(addr, data);
 		}
 
 		public void Run(bool blockThread = true)

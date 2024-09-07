@@ -13,8 +13,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.Arg<Register>();
-			var src = ctx.Arg<Any16Num>();
+			var dest = ctx.GetNextArg<Register>();
+			var src = ctx.GetNextArg<Any16Num>();
 
 			dest.Write(src.Read());
 		}
@@ -26,8 +26,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.Arg<Register>();
-			var src = ctx.Arg<Any16Num>();
+			var dest = ctx.GetNextArg<Register>();
+			var src = ctx.GetNextArg<Any8Num>();
 
 			dest.Write((byte)src.Read());
 		}

@@ -14,9 +14,9 @@ namespace Dankle.Components.Instructions
 
 		public abstract ushort Opcode { get; }
 
-		public void Execute(CPUCore core, Func<ushort> supply)
+		public void Execute(CPUCore core)
 		{
-			var info = supply();
+			var info = core.GetNext();
 			var data = new byte[4];
 
 			data[3] = (byte)(info & 0x000F);
@@ -24,7 +24,7 @@ namespace Dankle.Components.Instructions
 			data[1] = (byte)((info >> 8) & 0x000F);
 			data[0] = (byte)((info >> 12) & 0x000F);
 
-			Handle(new(core, data, supply));
+			Handle(new(core, data));
 		}
 
 		protected abstract void Handle(Context ctx);
@@ -41,17 +41,6 @@ namespace Dankle.Components.Instructions
 			throw new ArgumentException($"Unknown opcode 0x{opcode:X4}");
 		}
 
-		protected class Context(CPUCore core, byte[] data, Func<ushort> supply)
-		{
-			public readonly byte[] Data = data;
-			public readonly CPUCore Core = core;
-			public readonly Func<ushort> Supply = supply;
-
-			private int ArgIndex = 0;
-
-			public T Arg<T>() where T : IArgument => (T?)Activator.CreateInstance(typeof(T), Core, Data[ArgIndex++], Supply) ?? throw new ArgumentException($"Invalid argument type {typeof(T).Name}");
-		}
-
 		static Instruction()
 		{
 			Register<Halt>();
@@ -61,5 +50,15 @@ namespace Dankle.Components.Instructions
 			Register<Store>();
 			Register<Store8>();
 		}
+	}
+
+	public class Context(CPUCore core, byte[] data)
+	{
+		public readonly byte[] Data = data;
+		public readonly CPUCore Core = core;
+
+		private int ArgIndex = 0;
+
+		public T GetNextArg<T>() where T : IArgument => (T?)Activator.CreateInstance(typeof(T), this, ArgIndex++) ?? throw new ArgumentException($"Invalid argument type {typeof(T).Name}");
 	}
 }

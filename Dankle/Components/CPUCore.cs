@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,17 +40,18 @@ namespace Dankle.Components
 			}
 		}
 
-		protected ushort GetNextWord()
+		public ushort GetNext() => GetNext<ushort>();
+		public T GetNext<T>() where T : IBinaryInteger<T>
 		{
-			var val = Computer.ReadMem16(ProgramCounter);
-			ProgramCounter += 2;
+			var val = Computer.ReadMem<T>(ProgramCounter);
+			ProgramCounter += (ushort)TypeInfo<T>.Size;
 			return val;
 		}
 
 		private void Cycle()
 		{
-			var op = GetNextWord();
-			Instruction.Get(op).Execute(this, GetNextWord);
+			var op = GetNext();
+			Instruction.Get(op).Execute(this);
 		}
 	}
 

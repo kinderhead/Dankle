@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dankle.Components.Instructions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -12,11 +13,10 @@ namespace Dankle.Components.Arguments
 
 	}
 
-	public abstract class Argument<T>(CPUCore core, byte type, Func<ushort> supply) : IArgument where T : INumber<T>
+	public abstract class Argument<T>(Context ctx, int argnum) : IArgument where T : IBinaryInteger<T>
 	{
-		public CPUCore Core = core;
-		public byte Type = type;
-		public Func<ushort> Supply = supply;
+		public readonly Context Ctx = ctx;
+		public readonly int ArgNum = argnum;
 
 		public abstract T Read();
 		public abstract void Write(T value);

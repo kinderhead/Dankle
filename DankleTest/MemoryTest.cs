@@ -25,7 +25,7 @@ namespace DankleTest
 		{
 			var computer = GetComputer();
 			computer.WriteMem<ushort>(15, ushort.MaxValue - 1);
-			Assert.AreEqual(ushort.MaxValue - 1, computer.ReadMem16(15));
+			Assert.AreEqual(ushort.MaxValue - 1, computer.ReadMem<ushort>(15));
 		}
 
 		[TestMethod]
@@ -36,7 +36,7 @@ namespace DankleTest
 			Assert.AreEqual(0xFF, computer.ReadMem(15));
 			Assert.AreEqual(0xFE, computer.ReadMem(16));
 
-			computer.WriteMem(15, computer.ReadMem16(15));
+			computer.WriteMem(15, computer.ReadMem<ushort>(15));
 			Assert.AreEqual(0xFF, computer.ReadMem(15));
 			Assert.AreEqual(0xFE, computer.ReadMem(16));
 		}
