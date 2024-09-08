@@ -49,6 +49,7 @@ namespace Dankle.Components.Instructions
 			Register<Load8>();
 			Register<Store>();
 			Register<Store8>();
+			Register<Move>();
 		}
 	}
 

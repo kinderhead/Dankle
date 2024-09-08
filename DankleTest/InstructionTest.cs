@@ -91,12 +91,25 @@ namespace DankleTest
 			var core = computer.GetComponent<CPUCore>();
 
 			core.Registers[4] = 15;
-			computer.WriteMem<ushort>(0, 3);
+			computer.WriteMem<ushort>(0, 5);
 			computer.WriteMem<ushort>(2, 0x3400);
 			computer.WriteMem<ushort>(4, 0);
 			computer.WriteMem<ushort>(6, 50);
 			core.Step();
-			Assert.AreEqual(15, computer.ReadMem<ushort>(50));
+			Assert.AreEqual(15, computer.ReadMem<byte>(50));
+		}
+
+		[TestMethod]
+		public void TestMOV()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			core.Registers[4] = 15;
+			computer.WriteMem<ushort>(0, 6);
+			computer.WriteMem<ushort>(2, 0x7400);
+			core.Step();
+			Assert.AreEqual(15, core.Registers[7]);
 		}
 	}
 }

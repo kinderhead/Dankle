@@ -13,16 +13,28 @@ namespace Dankle.Components.Arguments
 		public override T Read() => Ctx.Core.Computer.ReadMem<T>(GetAddress());
 		public override void Write(T value) => Ctx.Core.Computer.WriteMem(GetAddress(), value);
 
-		public uint GetAddress() => Ctx.Data[ArgNum] switch
+		public uint GetAddress()
 		{
-			0b0010 => Utils.Merge(Ctx.Core.GetNext(), Ctx.Core.GetNext()),
+			switch (Ctx.Data[ArgNum])
+			{
+				case 0b0010:
+					return Utils.Merge(Ctx.Core.GetNext(), Ctx.Core.GetNext());
 
-			// We love it when C# pretends that uint is long
-			0b0011 => (uint)(Utils.Merge(Ctx.Core.GetNext(), Ctx.Core.GetNext()) + (short)Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]),
-			0b0100 => (uint)(Utils.Merge(Ctx.Core.Registers[Ctx.Core.GetNext<byte>()], Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]) + (short)Ctx.Core.GetNext()),
-			0b0101 => (uint)(Utils.Merge(Ctx.Core.Registers[Ctx.Core.GetNext<byte>()], Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]) + (short)Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]),
+				// We love it when C# pretends that uint is long
+				case 0b0011:
+					return (uint)(Utils.Merge(Ctx.Core.GetNext(), Ctx.Core.GetNext()) + (short)Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]);
+				case 0b0100:
+					var registers = Ctx.Core.GetNext<byte>();
 
-			_ => throw new ArgumentException($"Invalid type {Ctx.Data[ArgNum]} for pointer argument"),
-		};
+					return (uint)(Utils.Merge(Ctx.Core.Registers[registers >> 4], Ctx.Core.Registers[registers & 0xFF]) + (short)Ctx.Core.GetNext());
+				case 0b0101:
+					// C# scope moment
+					var registers2 = Ctx.Core.GetNext<byte>();
+
+					return (uint)(Utils.Merge(Ctx.Core.Registers[registers2 >> 4], Ctx.Core.Registers[registers2 & 0xFF]) + (short)Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]);
+				default:
+					throw new ArgumentException($"Invalid type {Ctx.Data[ArgNum]} for pointer argument");
+			}
+		}
 	}
 }
