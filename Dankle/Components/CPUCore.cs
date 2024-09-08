@@ -15,13 +15,25 @@ namespace Dankle.Components
 
 		public readonly ConcurrentDictionary<int, ushort> Registers = new(Enumerable.Range(0, 16).ToDictionary(i => i, i => (ushort)0));
 
+		public readonly ALU ALU;
+
 		public ushort ProgramCounter { get => Registers[15]; set => Registers[15] = value; }
 		public ushort StackPointer { get => Registers[14]; set => Registers[14] = value; }
 
 		public bool ShouldStep = false;
 
+		private int _overflow;
+		private int _zero;
+		private int _compare;
+
+		public bool Overflow { get => Interlocked.CompareExchange(ref _overflow, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _overflow, 1, 0) : Interlocked.CompareExchange(ref _overflow, 0, 1); } }
+		public bool Zero { get => Interlocked.CompareExchange(ref _zero, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _zero, 1, 0) : Interlocked.CompareExchange(ref _zero, 0, 1); } }
+		public bool Compare { get => Interlocked.CompareExchange(ref _compare, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _compare, 1, 0) : Interlocked.CompareExchange(ref _compare, 0, 1); } }
+
 		public CPUCore(Computer computer) : base(computer)
 		{
+			ALU = new(this);
+			
 			RegisterHandler((CPUStepMsg i) =>
 			{
 				Cycle();
