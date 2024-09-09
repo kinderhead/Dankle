@@ -33,7 +33,7 @@ namespace Dankle.Components
             return ret;
         }
 
-        public T Shift<T>(T left, Operation op, T right, bool skipFlags = false) where T : INumber<T>, IShiftOperators<T, T, T>, IBitwiseOperators<T, T, T>
+        public T Shift<T>(T left, ShiftOperation op, T right, bool skipFlags = false) where T : IBinaryInteger<T>, IShiftOperators<T, T, T>
         {
             if (right.Equals(0))
             {
@@ -46,17 +46,16 @@ namespace Dankle.Components
             }
 
             T ret;
-            if (op == Operation.LSH) ret = left << right;
-            else if (op == Operation.RSH) ret = left >> right;
+            if (op == ShiftOperation.LSH) ret = left << right;
+            else if (op == ShiftOperation.RSH) ret = left >> right;
             else throw new ArgumentException($"Invalid operation {op}");
 
             if (skipFlags) return ret;
 
             Core.Zero = ret.Equals(0);
-            if (op == Operation.LSH) ret = left << right;
-            else if (op == Operation.RSH) ret = left >> right;
+            Core.Overflow = T.PopCount(ret) != T.PopCount(left);
 
-            return ret;
+			return ret;
         }
     }
 
@@ -66,10 +65,18 @@ namespace Dankle.Components
         SUB,
         MUL,
         DIV,
-        LSH,
-        RSH,
-        OR,
-        AND,
         MOD
     }
+
+    public enum ShiftOperation
+    {
+		LSH,
+		RSH
+	}
+
+    public enum BitwiseOperation
+    {
+		OR,
+		AND
+	}
 }
