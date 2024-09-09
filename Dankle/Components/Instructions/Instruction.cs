@@ -50,6 +50,12 @@ namespace Dankle.Components.Instructions
 			Register<Store>();
 			Register<Store8>();
 			Register<Move>();
+			Register<Add>();
+			Register<Subtract>();
+			Register<SignedMul>();
+			Register<SignedDiv>();
+			Register<UnsignedMul>();
+			Register<UnsignedDiv>();
 		}
 	}
 

@@ -23,7 +23,7 @@ namespace Dankle.Components
 
             if (skipFlags) return ret;
 
-            Core.Zero = ret.Equals(0);
+            Core.Zero = ret == T.AdditiveIdentity;
             if (!TypeInfo<T>.IsFloatingPoint && op != Operation.MOD)
             {
                 if (TypeInfo<T>.IsUnsigned) Core.Overflow = Calculate(ulong.CreateTruncating(left), op, ulong.CreateTruncating(right), true) != ulong.CreateTruncating(ret);
@@ -33,14 +33,14 @@ namespace Dankle.Components
             return ret;
         }
 
-        public T Shift<T>(T left, ShiftOperation op, T right, bool skipFlags = false) where T : IBinaryInteger<T>, IShiftOperators<T, T, T>
+        public T Shift<T>(T left, ShiftOperation op, int right, bool skipFlags = false) where T : IBinaryInteger<T>, IShiftOperators<T, int, T>
         {
-            if (right.Equals(0))
+            if (right == 0)
             {
                 if (!skipFlags)
                 {
-                    Core.Zero = left.Equals(0);
-                    Core.Overflow = false;
+                    Core.Zero = left == T.AdditiveIdentity;
+					Core.Overflow = false;
                 }
                 return left;
             }
@@ -52,8 +52,8 @@ namespace Dankle.Components
 
             if (skipFlags) return ret;
 
-            Core.Zero = ret.Equals(0);
-            Core.Overflow = T.PopCount(ret) != T.PopCount(left);
+            Core.Zero = ret == T.AdditiveIdentity;
+			Core.Overflow = T.PopCount(ret) != T.PopCount(left);
 
 			return ret;
         }

@@ -67,5 +67,33 @@ namespace DankleTest
 			Assert.IsTrue(core.Zero);
 			Assert.IsFalse(core.Overflow);
 		}
+
+		[TestMethod]
+		public void TestLeftShift()
+		{
+			var core = GetComputer().GetComponent<CPUCore>();
+
+			Assert.AreEqual(0b00000010, core.ALU.Shift<byte>(0b00000001, ShiftOperation.LSH, 1));
+			Assert.IsFalse(core.Zero);
+			Assert.IsFalse(core.Overflow);
+
+			Assert.AreEqual(0b00000000, core.ALU.Shift<byte>(0b01000000, ShiftOperation.LSH, 2));
+			Assert.IsTrue(core.Zero);
+			Assert.IsTrue(core.Overflow);
+		}
+
+		[TestMethod]
+		public void TestRightShift()
+		{
+			var core = GetComputer().GetComponent<CPUCore>();
+
+			Assert.AreEqual(0b00000000, core.ALU.Shift<byte>(0b00000001, ShiftOperation.RSH, 1));
+			Assert.IsTrue(core.Zero);
+			Assert.IsTrue(core.Overflow);
+
+			Assert.AreEqual(0b00010000, core.ALU.Shift<byte>(0b01000000, ShiftOperation.RSH, 2));
+			Assert.IsFalse(core.Zero);
+			Assert.IsFalse(core.Overflow);
+		}
 	}
 }
