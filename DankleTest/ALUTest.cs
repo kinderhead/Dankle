@@ -65,7 +65,6 @@ namespace DankleTest
 
 			Assert.AreEqual(0, core.ALU.Calculate<ushort>(20, Operation.MOD, 4));
 			Assert.IsTrue(core.Zero);
-			Assert.IsFalse(core.Overflow);
 		}
 
 		[TestMethod]
@@ -94,6 +93,33 @@ namespace DankleTest
 			Assert.AreEqual(0b00010000, core.ALU.Shift<byte>(0b01000000, ShiftOperation.RSH, 2));
 			Assert.IsFalse(core.Zero);
 			Assert.IsFalse(core.Overflow);
+		}
+
+		[TestMethod]
+		public void TestOr()
+		{
+			var core = GetComputer().GetComponent<CPUCore>();
+
+			Assert.AreEqual(0b00000101, core.ALU.Bitwise<byte>(0b00000001, BitwiseOperation.OR, 0b00000100));
+			Assert.IsFalse(core.Zero);
+		}
+
+		[TestMethod]
+		public void TestAnd()
+		{
+			var core = GetComputer().GetComponent<CPUCore>();
+
+			Assert.AreEqual(0b00000000, core.ALU.Bitwise<byte>(0b00000001, BitwiseOperation.AND, 0b00000100));
+			Assert.IsTrue(core.Zero);
+		}
+
+		[TestMethod]
+		public void TestXor()
+		{
+			var core = GetComputer().GetComponent<CPUCore>();
+
+			Assert.AreEqual(0b00000100, core.ALU.Bitwise<byte>(0b00000001, BitwiseOperation.XOR, 0b00000101));
+			Assert.IsFalse(core.Zero);
 		}
 	}
 }

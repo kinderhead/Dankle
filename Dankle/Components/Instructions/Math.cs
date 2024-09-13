@@ -90,4 +90,88 @@ namespace Dankle.Components.Instructions
 			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.DIV, arg2.Read()));
 		}
 	}
+
+	public class LeftShift : Instruction
+	{
+		public override ushort Opcode => 13;
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.LSH, arg2.Read()));
+		}
+	}
+
+	public class RightShift : Instruction
+	{
+		public override ushort Opcode => 14;
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.RSH, arg2.Read()));
+		}
+	}
+
+	public class Or : Instruction
+	{
+		public override ushort Opcode => 23;
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write(ctx.Core.ALU.Bitwise(arg1.Read(), BitwiseOperation.OR, arg2.Read()));
+		}
+	}
+
+	public class And : Instruction
+	{
+		public override ushort Opcode => 24;
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write(ctx.Core.ALU.Bitwise(arg1.Read(), BitwiseOperation.AND, arg2.Read()));
+		}
+	}
+
+	public class Xor : Instruction
+	{
+		public override ushort Opcode => 25;
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write(ctx.Core.ALU.Bitwise(arg1.Read(), BitwiseOperation.XOR, arg2.Read()));
+		}
+	}
+
+	public class Modulo : Instruction
+	{
+		public override ushort Opcode => 26;
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MOD, arg2.Read()));
+		}
+	}
 }

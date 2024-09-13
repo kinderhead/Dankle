@@ -56,6 +56,20 @@ namespace Dankle.Components.Instructions
 			Register<SignedDiv>();
 			Register<UnsignedMul>();
 			Register<UnsignedDiv>();
+			Register<LeftShift>();
+			Register<RightShift>();
+			Register<Compare>();
+			Register<LessThan>();
+			Register<LessThanOrEq>();
+			Register<GreaterThan>();
+			Register<GreaterThanOrEq>();
+			Register<Jump>();
+			Register<JumpEq>();
+			Register<JumpNeq>();
+			Register<Or>();
+			Register<And>();
+			Register<Xor>();
+			Register<Modulo>();
 		}
 	}
 

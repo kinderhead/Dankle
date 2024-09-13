@@ -7,9 +7,36 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Register(Context ctx, int argnum) : Argument<ushort>(ctx, argnum)
+	public class Register : Argument<ushort>
 	{
-		public override ushort Read() => Ctx.Core.Registers[Ctx.Data[ArgNum]];
-		public override void Write(ushort value) => Ctx.Core.Registers[Ctx.Data[ArgNum]] = value;
+		private readonly bool UseArgNumAsRegister = false;
+
+		public Register(Context ctx, int argnum) : base(ctx, argnum)
+		{
+		}
+
+		public Register(Context ctx, int argnum, bool useArgNumAsRegister) : base(ctx, argnum)
+		{
+			UseArgNumAsRegister = useArgNumAsRegister;
+		}
+
+		public override ushort Read() => Ctx.Core.Registers[UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum]];
+		public override void Write(ushort value) => Ctx.Core.Registers[UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum]] = value;
+	}
+
+	public class DoubleRegister(Context ctx, int argnum) : Argument<uint>(ctx, argnum)
+	{
+		public override uint Read()
+		{
+			var data = Ctx.Core.GetNext<byte>();
+			return Utils.Merge(Ctx.Core.Registers[data >> 4], Ctx.Core.Registers[data & 0xF]);
+		}
+
+		public override void Write(uint value)
+		{
+			var data = Ctx.Core.GetNext<byte>();
+			Ctx.Core.Registers[data >> 4] = (ushort)(value >> 16);
+			Ctx.Core.Registers[data & 0xF] = (ushort)value;
+		}
 	}
 }

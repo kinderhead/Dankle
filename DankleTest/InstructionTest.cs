@@ -27,7 +27,7 @@ namespace DankleTest
 
 			computer.WriteMem<ushort>(0, 0);
 			core.Step();
-			Assert.AreEqual(4, core.ProgramCounter);
+			Assert.AreEqual(4u, core.ProgramCounter);
 			Thread.Sleep(10);
 			Assert.IsTrue(computer.StoppingOrStopped);
 		}
@@ -40,7 +40,7 @@ namespace DankleTest
 
 			computer.WriteMem<ushort>(0, 1);
 			core.Step();
-			Assert.AreEqual(4, core.ProgramCounter);
+			Assert.AreEqual(4u, core.ProgramCounter);
 		}
 
 		[TestMethod]
@@ -212,6 +212,58 @@ namespace DankleTest
 			Assert.AreEqual(2, core.Registers[2]);
 			Assert.IsFalse(core.Zero);
 			Assert.IsFalse(core.Overflow);
+		}
+
+		[TestMethod]
+		public void TestLSH()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			core.Registers[0] = 0b0000100000010000;
+			core.Registers[1] = 1;
+			computer.WriteMem<ushort>(0, 13);
+			computer.WriteMem<ushort>(2, 0x0120);
+			core.Step();
+
+			Assert.AreEqual(0b0001000000100000, core.Registers[2]);
+			Assert.IsFalse(core.Zero);
+			Assert.IsFalse(core.Overflow);
+		}
+
+		[TestMethod]
+		public void TestRSH()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			core.Registers[0] = 0b0000100000010000;
+			core.Registers[1] = 1;
+			computer.WriteMem<ushort>(0, 14);
+			computer.WriteMem<ushort>(2, 0x0120);
+			core.Step();
+
+			Assert.AreEqual(0b0000010000001000, core.Registers[2]);
+			Assert.IsFalse(core.Zero);
+			Assert.IsFalse(core.Overflow);
+		}
+
+		// TODO: Write comparison tests but I doubt they don't work
+
+		[TestMethod]
+		public void TestJump()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			core.Registers[0] = ushort.MaxValue;
+			core.Registers[1] = ushort.MaxValue - 1;
+			computer.WriteMem<ushort>(0, 20);
+			computer.WriteMem<ushort>(2, 0x1000);
+			computer.WriteMem<byte>(4, 0x01);
+			core.Step();
+
+			Assert.AreEqual(0xFFFFFFFEu, core.ProgramCounter);
 		}
 	}
 }

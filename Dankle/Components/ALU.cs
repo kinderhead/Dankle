@@ -20,7 +20,7 @@ namespace Dankle.Components
                 Operation.MOD => left % right,
                 _ => throw new ArgumentException($"Invalid operation {op}"),
             };
-
+            
             if (skipFlags) return ret;
 
             Core.Zero = ret == T.AdditiveIdentity;
@@ -57,6 +57,33 @@ namespace Dankle.Components
 
 			return ret;
         }
+
+        public T Bitwise<T>(T left, BitwiseOperation op, T right) where T : IBinaryInteger<T>, IBitwiseOperators<T, T, T>
+        {
+            var ret = op switch
+            {
+                BitwiseOperation.AND => left & right,
+                BitwiseOperation.OR => left | right,
+                BitwiseOperation.XOR => left ^ right,
+                _ => throw new ArgumentException($"Invalid operation {op}")
+            };
+
+			Core.Zero = ret == T.AdditiveIdentity;
+            return ret;
+		}
+
+        public void CompareAndSetFlag<T>(T left, Comparison op, T right) where T : IComparisonOperators<T, T, bool>
+        {
+			Core.Compare = op switch
+			{
+				Comparison.EQ => left == right,
+				Comparison.LT => left < right,
+				Comparison.GT => left > right,
+				Comparison.LTE => left <= right,
+				Comparison.GTE => left >= right,
+				_ => throw new ArgumentException($"Invalid operation {op}"),
+			};
+		}
     }
 
     public enum Operation
@@ -77,6 +104,16 @@ namespace Dankle.Components
     public enum BitwiseOperation
     {
 		OR,
-		AND
+		AND,
+        XOR
 	}
+
+    public enum Comparison
+    {
+        EQ,
+        LT,
+        GT,
+        LTE,
+        GTE
+    }
 }
