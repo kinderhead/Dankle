@@ -16,10 +16,13 @@ namespace Dankle
 		private readonly byte[] Memory;
 		private readonly Lock MemoryLock = new();
 
+		public readonly uint MemorySize;
+
 		public bool StoppingOrStopped { get; private set; }
 
 		public Computer(uint memSize)
 		{
+			MemorySize = memSize;
 			Memory = new byte[memSize];
 			AddComponent<CPUCore>();
 		}

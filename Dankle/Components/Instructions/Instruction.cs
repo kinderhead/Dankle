@@ -70,6 +70,10 @@ namespace Dankle.Components.Instructions
 			Register<And>();
 			Register<Xor>();
 			Register<Modulo>();
+			Register<Call>();
+			Register<Return>();
+			Register<Push>();
+			Register<Pop>();
 		}
 	}
 

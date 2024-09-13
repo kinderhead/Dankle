@@ -33,6 +33,7 @@ namespace Dankle.Components
 		public CPUCore(Computer computer) : base(computer)
 		{
 			ALU = new(this);
+			StackPointer = computer.MemorySize - 1;
 			
 			RegisterHandler((CPUStepMsg i) =>
 			{
@@ -58,6 +59,19 @@ namespace Dankle.Components
 			var val = Computer.ReadMem<T>(ProgramCounter);
 			ProgramCounter += (ushort)TypeInfo<T>.Size;
 			return val;
+		}
+
+		public void Push<T>(T val) where T : IBinaryInteger<T>
+		{
+			StackPointer -= TypeInfo<T>.Size;
+			Computer.WriteMem(ProgramCounter, val);
+		}
+
+		public T Pop<T>() where T : IBinaryInteger<T>
+		{
+			T ret = Computer.ReadMem<T>(StackPointer);
+			StackPointer += TypeInfo<T>.Size;
+			return ret;
 		}
 
 		private void Cycle()
