@@ -10,6 +10,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 0;
 
+		public override Type[] Arguments => [];
+		public override string Name => "HLT";
+
 		protected override void Handle(Context ctx)
 		{
 			Task.Run(ctx.Core.Computer.Stop);

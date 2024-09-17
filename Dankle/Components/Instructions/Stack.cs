@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 27;
 
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "CALL";
+
 		protected override void Handle(Context ctx)
 		{
 			var dest = ctx.GetNextArg<Any32>();
@@ -24,6 +27,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 28;
 
+		public override Type[] Arguments => [];
+		public override string Name => "RET";
+
 		protected override void Handle(Context ctx)
 		{
 			ctx.Core.ProgramCounter = ctx.Core.Pop<uint>();
@@ -33,6 +39,9 @@ namespace Dankle.Components.Instructions
 	public class Push : Instruction
 	{
 		public override ushort Opcode => 29;
+
+		public override Type[] Arguments => [typeof(Any16)];
+		public override string Name => "PSH";
 
 		protected override void Handle(Context ctx)
 		{
@@ -44,6 +53,9 @@ namespace Dankle.Components.Instructions
 	public class Pop : Instruction
 	{
 		public override ushort Opcode => 30;
+
+		public override Type[] Arguments => [typeof(Any16)];
+		public override string Name => "POP";
 
 		protected override void Handle(Context ctx)
 		{

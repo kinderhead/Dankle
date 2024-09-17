@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 7;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "ADD";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Register>();
@@ -24,6 +27,9 @@ namespace Dankle.Components.Instructions
 	public class Subtract : Instruction
 	{
 		public override ushort Opcode => 8;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "SUB";
 
 		protected override void Handle(Context ctx)
 		{
@@ -39,6 +45,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 9;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "SMUL";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Register>();
@@ -52,6 +61,9 @@ namespace Dankle.Components.Instructions
 	public class SignedDiv : Instruction
 	{
 		public override ushort Opcode => 10;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "SDIV";
 
 		protected override void Handle(Context ctx)
 		{
@@ -67,6 +79,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 11;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "UMUL";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Register>();
@@ -80,6 +95,9 @@ namespace Dankle.Components.Instructions
 	public class UnsignedDiv : Instruction
 	{
 		public override ushort Opcode => 12;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "UDIV";
 
 		protected override void Handle(Context ctx)
 		{
@@ -95,6 +113,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 13;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "LSH";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Register>();
@@ -108,6 +129,9 @@ namespace Dankle.Components.Instructions
 	public class RightShift : Instruction
 	{
 		public override ushort Opcode => 14;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "RSH";
 
 		protected override void Handle(Context ctx)
 		{
@@ -123,6 +147,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 23;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "OR";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Register>();
@@ -136,6 +163,9 @@ namespace Dankle.Components.Instructions
 	public class And : Instruction
 	{
 		public override ushort Opcode => 24;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "AND";
 
 		protected override void Handle(Context ctx)
 		{
@@ -151,6 +181,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 25;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "XOR";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Register>();
@@ -164,6 +197,9 @@ namespace Dankle.Components.Instructions
 	public class Modulo : Instruction
 	{
 		public override ushort Opcode => 26;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "MOD";
 
 		protected override void Handle(Context ctx)
 		{

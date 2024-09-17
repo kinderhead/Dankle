@@ -14,6 +14,10 @@ namespace Dankle.Components.Instructions
 
 		public abstract ushort Opcode { get; }
 
+		// Used by the assembler
+		public abstract Type[] Arguments { get; }
+		public abstract string Name { get; }
+
 		public void Execute(CPUCore core)
 		{
 			var info = core.GetNext();
@@ -39,6 +43,16 @@ namespace Dankle.Components.Instructions
 		{
 			if (Instructions.TryGetValue(opcode, out var insn)) return insn;
 			throw new ArgumentException($"Unknown opcode 0x{opcode:X4}");
+		}
+
+		public static Instruction Get(string name)
+		{
+			foreach (var i in Instructions.Values)
+			{
+				if (i.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)) return i;
+			}
+
+			throw new ArgumentException($"Unknown instruction {name}");
 		}
 
 		static Instruction()

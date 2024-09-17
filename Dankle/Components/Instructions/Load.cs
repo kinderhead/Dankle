@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 2;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Any16Num)];
+		public override string Name => "LD";
+
 		protected override void Handle(Context ctx)
 		{
 			var dest = ctx.GetNextArg<Register>();
@@ -23,6 +26,9 @@ namespace Dankle.Components.Instructions
 	public class Load8 : Instruction
 	{
 		public override ushort Opcode => 4;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Any8Num)];
+		public override string Name => "LDB";
 
 		protected override void Handle(Context ctx)
 		{

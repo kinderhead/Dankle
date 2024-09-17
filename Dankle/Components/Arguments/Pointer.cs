@@ -32,6 +32,11 @@ namespace Dankle.Components.Arguments
 					var registers2 = Ctx.Core.GetNext<byte>();
 
 					return (uint)(Utils.Merge(Ctx.Core.Registers[registers2 >> 4], Ctx.Core.Registers[registers2 & 0xFF]) + (short)Ctx.Core.Registers[Ctx.Core.GetNext<byte>()]);
+				case 0b0110:
+					// C# scope moment
+					var registers3 = Ctx.Core.GetNext<byte>();
+
+					return Utils.Merge(Ctx.Core.Registers[registers3 >> 4], Ctx.Core.Registers[registers3 & 0xFF]);
 				default:
 					throw new ArgumentException($"Invalid type {Ctx.Data[ArgNum]} for pointer argument");
 			}

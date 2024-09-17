@@ -18,6 +18,8 @@ namespace Dankle.Components.Arguments
 		public readonly Context Ctx = ctx;
 		public readonly int ArgNum = argnum;
 
+		public Type ArgType => typeof(T);
+
 		public abstract T Read();
 		public abstract void Write(T value);
 	}

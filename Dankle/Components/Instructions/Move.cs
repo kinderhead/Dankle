@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 6;
 
+		public override Type[] Arguments => [typeof(Register), typeof(Register)];
+		public override string Name => "MOV";
+
 		protected override void Handle(Context ctx)
 		{
 			var dest = ctx.GetNextArg<Register>();

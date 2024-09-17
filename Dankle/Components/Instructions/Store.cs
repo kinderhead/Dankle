@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 3;
 
+		public override Type[] Arguments => [typeof(Pointer<ushort>), typeof(Any32)];
+		public override string Name => "ST";
+
 		protected override void Handle(Context ctx)
 		{
 			var dest = ctx.GetNextArg<Pointer<ushort>>();
@@ -23,6 +26,9 @@ namespace Dankle.Components.Instructions
 	public class Store8 : Instruction
 	{
 		public override ushort Opcode => 5;
+
+		public override Type[] Arguments => [typeof(Pointer<byte>), typeof(Any32)];
+		public override string Name => "STB";
 
 		protected override void Handle(Context ctx)
 		{

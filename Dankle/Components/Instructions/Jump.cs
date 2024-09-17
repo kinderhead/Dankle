@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 20;
 
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "JMP";
+
 		protected override void Handle(Context ctx)
 		{
 			ctx.Core.ProgramCounter = ctx.GetNextArg<Any32>().Read();
@@ -21,6 +24,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 21;
 
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "JE";
+
 		protected override void Handle(Context ctx)
 		{
 			if (ctx.Core.Compare) ctx.Core.ProgramCounter = ctx.GetNextArg<Any32>().Read();
@@ -30,6 +36,9 @@ namespace Dankle.Components.Instructions
 	public class JumpNeq : Instruction
 	{
 		public override ushort Opcode => 22;
+
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "JNE";
 
 		protected override void Handle(Context ctx)
 		{

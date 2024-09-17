@@ -11,6 +11,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 15;
 
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "CMP";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Any16>();
@@ -23,6 +26,9 @@ namespace Dankle.Components.Instructions
 	public class LessThan : Instruction
 	{
 		public override ushort Opcode => 16;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "LT";
 
 		protected override void Handle(Context ctx)
 		{
@@ -37,6 +43,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 17;
 
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "LTE";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Any16>();
@@ -50,6 +59,9 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 18;
 
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "GT";
+
 		protected override void Handle(Context ctx)
 		{
 			var arg1 = ctx.GetNextArg<Any16>();
@@ -62,6 +74,9 @@ namespace Dankle.Components.Instructions
 	public class GreaterThanOrEq : Instruction
 	{
 		public override ushort Opcode => 19;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "GTE";
 
 		protected override void Handle(Context ctx)
 		{
