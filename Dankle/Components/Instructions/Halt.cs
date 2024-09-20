@@ -15,6 +15,7 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
+			ctx.Core.ShouldStep = true;
 			Task.Run(ctx.Core.Computer.Stop);
 		}
 	}

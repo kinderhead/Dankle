@@ -11,7 +11,7 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 3;
 
-		public override Type[] Arguments => [typeof(Pointer<ushort>), typeof(Any32)];
+		public override Type[] Arguments => [typeof(Pointer<ushort>), typeof(Register)];
 		public override string Name => "ST";
 
 		protected override void Handle(Context ctx)
@@ -27,7 +27,7 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 5;
 
-		public override Type[] Arguments => [typeof(Pointer<byte>), typeof(Any32)];
+		public override Type[] Arguments => [typeof(Pointer<byte>), typeof(Register)];
 		public override string Name => "STB";
 
 		protected override void Handle(Context ctx)

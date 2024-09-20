@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dankle;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,19 +28,18 @@ namespace Assembler
 		public override (byte type, byte[] data) Parse()
 		{
 			var tok = Parser.Tokens.Dequeue();
-			switch (tok.Symbol)
+			return tok.Symbol switch
 			{
-				case Token.Type.Register:
-					return (0b0001, [Parser.ParseRegister(tok)]);
-				case Token.Type.Integer:
-					break;
-				case Token.Type.Label:
-					break;
-				case Token.Type.OSquareBracket:
-					break;
-				default:
-					throw new InvalidTokenException(tok);
-			}
+				Token.Type.Register => (0b0001, [Parser.ParseRegister(tok)]),
+				Token.Type.Integer or Token.Type.Text => ((byte type, byte[] data))(0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
+				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
+				_ => throw new InvalidTokenException(tok),
+			};
 		}
+	}
+
+	public class Pointer16Parser(Parser parser) : ArgumentParser(parser)
+	{
+		public override (byte type, byte[] data) Parse() => Parser.ParsePointer();
 	}
 }

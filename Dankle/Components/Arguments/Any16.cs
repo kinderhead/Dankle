@@ -16,7 +16,7 @@ namespace Dankle.Components.Arguments
 		{
 			0b0000 => new Immediate<ushort>(Ctx, ArgNum),
 			0b0001 => new Register(Ctx, Ctx.Core.GetNext<byte>(), true),
-			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 => new Pointer<ushort>(Ctx, ArgNum),
+			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 or 0b0111 or 0b1000 or 0b1001 or 0b1010 or 0b1011 or 0b1100 => new Pointer<ushort>(Ctx, ArgNum),
 			_ => throw new ArgumentException($"Invalid type {type} for 16 bit any argument"),
 		};
 	}
@@ -29,7 +29,7 @@ namespace Dankle.Components.Arguments
 		public Argument<ushort> GetArg(byte type) => type switch
 		{
 			0b0000 => new Immediate<ushort>(Ctx, ArgNum),
-			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 => new Pointer<ushort>(Ctx, ArgNum),
+			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 or 0b0111 or 0b1000 or 0b1001 or 0b1010 or 0b1011 or 0b1100 => new Pointer<ushort>(Ctx, ArgNum),
 			_ => throw new ArgumentException($"Invalid type {type} for 16 bit number"),
 		};
 	}
@@ -42,7 +42,7 @@ namespace Dankle.Components.Arguments
 		public Argument<byte> GetArg(byte type) => type switch
 		{
 			0b0000 => new Immediate<byte>(Ctx, ArgNum),
-			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 => new Pointer<byte>(Ctx, ArgNum),
+			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 or 0b0111 or 0b1000 or 0b1001 or 0b1010 or 0b1011 or 0b1100 => new Pointer<byte>(Ctx, ArgNum),
 			_ => throw new ArgumentException($"Invalid type {type} for 8 bit number"),
 		};
 	}
@@ -56,7 +56,7 @@ namespace Dankle.Components.Arguments
 		{
 			0b0000 => new Immediate<uint>(Ctx, ArgNum),
 			0b0001 => new DoubleRegister(Ctx, ArgNum),
-			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 => new Pointer<uint>(Ctx, ArgNum),
+			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 or 0b0111 or 0b1000 or 0b1001 or 0b1010 or 0b1011 or 0b1100 => new Pointer<uint>(Ctx, ArgNum),
 			_ => throw new ArgumentException($"Invalid type {type} for 32 bit any argument"),
 		};
 	}

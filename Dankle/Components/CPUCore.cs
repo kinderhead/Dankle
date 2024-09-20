@@ -74,6 +74,21 @@ namespace Dankle.Components
 			return ret;
 		}
 
+		public void Dump()
+		{
+			var sb = new StringBuilder();
+
+			foreach (var i in Registers)
+			{
+				sb.Append($"r{i.Key}: 0x{i.Value:X4}\n");
+			}
+
+			sb.Append($"SP: 0x{StackPointer:X8}\n");
+			sb.Append($"PC: 0x{ProgramCounter:X8}");
+
+			Console.WriteLine(sb.ToString());
+		}
+
 		private void Cycle()
 		{
 			var op = GetNext();

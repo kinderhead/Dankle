@@ -23,9 +23,12 @@ namespace Assembler
 			Register,
 			Integer,
 			Label,
+			Text,
 			Comma,
 			OSquareBracket,
-			CSquareBracket
+			CSquareBracket,
+			Plus,
+			Minus
 		}
 	}
 }

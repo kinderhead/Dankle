@@ -12,6 +12,14 @@ namespace Dankle
 	{
 		public static uint Merge(ushort a, ushort b) => (uint)a << 16 | b;
 		public static ushort Merge(byte a, byte b) => BitConverter.ToUInt16([a, b]);
+		public static byte Merge4Bit(byte a, byte b) => (byte)((a << 4) | b);
+
+		public static byte[] ToBytes<T>(T a) where T : IBinaryInteger<T>
+		{
+			var data = new byte[TypeInfo<T>.Size];
+			a.WriteBigEndian(data);
+			return data;
+		}
 	}
 
 	public static class TypeInfo<T>
