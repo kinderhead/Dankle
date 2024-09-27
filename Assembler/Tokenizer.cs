@@ -54,7 +54,6 @@ namespace Assembler
 		{
 			TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+");
 			TokenMap[Token.Type.Newline] = new(@"^\n+");
-			TokenMap[Token.Type.Instruction] = new(@"^[a-zA-Z]+");
 			TokenMap[Token.Type.Register] = new(@"^r([0-9]|1[0-5])\b");
 			TokenMap[Token.Type.Integer] = new(@"^((0[bB][01]+)|(0[xX][0-9a-fA-F]+)|\d+)");
 			TokenMap[Token.Type.Label] = new(@"^[a-zA-Z]+:");
@@ -62,6 +61,8 @@ namespace Assembler
 			TokenMap[Token.Type.Comma] = new(@"^,");
 			TokenMap[Token.Type.OSquareBracket] = new(@"^\[");
 			TokenMap[Token.Type.CSquareBracket] = new(@"^\]");
+			TokenMap[Token.Type.OParam] = new(@"^\(");
+			TokenMap[Token.Type.CParam] = new(@"^\)");
 			TokenMap[Token.Type.Plus] = new(@"^\+");
 			TokenMap[Token.Type.Minus] = new(@"^\-");
 		}

@@ -10,8 +10,10 @@ namespace Assembler
 			var prog = @"
 test:
 	ld r0, 69
-	ld r1, 15
-	st [r0-a], r1
+	jmp label
+	hlt
+label:
+	ld r0, 3
 ";
 
 			var tokenizer = new Tokenizer(prog);

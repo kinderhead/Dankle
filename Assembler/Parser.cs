@@ -15,7 +15,7 @@ namespace Assembler
 	{
 		public Queue<Token> Tokens { get; private set; }
 
-		public readonly Dictionary<string, uint> Variables32Bit = [];
+		public readonly Dictionary<Type, Dictionary<string, object>> Variables = [];
 		public readonly Dictionary<uint, byte[]> Data = [];
 		public uint Addr { get; private set; }
 
@@ -29,6 +29,7 @@ namespace Assembler
 
 			ArgParsers[typeof(Register)] = new RegisterParser(this);
 			ArgParsers[typeof(Any16Num)] = new Any16NumParser(this);
+			ArgParsers[typeof(Any32)] = new Any32Parser(this);
 			ArgParsers[typeof(Pointer<ushort>)] = new Pointer16Parser(this);
 		}
 
@@ -49,7 +50,7 @@ namespace Assembler
 			{
 				var token = Tokens.Dequeue();
 
-				if (token.Symbol == Token.Type.Instruction)
+				if (token.Symbol == Token.Type.Text)
 				{
 					var insn = Instruction.Get(token.Text);
 
@@ -81,7 +82,7 @@ namespace Assembler
 				}
 				else if (token.Symbol == Token.Type.Label)
 				{
-					Variables32Bit[token.Text] = Addr;
+					SetVariable(token.Text, Addr);
 				}
 				else throw new InvalidTokenException(token);
 			}
@@ -122,9 +123,24 @@ namespace Assembler
 			return (byte)((ParseRegister(reg1) << 4) | ParseRegister(reg2));
 		}
 
+		public byte ParseStandaloneDoubleRegister(Token? paren = null)
+		{
+			paren ??= Tokens.Dequeue();
+			Assume(paren.Value, Token.Type.OParam);
+			var ret = ParseDoubleRegister();
+			GetNextToken(Token.Type.CParam);
+			return ret;
+		}
+
 		public T ParseNum<T>(Token? token = null) where T : IBinaryInteger<T>
 		{
 			token ??= Tokens.Dequeue();
+
+			if (IsFirstPass && token.Value.Symbol == Token.Type.Text) return T.AdditiveIdentity;
+			else if (token.Value.Symbol == Token.Type.Text)
+			{
+				return GetVariable<T>(token.Value.Text);
+			}
 
 			try
 			{
@@ -223,5 +239,24 @@ namespace Assembler
 
 			return data;
 		}
-    }
+
+		public void SetVariable<T>(string name, T value)
+		{
+			if (!Variables.TryGetValue(typeof(T), out var vars))
+			{
+				Variables[typeof(T)] = [];
+				vars = Variables[typeof(T)];
+			}
+
+			vars[name] = value ?? throw new ArgumentException("How is this null? It can't be");
+		}
+
+		public T GetVariable<T>(string name)
+		{
+			Variables.TryGetValue(typeof(T), out var vars);
+			object? ret = null;
+			vars?.TryGetValue(name, out ret);
+			return (T)(ret ?? throw new ArgumentException($"Invalid variable {name} for type {typeof(T).Name}"));
+		}
+	}
 }

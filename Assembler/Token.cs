@@ -19,7 +19,6 @@ namespace Assembler
 		{
 			Whitespace,
 			Newline,
-			Instruction,
 			Register,
 			Integer,
 			Label,
@@ -27,6 +26,8 @@ namespace Assembler
 			Comma,
 			OSquareBracket,
 			CSquareBracket,
+			OParam,
+			CParam,
 			Plus,
 			Minus
 		}

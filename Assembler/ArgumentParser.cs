@@ -30,8 +30,22 @@ namespace Assembler
 			var tok = Parser.Tokens.Dequeue();
 			return tok.Symbol switch
 			{
-				Token.Type.Register => (0b0001, [Parser.ParseRegister(tok)]),
 				Token.Type.Integer or Token.Type.Text => ((byte type, byte[] data))(0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
+				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
+				_ => throw new InvalidTokenException(tok),
+			};
+		}
+	}
+
+	public class Any32Parser(Parser parser) : ArgumentParser(parser)
+	{
+		public override (byte type, byte[] data) Parse()
+		{
+			var tok = Parser.Tokens.Dequeue();
+			return tok.Symbol switch
+			{
+				Token.Type.OParam => (0b0001, [Parser.ParseStandaloneDoubleRegister(tok)]),
+				Token.Type.Integer or Token.Type.Text => ((byte type, byte[] data))(0b0000, Utils.ToBytes(Parser.ParseNum<uint>(tok))),
 				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
 				_ => throw new InvalidTokenException(tok),
 			};
