@@ -1,6 +1,7 @@
 ﻿using Dankle.Components;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -12,18 +13,19 @@ namespace Dankle
 	public class Computer : IDisposable
 	{
 		private readonly List<Component> Components = [];
+		private readonly List<MemoryMapEntry> MemoryMap = [];
 
-		private readonly byte[] Memory;
-		private readonly Lock MemoryLock = new();
+		public bool Started { get; private set; }
+		public bool StoppingOrStopped { get; private set; }
 
 		public readonly uint MemorySize;
 
-		public bool StoppingOrStopped { get; private set; }
+		public bool Debug = false;
 
 		public Computer(uint memSize)
 		{
 			MemorySize = memSize;
-			Memory = new byte[memSize];
+			AddMemoryMapEntry(new RAM(memSize));
 			AddComponent<CPUCore>();
 		}
 
@@ -48,12 +50,51 @@ namespace Dankle
 			throw new ArgumentException($"Could not find object with type {typeof(T).Name}");
 		}
 
+		public void AddMemoryMapEntry(MemoryMapEntry entry)
+		{
+			MemoryMap.Add(entry);
+			MemoryMap.Sort();
+		}
+
+		public void AddMemoryMapEntry(MemoryMapRegisters entry)
+		{
+			entry.Register(this);
+		}
+
+		public OrderedDictionary<MemoryMapEntry, (uint startAddr, uint startIndex, uint size)> GetMemoryMapsForRange(uint addr, uint size)
+		{
+			var entries = new OrderedDictionary<MemoryMapEntry, (uint startAddr, uint startIndex, uint size)>();
+
+			uint originalAddr = addr;
+			uint originalSize = size;
+			uint index = 0;
+
+			foreach (var i in MemoryMap)
+			{
+				if (addr >= i.StartAddr && addr < i.EndAddr)
+				{
+					if (addr + size <= i.EndAddr)
+					{
+						entries.Add(i, (addr, index, size));
+						return entries;
+					}
+					entries.Add(i, (addr, index, i.EndAddr - addr));
+					size -= i.EndAddr - addr;
+					index += i.EndAddr - addr;
+					addr = i.EndAddr;
+				}
+			}
+
+			throw new IndexOutOfRangeException($"Invalid memory range 0x{originalAddr:X8} to 0x{(originalAddr + originalSize):X8}");
+		}
+
 		public byte[] ReadMem(uint addr, uint size)
 		{
 			var data = new byte[size];
-			lock (MemoryLock)
+			foreach (var entry in GetMemoryMapsForRange(addr, size))
 			{
-				Array.Copy(Memory, addr, data, 0, size);
+				var part = entry.Key.Read(entry.Value.startAddr, entry.Value.size);
+				part.CopyTo(data, entry.Value.startIndex);
 			}
 			return data;
 		}
@@ -63,9 +104,11 @@ namespace Dankle
 
 		public void WriteMem(uint addr, byte[] data)
 		{
-			lock (MemoryLock)
+			foreach (var entry in GetMemoryMapsForRange(addr, (uint)data.Length))
 			{
-				data.CopyTo(Memory, addr);
+				var part = new byte[entry.Value.size];
+				Array.Copy(data, entry.Value.startIndex, part, 0, part.Length);
+				entry.Key.Write(entry.Value.startAddr, part);
 			}
 		}
 
@@ -78,6 +121,8 @@ namespace Dankle
 
 		public void Run(bool blockThread = true)
 		{
+			Started = true;
+
 			foreach (var i in Components)
 			{
 				i.Run();
@@ -99,6 +144,11 @@ namespace Dankle
 			{
 				i.Stop();
 			}
+		}
+
+		public void PrintDebug(string text)
+		{
+			if (Debug) Console.WriteLine(text);
 		}
 
 		public void Dispose()

@@ -30,7 +30,36 @@ namespace Assembler
 			var tok = Parser.Tokens.Dequeue();
 			return tok.Symbol switch
 			{
-				Token.Type.Integer or Token.Type.Text => ((byte type, byte[] data))(0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
+				Token.Type.Integer or Token.Type.Text => (0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
+				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
+				_ => throw new InvalidTokenException(tok),
+			};
+		}
+	}
+
+	public class Any8NumParser(Parser parser) : ArgumentParser(parser)
+	{
+		public override (byte type, byte[] data) Parse()
+		{
+			var tok = Parser.Tokens.Dequeue();
+			return tok.Symbol switch
+			{
+				Token.Type.Integer or Token.Type.Text => (0b0000, [Parser.ParseNum<byte>(tok)]),
+				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
+				_ => throw new InvalidTokenException(tok),
+			};
+		}
+	}
+
+	public class Any16Parser(Parser parser) : ArgumentParser(parser)
+	{
+		public override (byte type, byte[] data) Parse()
+		{
+			var tok = Parser.Tokens.Dequeue();
+			return tok.Symbol switch
+			{
+				Token.Type.Register => (0b0001, [Parser.ParseRegister(tok)]),
+				Token.Type.Integer or Token.Type.Text => (0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
 				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
 				_ => throw new InvalidTokenException(tok),
 			};
@@ -45,14 +74,14 @@ namespace Assembler
 			return tok.Symbol switch
 			{
 				Token.Type.OParam => (0b0001, [Parser.ParseStandaloneDoubleRegister(tok)]),
-				Token.Type.Integer or Token.Type.Text => ((byte type, byte[] data))(0b0000, Utils.ToBytes(Parser.ParseNum<uint>(tok))),
+				Token.Type.Integer or Token.Type.Text => (0b0000, Utils.ToBytes(Parser.ParseNum<uint>(tok))),
 				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
 				_ => throw new InvalidTokenException(tok),
 			};
 		}
 	}
 
-	public class Pointer16Parser(Parser parser) : ArgumentParser(parser)
+	public class PointerParser(Parser parser) : ArgumentParser(parser)
 	{
 		public override (byte type, byte[] data) Parse() => Parser.ParsePointer();
 	}

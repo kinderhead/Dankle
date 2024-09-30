@@ -20,6 +20,8 @@ namespace Dankle.Components.Instructions
 
 		public void Execute(CPUCore core)
 		{
+			core.Computer.PrintDebug($"{(core.ProgramCounter - 1):X8}: {Name}");
+
 			var info = core.GetNext();
 			var data = new byte[4];
 

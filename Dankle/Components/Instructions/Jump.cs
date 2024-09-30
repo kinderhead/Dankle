@@ -29,7 +29,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			if (ctx.Core.Compare) ctx.Core.ProgramCounter = ctx.GetNextArg<Any32>().Read();
+			var dest = ctx.GetNextArg<Any32>().Read();
+			if (ctx.Core.Compare) ctx.Core.ProgramCounter = dest;
 		}
 	}
 
@@ -42,7 +43,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			if (!ctx.Core.Compare) ctx.Core.ProgramCounter = ctx.GetNextArg<Any32>().Read();
+			var dest = ctx.GetNextArg<Any32>().Read();
+			if (!ctx.Core.Compare) ctx.Core.ProgramCounter = dest;
 		}
 	}
 }

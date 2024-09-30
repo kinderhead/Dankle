@@ -28,9 +28,12 @@ namespace Assembler
 			Tokens = new(tokens);
 
 			ArgParsers[typeof(Register)] = new RegisterParser(this);
+			ArgParsers[typeof(Any8Num)] = new Any8NumParser(this);
 			ArgParsers[typeof(Any16Num)] = new Any16NumParser(this);
+			ArgParsers[typeof(Any16)] = new Any16Parser(this);
 			ArgParsers[typeof(Any32)] = new Any32Parser(this);
-			ArgParsers[typeof(Pointer<ushort>)] = new Pointer16Parser(this);
+			ArgParsers[typeof(Pointer<ushort>)] = new PointerParser(this);
+			ArgParsers[typeof(Pointer<byte>)] = new PointerParser(this);
 		}
 
 		public void Parse()
@@ -83,6 +86,11 @@ namespace Assembler
 				else if (token.Symbol == Token.Type.Label)
 				{
 					SetVariable(token.Text, Addr);
+				}
+				else if (token.Symbol == Token.Type.String)
+				{
+					Data[Addr] = [..Encoding.UTF8.GetBytes(token.Text[1..(token.Text.Length - 1)]), 0];
+					Addr += (uint)Data[Addr].Length;
 				}
 				else throw new InvalidTokenException(token);
 			}
@@ -242,13 +250,19 @@ namespace Assembler
 
 		public void SetVariable<T>(string name, T value)
 		{
+			name = name.Replace(":", "");
+
+			if (value is null) throw new ArgumentException("Value can't be null");
+
 			if (!Variables.TryGetValue(typeof(T), out var vars))
 			{
 				Variables[typeof(T)] = [];
 				vars = Variables[typeof(T)];
 			}
 
-			vars[name] = value ?? throw new ArgumentException("How is this null? It can't be");
+			if (value is uint num && num <= ushort.MaxValue) SetVariable(name, ushort.CreateTruncating(num));
+
+			vars[name] = value;
 		}
 
 		public T GetVariable<T>(string name)

@@ -16,10 +16,10 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>().Read();
 
 			ctx.Core.Push(ctx.Core.ProgramCounter);
-			ctx.Core.ProgramCounter = dest.Read();
+			ctx.Core.ProgramCounter = dest;
 		}
 	}
 
@@ -41,7 +41,7 @@ namespace Dankle.Components.Instructions
 		public override ushort Opcode => 29;
 
 		public override Type[] Arguments => [typeof(Any16)];
-		public override string Name => "PSH";
+		public override string Name => "PUSH";
 
 		protected override void Handle(Context ctx)
 		{

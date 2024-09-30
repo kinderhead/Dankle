@@ -29,7 +29,8 @@ namespace Assembler
 			OParam,
 			CParam,
 			Plus,
-			Minus
+			Minus,
+			String
 		}
 	}
 }

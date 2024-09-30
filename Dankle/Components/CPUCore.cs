@@ -64,7 +64,7 @@ namespace Dankle.Components
 		public void Push<T>(T val) where T : IBinaryInteger<T>
 		{
 			StackPointer -= TypeInfo<T>.Size;
-			Computer.WriteMem(ProgramCounter, val);
+			Computer.WriteMem(StackPointer, val);
 		}
 
 		public T Pop<T>() where T : IBinaryInteger<T>
