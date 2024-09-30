@@ -9,17 +9,33 @@ namespace Assembler
 		{
 			var prog = @"
 main:
-	ld r0, text
+	ld r0, text_1
 	call write
+
+	ld r0, period
+	ldb r1, 0
+	ldb r2, 1
+	ld r3, 1000
+_loop:
+	st [0x1001], r3
+	call write
+	add r1, r2, r1
+	cmp r1, 3
+	jne _loop
+
+	ld r0, text_2
+	call write
+
 	hlt
+
 write:
-	ld r1, 1
 	push r0
 	push r1
 	push r2
+	ldb r1, 1
 write_loop:
 	ldb r2, [r0]
-	cmp [r0], 0
+	cmp r2, 0
 	je write_end
 
 	stb [0x1000], r2
@@ -31,8 +47,9 @@ write_end:
 	pop r0
 	ret
 
-text:
-	""grfhjvewdrfueusrifrfesduuhyjkl\n""
+period: "".""
+text_1: ""Wah""
+text_2: ""\nGaming OS\n""
 ";
 
 			var tokenizer = new Tokenizer(prog);
@@ -42,10 +59,10 @@ text:
 			using var computer = new Computer(0x0FFF);
 			//computer.Debug = true;
 			computer.AddComponent<Terminal>(0x1000u);
+			computer.AddComponent<Dankle.Components.Timer>(0x1001u);
 			computer.WriteMem(0, parser.GetBinary());
 			computer.Run();
 			computer.GetComponent<CPUCore>().Dump();
-			Console.WriteLine(computer.ReadMem<ushort>(69));
 		}
 	}
 }

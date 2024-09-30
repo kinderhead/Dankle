@@ -89,7 +89,7 @@ namespace Assembler
 				}
 				else if (token.Symbol == Token.Type.String)
 				{
-					Data[Addr] = [..Encoding.UTF8.GetBytes(token.Text[1..(token.Text.Length - 1)]), 0];
+					Data[Addr] = [..Encoding.UTF8.GetBytes(ParseString(token)), 0];
 					Addr += (uint)Data[Addr].Length;
 				}
 				else throw new InvalidTokenException(token);
@@ -103,6 +103,18 @@ namespace Assembler
 		}
 
 		public Token GetNextToken(Token.Type expected) => Assume(Tokens.Dequeue(), expected);
+
+		public string ParseString(Token? token = null)
+		{
+			token ??= Tokens.Dequeue();
+			Assume(token.Value, Token.Type.String);
+
+			var text = token.Value.Text[1..(token.Value.Text.Length - 1)];
+			text = text.Replace("\\n", "\n");
+			text = text.Replace("\\t", "\t");
+			text = text.Replace("\\r", "\r");
+			return text;
+		}
 
 		public byte ParseRegister(Token? token = null)
 		{

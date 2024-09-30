@@ -20,6 +20,8 @@ namespace Dankle
 			a.WriteBigEndian(data);
 			return data;
 		}
+
+		public static T FromBytes<T>(byte[] data) where T : IBinaryInteger<T> => T.ReadBigEndian(data, TypeInfo<T>.IsUnsigned);
 	}
 
 	public static class TypeInfo<T>
