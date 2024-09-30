@@ -18,7 +18,7 @@ write:
 	push r1
 	push r2
 write_loop:
-	ld r2, [r0]
+	ldb r2, [r0]
 	cmp [r0], 0
 	je write_end
 
@@ -32,7 +32,7 @@ write_end:
 	ret
 
 text:
-	""Me want gaming""
+	""grfhjvewdrfueusrifrfesduuhyjkl\n""
 ";
 
 			var tokenizer = new Tokenizer(prog);

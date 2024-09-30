@@ -65,7 +65,7 @@ namespace Assembler
 			TokenMap[Token.Type.CParam] = new(@"^\)");
 			TokenMap[Token.Type.Plus] = new(@"^\+");
 			TokenMap[Token.Type.Minus] = new(@"^\-");
-			TokenMap[Token.Type.String] = new(@"^""[\w|\s]+""");
+			TokenMap[Token.Type.String] = new(@"^""[\w|\s|\\]+""");
 		}
 	}
 }
