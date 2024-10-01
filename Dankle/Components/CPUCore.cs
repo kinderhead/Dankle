@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -29,6 +30,9 @@ namespace Dankle.Components
 		public bool Overflow { get => Interlocked.CompareExchange(ref _overflow, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _overflow, 1, 0) : Interlocked.CompareExchange(ref _overflow, 0, 1); } }
 		public bool Zero { get => Interlocked.CompareExchange(ref _zero, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _zero, 1, 0) : Interlocked.CompareExchange(ref _zero, 0, 1); } }
 		public bool Compare { get => Interlocked.CompareExchange(ref _compare, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _compare, 1, 0) : Interlocked.CompareExchange(ref _compare, 0, 1); } }
+
+		// In Megahertz
+		public double Clockspeed { get; private set; }
 
 		public CPUCore(Computer computer) : base(computer)
 		{
@@ -74,7 +78,7 @@ namespace Dankle.Components
 			return ret;
 		}
 
-		public void Dump()
+		public string GetDump()
 		{
 			var sb = new StringBuilder();
 
@@ -86,13 +90,19 @@ namespace Dankle.Components
 			sb.Append($"SP: 0x{StackPointer:X8}\n");
 			sb.Append($"PC: 0x{ProgramCounter:X8}");
 
-			Console.WriteLine(sb.ToString());
+			return sb.ToString();
 		}
+
+		public void Dump() => Console.WriteLine(GetDump());
 
 		private void Cycle()
 		{
+			var sw = new Stopwatch();
+			sw.Start();
 			var op = GetNext();
 			Instruction.Get(op).Execute(this);
+			sw.Stop();
+			Clockspeed = 1.0 / sw.Elapsed.TotalMicroseconds;
 		}
 	}
 

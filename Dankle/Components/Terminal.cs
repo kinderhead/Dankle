@@ -12,16 +12,23 @@ namespace Dankle.Components
 
 		public Terminal(Computer computer, uint addr) : base(computer)
 		{
-			computer.AddMemoryMapEntry(new MM(addr));
+			computer.AddMemoryMapEntry(new MM(addr, this));
 		}
 
-		public class MM(uint addr) : MemoryMapRegisters(addr)
+		public virtual void WriteOut(string text)
 		{
+			Console.Write(text);
+			Console.Out.Flush();
+		}
+
+		public class MM(uint addr, Terminal term) : MemoryMapRegisters(addr)
+		{
+			public readonly Terminal Terminal = term;
+
 			[WriteRegister(0)]
 			public void WriteOut(uint _, byte[] data)
 			{
-				Console.Write(Encoding.UTF8.GetString(data));
-				Console.Out.Flush();
+				Terminal.WriteOut(Encoding.UTF8.GetString(data));
 			}
 		}
 	}

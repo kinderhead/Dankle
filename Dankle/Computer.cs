@@ -1,6 +1,7 @@
 ﻿using Dankle.Components;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -50,6 +51,8 @@ namespace Dankle
 			throw new ArgumentException($"Could not find object with type {typeof(T).Name}");
 		}
 
+		public ReadOnlyCollection<Component> GetComponents() => Components.AsReadOnly();
+
 		public void AddMemoryMapEntry(MemoryMapEntry entry)
 		{
 			MemoryMap.Add(entry);
@@ -61,9 +64,9 @@ namespace Dankle
 			entry.Register(this);
 		}
 
-		public OrderedDictionary<MemoryMapEntry, (uint startAddr, uint startIndex, uint size)> GetMemoryMapsForRange(uint addr, uint size)
+		public List<KeyValuePair<MemoryMapEntry, (uint startAddr, uint startIndex, uint size)>> GetMemoryMapsForRange(uint addr, uint size)
 		{
-			var entries = new OrderedDictionary<MemoryMapEntry, (uint startAddr, uint startIndex, uint size)>();
+			var entries = new List<KeyValuePair<MemoryMapEntry, (uint startAddr, uint startIndex, uint size)>>();
 
 			uint originalAddr = addr;
 			uint originalSize = size;
@@ -75,10 +78,10 @@ namespace Dankle
 				{
 					if (addr + size <= i.EndAddr)
 					{
-						entries.Add(i, (addr, index, size));
+						entries.Add(new(i, (addr, index, size)));
 						return entries;
 					}
-					entries.Add(i, (addr, index, i.EndAddr - addr));
+					entries.Add(new(i, (addr, index, i.EndAddr - addr)));
 					size -= i.EndAddr - addr;
 					index += i.EndAddr - addr;
 					addr = i.EndAddr;

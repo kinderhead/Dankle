@@ -12,6 +12,7 @@ namespace Dankle
 		public Computer Computer { get; protected set; }
 		public Thread Thread { get; protected set; }
 		public abstract string Name { get; }
+		public readonly Guid ID;
 
 		protected bool ShouldStop = false;
 
@@ -20,6 +21,7 @@ namespace Dankle
 
 		public Component(Computer computer)
 		{
+			ID = Guid.NewGuid();
 			Thread = new(Process);
 			Computer = computer;
 

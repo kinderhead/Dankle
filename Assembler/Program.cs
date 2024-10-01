@@ -9,6 +9,7 @@ namespace Assembler
 		{
 			var prog = @"
 main:
+	jmp main
 	ld r0, text_1
 	call write
 
