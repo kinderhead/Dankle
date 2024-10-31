@@ -17,14 +17,17 @@ namespace Assembler
 
 		public readonly Dictionary<Type, Dictionary<string, object>> Variables = [];
 		public readonly Dictionary<uint, byte[]> Data = [];
+
+		public readonly uint StartAddr;
 		public uint Addr { get; private set; }
 
 		private readonly Dictionary<Type, ArgumentParser> ArgParsers = [];
 
 		private bool IsFirstPass = true;
 
-		public Parser(List<Token> tokens)
+		public Parser(List<Token> tokens, uint startAddress = 0)
 		{
+			StartAddr = startAddress;
 			Tokens = new(tokens);
 
 			ArgParsers[typeof(Register)] = new RegisterParser(this);
@@ -38,11 +41,12 @@ namespace Assembler
 
 		public void Parse()
 		{
+			Addr = StartAddr;
 			var backup = new Queue<Token>(Tokens);
 			ParsingPass();
 			Tokens = backup;
 			Data.Clear();
-			Addr = 0;
+			Addr = StartAddr;
 			IsFirstPass = false;
 			ParsingPass();
 		}
@@ -250,11 +254,11 @@ namespace Assembler
 
 		public byte[] GetBinary()
 		{
-			var data = new byte[Addr];
+			var data = new byte[Addr - StartAddr];
 
 			foreach (var i in Data)
 			{
-				i.Value.CopyTo(data, i.Key);
+				i.Value.CopyTo(data, i.Key - StartAddr);
 			}
 
 			return data;

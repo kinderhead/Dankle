@@ -8,8 +8,18 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Immediate<T>(Context ctx, int type) : Argument<T>(ctx, type) where T : IBinaryInteger<T>
+	public class Immediate<T> : Argument<T> where T : IBinaryInteger<T>
 	{
+		public Immediate()
+		{
+		}
+
+		public Immediate(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new Immediate<T>(ctx, argnum);
+
 		public override T Read() => Ctx.Core.GetNext<T>();
 
 		public override void Write(T value) => throw new InvalidOperationException("Cannot write to an immediate value");

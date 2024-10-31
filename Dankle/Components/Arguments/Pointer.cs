@@ -8,8 +8,18 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Pointer<T>(Context ctx, int type) : Argument<T>(ctx, type) where T : IBinaryInteger<T>
+	public class Pointer<T> : Argument<T> where T : IBinaryInteger<T>
 	{
+		public Pointer(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public Pointer()
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new Pointer<T>(ctx, argnum);
+
 		public override T Read() => Ctx.Core.Computer.ReadMem<T>(GetAddress());
 		public override void Write(T value) => Ctx.Core.Computer.WriteMem(GetAddress(), value);
 

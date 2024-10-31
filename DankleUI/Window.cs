@@ -29,7 +29,7 @@ namespace DankleUI
 
 		public Window()
 		{
-			VeldridStartup.CreateWindowAndGraphicsDevice(new(0, 0, 1920, 1080, WindowState.Normal, "Dankle"), out SDL2, out GD);
+			VeldridStartup.CreateWindowAndGraphicsDevice(new(5, 5, 1920, 1080, WindowState.Normal, "Dankle"), out SDL2, out GD);
 			ImGuiRenderer = new(GD, GD.MainSwapchain.Framebuffer.OutputDescription, (int)GD.MainSwapchain.Framebuffer.Width, (int)GD.MainSwapchain.Framebuffer.Height);
 			CMDs = GD.ResourceFactory.CreateCommandList();
 		}
@@ -103,14 +103,19 @@ namespace DankleUI
 			LastError = "";
 			try
 			{
-				var tokenizer = new Tokenizer(Program);
-				var parser = new Parser(tokenizer.Parse());
+				var tokenizer = new Tokenizer(Program + "\n" + BIOS);
+				var parser = new Parser(tokenizer.Parse(), (uint)MemSize);
 				parser.Parse();
 
-				Computer = new((uint)MemSize);
-				Computer.AddComponent<BufferTerminal>((uint)MemSize);
-				Computer.AddComponent<Dankle.Components.Timer>((uint)(MemSize + 1));
-				Computer.WriteMem(0, parser.GetBinary());
+				var data = parser.GetBinary();
+
+				Computer = new((uint)(MemSize + data.Length + 1024));
+				Computer.AddComponent<BufferTerminal>(0xFFFFFFF0);
+				Computer.AddComponent<Dankle.Components.Timer>(0xFFFFFFF1);
+				Computer.WriteMem((uint)MemSize, data);
+				Computer.GetComponent<CPUCore>().ProgramCounter = (uint)MemSize;
+
+				Computer.Debug = true;
 
 				ComponentStates.Clear();
 				foreach (var i in Computer.GetComponents())
@@ -153,49 +158,29 @@ namespace DankleUI
 			}
 		}
 
-		public string Program = @"
-main:
-	ld r0, text_1
+		public string Program = @"main:
+	ld r0, text
 	call write
-
-	ld r0, period
-	ldb r1, 0
-	ldb r2, 1
-	ld r3, 1000
-_loop:
-	st [2049], r3
-	call write
-	add r1, r2, r1
-	cmp r1, 3
-	jne _loop
-
-	ld r0, text_2
-	call write
-
 	hlt
 
+text: ""ojifdoijfufdguihfd""
+";
+
+		public string BIOS = @"
 write:
 	push r0
 	push r1
-	push r2
-	ldb r1, 1
-write_loop:
-	ldb r2, [r0]
-	cmp r2, 0
-	je write_end
-
-	stb [2048], r2
-	add r1, r0, r0
-	jmp write_loop
-write_end:
-	pop r2
+_write_loop:
+	ldb r1, [r0]
+	cmp r1, 0
+	je _write_end
+	stb [0xFFFFFFF0], r1
+	inc r0
+	jmp _write_loop
+_write_end:
 	pop r1
 	pop r0
 	ret
-
-period: "".""
-text_1: ""Wah""
-text_2: ""\nGaming OS\n""
 ";
 	}
 

@@ -90,6 +90,8 @@ namespace Dankle.Components.Instructions
 			Register<Return>();
 			Register<Push>();
 			Register<Pop>();
+			Register<Increment>();
+			Register<Decrement>();
 		}
 	}
 
@@ -100,6 +102,6 @@ namespace Dankle.Components.Instructions
 
 		private int ArgIndex = 0;
 
-		public T GetNextArg<T>() where T : IArgument => (T?)Activator.CreateInstance(typeof(T), this, ArgIndex++) ?? throw new ArgumentException($"Invalid argument type {typeof(T).Name}");
+		public T GetNextArg<T>() where T : IArgument, new() => (T)new T().Create(this, ArgIndex++);
 	}
 }

@@ -9,6 +9,8 @@ namespace Dankle.Components.Arguments
 {
 	public class Register : Argument<ushort>
 	{
+		public override IArgument Create(Context ctx, int argnum) => new Register(ctx, argnum);
+
 		private readonly bool UseArgNumAsRegister = false;
 
 		public Register(Context ctx, int argnum) : base(ctx, argnum)
@@ -20,12 +22,26 @@ namespace Dankle.Components.Arguments
 			UseArgNumAsRegister = useArgNumAsRegister;
 		}
 
+		public Register()
+		{
+		}
+
 		public override ushort Read() => Ctx.Core.Registers[UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum]];
 		public override void Write(ushort value) => Ctx.Core.Registers[UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum]] = value;
 	}
 
-	public class DoubleRegister(Context ctx, int argnum) : Argument<uint>(ctx, argnum)
+	public class DoubleRegister : Argument<uint>
 	{
+		public DoubleRegister()
+		{
+		}
+
+		public DoubleRegister(Context ctx, int argnum) : base(ctx, argnum)
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new DoubleRegister(ctx, argnum);
+
 		public override uint Read()
 		{
 			var data = Ctx.Core.GetNext<byte>();

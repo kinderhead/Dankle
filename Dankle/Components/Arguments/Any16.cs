@@ -7,8 +7,18 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.Arguments
 {
-	public class Any16(Context ctx, int type) : Argument<ushort>(ctx, type)
+	public class Any16 : Argument<ushort>
 	{
+		public Any16()
+		{
+		}
+
+		public Any16(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new Any16(ctx, argnum);
+
 		public override ushort Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(ushort value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
@@ -21,8 +31,18 @@ namespace Dankle.Components.Arguments
 		};
 	}
 
-	public class Any16Num(Context ctx, int type) : Argument<ushort>(ctx, type)
+	public class Any16Num : Argument<ushort>
 	{
+		public Any16Num(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public Any16Num()
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new Any16Num(ctx, argnum);
+
 		public override ushort Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(ushort value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
@@ -34,8 +54,18 @@ namespace Dankle.Components.Arguments
 		};
 	}
 
-	public class Any8Num(Context ctx, int type) : Argument<byte>(ctx, type)
+	public class Any8Num : Argument<byte>
 	{
+		public Any8Num(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public Any8Num()
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new Any8Num(ctx, argnum);
+
 		public override byte Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(byte value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
@@ -47,8 +77,18 @@ namespace Dankle.Components.Arguments
 		};
 	}
 
-	public class Any32(Context ctx, int type) : Argument<uint>(ctx, type)
+	public class Any32 : Argument<uint>
 	{
+		public Any32()
+		{
+		}
+
+		public Any32(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public override IArgument Create(Context ctx, int argnum) => new Any32(ctx, argnum);
+
 		public override uint Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(uint value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
