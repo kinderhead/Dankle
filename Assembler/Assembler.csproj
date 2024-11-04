@@ -11,4 +11,9 @@
     <ProjectReference Include="..\Dankle\Dankle.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="bios.asm" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+
 </Project>

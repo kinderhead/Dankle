@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Assembler
 {
-	public class Tokenizer(string input)
-	{
-		public readonly string Input = input;
+	public class Tokenizer
+    {
+        public readonly string Input;
 
-		private int Index;
+        private int Index;
 
 		public List<Token> Parse()
 		{
@@ -50,7 +50,16 @@ namespace Assembler
 
 		public static readonly Dictionary<Token.Type, Regex> TokenMap = [];
 
-		static Tokenizer()
+        public Tokenizer(string input, bool includeBIOS = true)
+        {
+            Input = input;
+			if (includeBIOS)
+			{
+				Input += "\n" + Encoding.Default.GetString(File.ReadAllBytes(Path.GetDirectoryName(GetType().Assembly.Location) + "/bios.asm"));
+			}
+        }
+
+        static Tokenizer()
 		{
 			TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+");
 			TokenMap[Token.Type.Newline] = new(@"^\n+");

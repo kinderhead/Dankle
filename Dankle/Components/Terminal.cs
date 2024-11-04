@@ -9,9 +9,11 @@ namespace Dankle.Components
 	public class Terminal : Component
 	{
 		public override string Name => "Terminal";
+		public uint Addr;
 
 		public Terminal(Computer computer, uint addr) : base(computer)
 		{
+			Addr = addr;
 			computer.AddMemoryMapEntry(new MM(addr, this));
 		}
 

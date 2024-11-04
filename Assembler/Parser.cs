@@ -1,4 +1,5 @@
 ﻿using Dankle;
+using Dankle.Components;
 using Dankle.Components.Arguments;
 using Dankle.Components.Instructions;
 using System;
@@ -25,7 +26,7 @@ namespace Assembler
 
 		private bool IsFirstPass = true;
 
-		public Parser(List<Token> tokens, uint startAddress = 0)
+		public Parser(List<Token> tokens, uint startAddress = 0, Computer? computer = null)
 		{
 			StartAddr = startAddress;
 			Tokens = new(tokens);
@@ -37,6 +38,8 @@ namespace Assembler
 			ArgParsers[typeof(Any32)] = new Any32Parser(this);
 			ArgParsers[typeof(Pointer<ushort>)] = new PointerParser(this);
 			ArgParsers[typeof(Pointer<byte>)] = new PointerParser(this);
+
+			if (computer is not null) SetVariablesForComputer(computer);
 		}
 
 		public void Parse()
@@ -287,6 +290,14 @@ namespace Assembler
 			object? ret = null;
 			vars?.TryGetValue(name, out ret);
 			return (T)(ret ?? throw new ArgumentException($"Invalid variable {name} for type {typeof(T).Name}"));
+		}
+
+		public void SetVariablesForComputer(Computer computer)
+		{
+			foreach (var i in computer.GetComponents())
+			{
+				if (i is Terminal term) SetVariable("TERM_ADDR", term.Addr);
+			}
 		}
 	}
 }
