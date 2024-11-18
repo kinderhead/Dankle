@@ -11,7 +11,8 @@ namespace Assembler
 
         public static TToken Assume(TToken token, TType expected)
 		{
-			if (token.Symbol.Equals(expected)) throw new InvalidTokenException<TToken, TType>(token, expected);
+            // Silly C# comparison doesn't work
+			if (!token.Symbol.Equals(expected)) throw new InvalidTokenException<TToken, TType>(token, expected);
 			return token;
 		}
 

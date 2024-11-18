@@ -3,6 +3,11 @@ int get()
     return 5;
 }
 
+const char* funny()
+{
+	return "FODSHOFIH";
+}
+
 int main()
 {
     int y;

@@ -7,59 +7,22 @@ using System.Threading.Tasks;
 
 namespace Assembler
 {
-	public class Tokenizer
+	public class Tokenizer : BaseTokenizer<Token, Token.Type>
     {
-        public readonly string Input;
-
-        private int Index;
-
-		public List<Token> Parse()
+		protected override bool KeepToken(Token tk)
 		{
-			var tokens = new List<Token>();
-
-			while (Index < Input.Length)
-			{
-				var possibleTokens = new List<Token>();
-				foreach (var i in TokenMap)
-				{
-					var match = i.Value.Match(Input[Index..]);
-					if (match.Success)
-					{
-						var loc = GetLineAndColumn(Index);
-						possibleTokens.Add(new(i.Key, Index, match.Value, loc.Item1, loc.Item2));
-					}
-				}
-
-				if (possibleTokens.Count == 0) throw new Exception($"Invalid symbol at {GetLineAndColumn(Index)}: {Input[Index]}");
-
-				var tk = possibleTokens.MaxBy(i => i.Text.Length);
-				if (tk.Symbol != Token.Type.Whitespace && tk.Symbol != Token.Type.Newline) tokens.Add(tk);
-				Index += tk.Text.Length;
-			}
-
-			return tokens;
+			return tk.Symbol != Token.Type.Whitespace && tk.Symbol != Token.Type.Newline;
 		}
 
-		public (int, int) GetLineAndColumn(int index)
-		{
-			var st = Input[..index];
-			var line = st.Count(i => i == '\n');
-			var col = st.Length - st.LastIndexOf('\n') - 1;
-			return (line, col);
-		}
-
-		public static readonly Dictionary<Token.Type, Regex> TokenMap = [];
-
-        public Tokenizer(string input, bool includeBIOS = true)
+        public Tokenizer(string input, bool includeBIOS = true) : base(input)
         {
-            Input = input;
 			if (includeBIOS)
 			{
 				Input += "\n" + Encoding.Default.GetString(File.ReadAllBytes(Path.GetDirectoryName(GetType().Assembly.Location) + "/bios.asm"));
 			}
         }
 
-        static Tokenizer()
+        protected override void GenerateTokenMap()
 		{
 			TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+");
 			TokenMap[Token.Type.Newline] = new(@"^\n+");
@@ -76,5 +39,7 @@ namespace Assembler
 			TokenMap[Token.Type.Minus] = new(@"^\-");
 			TokenMap[Token.Type.String] = new(@"^""[^""]+""");
 		}
-	}
+
+		public override Token MakeToken(Token.Type symbol, int index, string text, int line, int column) => new(symbol, index, text, line, column);
+    }
 }
