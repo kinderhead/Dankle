@@ -12,10 +12,8 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Assembler
 {
-	public class Parser
+	public class Parser : BaseParser<Token, Token.Type>
 	{
-		public Queue<Token> Tokens { get; private set; }
-
 		public readonly Dictionary<Type, Dictionary<string, object>> Variables = [];
 		public readonly Dictionary<uint, byte[]> Data = [];
 
@@ -26,10 +24,9 @@ namespace Assembler
 
 		private bool IsFirstPass = true;
 
-		public Parser(List<Token> tokens, uint startAddress = 0, Computer? computer = null)
+		public Parser(List<Token> tokens, uint startAddress = 0, Computer? computer = null) : base(tokens)
 		{
 			StartAddr = startAddress;
-			Tokens = new(tokens);
 
 			ArgParsers[typeof(Register)] = new RegisterParser(this);
 			ArgParsers[typeof(Any8Num)] = new Any8NumParser(this);
@@ -42,7 +39,7 @@ namespace Assembler
 			if (computer is not null) SetVariablesForComputer(computer);
 		}
 
-		public void Parse()
+		public override void Parse()
 		{
 			Addr = StartAddr;
 			var backup = new Queue<Token>(Tokens);
@@ -102,14 +99,6 @@ namespace Assembler
 				else throw new InvalidTokenException(token);
 			}
 		}
-
-		public static Token Assume(Token token, Token.Type expected)
-		{
-			if (token.Symbol != expected) throw new InvalidTokenException(token, expected);
-			return token;
-		}
-
-		public Token GetNextToken(Token.Type expected) => Assume(Tokens.Dequeue(), expected);
 
 		public string ParseString(Token? token = null)
 		{

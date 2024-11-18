@@ -1,0 +1,2 @@
+Compilation: wcc -0 -bt=dos -mh -s test.c
+Disassembly: wdis test.o -fp -fi -a

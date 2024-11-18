@@ -15,6 +15,12 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/Assembler/Assembler.csproj"
+        },
+        {
+            "name": "C#: Translator Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/DankleTranslator/DankleTranslator.csproj"
         }
 
     ]
