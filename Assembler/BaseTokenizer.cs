@@ -7,7 +7,7 @@ namespace Assembler
     {
         public string Input { get; protected set; }
 
-        protected readonly Dictionary<TType, Regex> TokenMap = [];
+        protected readonly OrderedDictionary<TType, Regex> TokenMap = [];
         private int Index;
 
         public BaseTokenizer(string input)

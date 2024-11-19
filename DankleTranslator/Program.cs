@@ -2,10 +2,13 @@
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
-            var driver = new WatcomDriver("/usr/bin/watcom/binl64/wdis");
-            Console.WriteLine(driver.Dissassemble("../CTest/test.o"));
+            var driver = new WatcomDriver("wdis");
+            var asm = driver.Dissassemble("../CTest/test.obj");
+            var tokenizer = new IntelTokenizer(asm);
+            tokenizer.Parse();
+            Console.ReadKey();
         }
     }
 }

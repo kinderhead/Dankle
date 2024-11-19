@@ -18,9 +18,16 @@ namespace DankleTranslator
 			Newline,
 			Register,
 			Integer,
-			Label,
+			
+			Ignore,
+			Public,
+			FakeLabel,
+			DB,
+
             NearPtr,
             FarPtr,
+
+			Label,
 			Text,
 			Comma,
 			OSquareBracket,

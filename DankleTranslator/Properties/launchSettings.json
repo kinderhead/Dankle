@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DankleTranslator": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}
