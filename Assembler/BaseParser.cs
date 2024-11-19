@@ -11,11 +11,16 @@ namespace Assembler
 
         public static TToken Assume(TToken token, TType expected)
 		{
-            // Silly C# comparison doesn't work
 			if (!token.Symbol.Equals(expected)) throw new InvalidTokenException<TToken, TType>(token, expected);
 			return token;
 		}
 
         public TToken GetNextToken(TType expected) => Assume(Tokens.Dequeue(), expected);
+
+        public bool TryGetToken(TType expected, out TToken token)
+        {
+            token = Tokens.Dequeue();
+            return token.Symbol.Equals(expected);
+        }
     }
 }

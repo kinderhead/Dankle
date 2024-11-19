@@ -1,6 +1,7 @@
-int get()
+int get(int y)
 {
     int x = 3;
+    x += y;
 
     return x;
 }
@@ -13,7 +14,7 @@ const char* funny()
 int main()
 {
     int y;
-    int x = get();
+    int x = get(6);
 
     if (x > 5)
     {
