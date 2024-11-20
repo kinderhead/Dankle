@@ -11,6 +11,11 @@ const char* funny()
 	return "FODSHOFIH";
 }
 
+char secondFunny()
+{
+    return funny()[0];
+}
+
 int main()
 {
     int y;
