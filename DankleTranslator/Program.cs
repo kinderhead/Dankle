@@ -10,6 +10,7 @@
             var tokens = tokenizer.Parse();
             var parser = new IntelParser(tokens);
             parser.Parse();
+            Console.WriteLine(parser.Output);
         }
     }
 }

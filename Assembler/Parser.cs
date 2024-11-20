@@ -96,6 +96,11 @@ namespace Assembler
 					Data[Addr] = [..Encoding.UTF8.GetBytes(ParseString(token)), 0];
 					Addr += (uint)Data[Addr].Length;
 				}
+				else if (token.Symbol == Token.Type.Integer)
+				{
+					Data[Addr] = [ParseNum<byte>(token)];
+					Addr++;
+				}
 				else throw new InvalidTokenException(token);
 			}
 		}
@@ -268,7 +273,13 @@ namespace Assembler
 				vars = Variables[typeof(T)];
 			}
 
-			if (value is uint num && num <= ushort.MaxValue) SetVariable(name, ushort.CreateTruncating(num));
+			if (value is uint num)
+			{
+				if (num <= ushort.MaxValue) SetVariable(name, ushort.CreateTruncating(num));
+
+				SetVariable(name + "#L", (ushort)(num & 0xFFFF));
+				SetVariable(name + "#H", (ushort)(num & 0xFFFF0000));
+			}
 
 			vars[name] = value;
 		}

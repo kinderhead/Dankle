@@ -23,8 +23,7 @@ namespace DankleTranslator
 			Ignore,
 			Public,
 			FakeLabel,
-			DB,
-
+			
 			SS,
 			CS,
 

@@ -69,6 +69,11 @@ namespace DankleTranslator
 
 		public string Compile(string fmt)
 		{
+			foreach (var i in Macros)
+			{
+				fmt = fmt.Replace($"%{i.Key}", i.Value);
+			}
+
 			for (int i = 0; i < Args.Count; i++)
 			{
 				if (Args[i].Item1 == ArgumentType.Pointer)

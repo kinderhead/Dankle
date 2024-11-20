@@ -26,11 +26,18 @@ namespace DankleTranslator
                 }
                 else if (token.Symbol == Token.Type.Label)
                 {
+                    if (Output.Length > 0 && Output.Last() != '\n') Output += "\n";
                     Output += $"{token.Text}\n";
                 }
                 else if (token.Symbol == Token.Type.Text)
                 {
                     ParseInsn(token);
+                }
+                else if (token.Symbol == Token.Type.Integer)
+                {
+                    if (Output.Last() != '\n') Output += " ";
+                    else Output += "\t";
+                    Output += $"{ParseInt(token)}";
                 }
                 else if (token.Symbol != Token.Type.Comma)
                 {
@@ -45,6 +52,7 @@ namespace DankleTranslator
             var sig = GetNextInsn(token);
 
             if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tadd @1, @1, %tmp");
+            else if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tadd @1, @1, @2");
             else if (sig.IsValid("retf", [])) Output += "\tret";
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Label]))
             {
@@ -54,18 +62,25 @@ namespace DankleTranslator
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.SS])) Output += sig.Compile($"\tld @1, {lastLoadedLabel}#H");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tmov @1, @2");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("\tld @1, @2");
+            else if (sig.IsValid("mov", [ArgumentType.Pointer, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tst @ds1, %tmp");
             else if (sig.IsValid("mov", [ArgumentType.ByteRegister, ArgumentType.Pointer])) Output += sig.Compile("\tldb @1, @ds2");
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");
             else if (sig.IsValid("push", [ArgumentType.CS])) return;
             else if (sig.IsValid("pop", [ArgumentType.Register])) Output += sig.Compile("\tpop @1");
             else if (sig.IsValid("call", [ArgumentType.Label])) Output += sig.Compile("\tcall @1");
+            else if (sig.IsValid("jmp", [ArgumentType.Label])) Output += sig.Compile("\tjmp @1");
             else if (sig.Name == "cmp")
             {
                 var cmp = GetNextInsn(Tokens.Dequeue());
                 if (cmp.IsValid("jle", [ArgumentType.Label])) Output += sig.Compile("\tlte @1, @2") + cmp.Compile("\n\tje @1");
                 else throw new Exception("Invalid cmp call");
             }
-            else throw new Exception("Invalid insn signature");
+            else if (sig.IsValid("xor", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\txor @1, @1, @2");
+            else
+            {
+                Console.WriteLine(Output);
+                throw new Exception("Invalid insn signature");
+            }
 
             Output += "\n";
         }
@@ -96,8 +111,8 @@ namespace DankleTranslator
             var tok = token ?? Tokens.Dequeue();
 
             if (tok.Symbol == Token.Type.Register) return (ArgumentType.Register, MapRegister(tok.Text));
-            if (tok.Symbol == Token.Type.ByteRegister) return (ArgumentType.ByteRegister, MapRegister(tok.Text));
-            else if (tok.Symbol == Token.Type.Integer) return (ArgumentType.Integer, tok.Text);
+            else if (tok.Symbol == Token.Type.ByteRegister) return (ArgumentType.ByteRegister, MapRegister(tok.Text));
+            else if (tok.Symbol == Token.Type.Integer) return (ArgumentType.Integer, ParseInt(tok));
             else if (tok.Symbol == Token.Type.Text) return (ArgumentType.Label, tok.Text);
             else if (tok.Symbol == Token.Type.SS) return (ArgumentType.SS, "ss");
             else if (tok.Symbol == Token.Type.CS) return (ArgumentType.CS, "cs");
@@ -111,6 +126,14 @@ namespace DankleTranslator
             }
 			else Err(tok);
             return (ArgumentType.Label, "");
+        }
+
+        private static string ParseInt(Token token)
+        {
+            Assume(token, Token.Type.Integer);
+
+            if (token.Text.EndsWith('H')) return $"0x{token.Text.Trim('H').TrimStart('0')}";
+            else return token.Text;
         }
 
         private static string MapRegister(string reg)
