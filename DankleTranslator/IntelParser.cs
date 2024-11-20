@@ -18,7 +18,11 @@ namespace DankleTranslator
 
                 if (token.Symbol == Token.Type.Public)
                 {
-                    if (TryGetToken(Token.Type.Text, out var sym)) PublicSymbols.Add(sym.Text);
+                    if (TryGetToken(Token.Type.Text, out var sym))
+                    {
+                        PublicSymbols.Add(sym.Text);
+                        Output += $"export {sym.Text}\n";
+                    }
                 }
                 else if (token.Symbol == Token.Type.Text && token.Text.EndsWith("_TEXT"))
                 {
@@ -51,8 +55,8 @@ namespace DankleTranslator
         {
             var sig = GetNextInsn(token);
 
-            if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tadd @1, @1, %tmp");
-            else if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tadd @1, @1, @2");
+            if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tadd @1, %tmp, @1");
+            else if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tadd @1, @2, @1");
             else if (sig.IsValid("retf", [])) Output += "\tret";
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Label]))
             {
@@ -64,6 +68,7 @@ namespace DankleTranslator
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("\tld @1, @2");
             else if (sig.IsValid("mov", [ArgumentType.Pointer, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tst @ds1, %tmp");
             else if (sig.IsValid("mov", [ArgumentType.ByteRegister, ArgumentType.Pointer])) Output += sig.Compile("\tldb @1, @ds2");
+            else if (sig.IsValid("mov", [ArgumentType.Pointer, ArgumentType.ByteRegister])) Output += sig.Compile("\tstb @ds1, @2");
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");
             else if (sig.IsValid("push", [ArgumentType.CS])) return;
             else if (sig.IsValid("pop", [ArgumentType.Register])) Output += sig.Compile("\tpop @1");
@@ -75,8 +80,15 @@ namespace DankleTranslator
                 if (cmp.IsValid("jle", [ArgumentType.Label])) Output += sig.Compile("\tlte @1, @2") + cmp.Compile("\n\tje @1");
                 else throw new Exception("Invalid cmp call");
             }
-            else if (sig.IsValid("xor", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\txor @1, @1, @2");
-            else
+            else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Register])) HandleTestInsn(sig);
+            else if (sig.IsValid("test", [ArgumentType.ByteRegister, ArgumentType.ByteRegister])) HandleTestInsn(sig);
+			else if (sig.IsValid("xor", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\txor @1, @2, @1");
+			else if (sig.IsValid("xor", [ArgumentType.Label, ArgumentType.Label]))
+            {
+                if (sig.Args[0].Item2 != sig.Args[1].Item2) throw new Exception("Silly byte shennanigans");
+                return;
+            }
+			else
             {
                 Console.WriteLine(Output);
                 throw new Exception("Invalid insn signature");
@@ -84,6 +96,13 @@ namespace DankleTranslator
 
             Output += "\n";
         }
+
+        private void HandleTestInsn(InsnSignature sig)
+        {
+			var cmp = GetNextInsn(Tokens.Dequeue());
+			if (cmp.IsValid("je", [ArgumentType.Label])) Output += sig.Compile("\tand @1, @2, %tmp") + cmp.Compile("\n\tjz @1");
+			else throw new Exception("Invalid test call");
+		}
 
         private InsnSignature GetNextInsn(Token first)
         {
@@ -154,9 +173,9 @@ namespace DankleTranslator
             throw new InvalidTokenException<Token, Token.Type>(tk);
         }
 
-        private static void Err(Token tk, Token.Type expected)
-        {
-            throw new InvalidTokenException<Token, Token.Type>(tk, expected);
-        }
+        //private static void Err(Token tk, Token.Type expected)
+        //{
+        //    throw new InvalidTokenException<Token, Token.Type>(tk, expected);
+        //}
     }
 }

@@ -9,7 +9,7 @@ namespace Dankle.Components.Instructions
 {
 	public class Increment : Instruction
 	{
-		public override ushort Opcode => 31;
+		public override ushort Opcode => 33;
 
 		public override Type[] Arguments => [typeof(Register)];
 
@@ -23,7 +23,7 @@ namespace Dankle.Components.Instructions
 
 	public class Decrement : Instruction
 	{
-		public override ushort Opcode => 32;
+		public override ushort Opcode => 34;
 
 		public override Type[] Arguments => [typeof(Register)];
 

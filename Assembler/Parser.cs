@@ -16,13 +16,14 @@ namespace Assembler
 	{
 		public readonly Dictionary<Type, Dictionary<string, object>> Variables = [];
 		public readonly Dictionary<uint, byte[]> Data = [];
+		public readonly HashSet<string> ExportedSymbols = [];
 
-		public readonly uint StartAddr;
+		public uint StartAddr;
 		public uint Addr { get; private set; }
 
 		private readonly Dictionary<Type, ArgumentParser> ArgParsers = [];
 
-		private bool IsFirstPass = true;
+		private bool IsSymbolPass = true;
 
 		public Parser(List<Token> tokens, uint startAddress = 0, Computer? computer = null) : base(tokens)
 		{
@@ -41,14 +42,34 @@ namespace Assembler
 
 		public override void Parse()
 		{
+			SymbolPass();
+			ParsingPass();
+		}
+
+		public uint SymbolPass()
+		{
 			Addr = StartAddr;
 			var backup = new Queue<Token>(Tokens);
+
+			IsSymbolPass = true;
 			ParsingPass();
+			IsSymbolPass = false;
+
 			Tokens = backup;
 			Data.Clear();
+
+			var size = Addr - StartAddr;
 			Addr = StartAddr;
-			IsFirstPass = false;
-			ParsingPass();
+
+			return size;
+		}
+
+		public void ApplySymbols(Parser other)
+		{
+			foreach (var i in other.ExportedSymbols)
+			{
+				SetVariable(i, other.GetVariable<uint>(i));
+			}
 		}
 
 		private void ParsingPass()
@@ -100,6 +121,10 @@ namespace Assembler
 				{
 					Data[Addr] = [ParseNum<byte>(token)];
 					Addr++;
+				}
+				else if (token.Symbol == Token.Type.Export)
+				{
+					ExportedSymbols.Add(GetNextToken(Token.Type.Text).Text);
 				}
 				else throw new InvalidTokenException(token);
 			}
@@ -157,7 +182,7 @@ namespace Assembler
 		{
 			token ??= Tokens.Dequeue();
 
-			if (IsFirstPass && token.Value.Symbol == Token.Type.Text) return T.AdditiveIdentity;
+			if (IsSymbolPass && token.Value.Symbol == Token.Type.Text) return T.AdditiveIdentity;
 			else if (token.Value.Symbol == Token.Type.Text)
 			{
 				return GetVariable<T>(token.Value.Text);
@@ -278,7 +303,7 @@ namespace Assembler
 				if (num <= ushort.MaxValue) SetVariable(name, ushort.CreateTruncating(num));
 
 				SetVariable(name + "#L", (ushort)(num & 0xFFFF));
-				SetVariable(name + "#H", (ushort)(num & 0xFFFF0000));
+				SetVariable(name + "#H", (ushort)(num >> 16));
 			}
 
 			vars[name] = value;
@@ -289,7 +314,7 @@ namespace Assembler
 			Variables.TryGetValue(typeof(T), out var vars);
 			object? ret = null;
 			vars?.TryGetValue(name, out ret);
-			return (T)(ret ?? throw new ArgumentException($"Invalid variable {name} for type {typeof(T).Name}"));
+			return (T)(ret ?? throw new ArgumentException($"Invalid variable {name} for type {typeof(T).Name}. Possible missing symbol?"));
 		}
 
 		public void SetVariablesForComputer(Computer computer)

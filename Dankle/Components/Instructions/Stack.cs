@@ -9,7 +9,7 @@ namespace Dankle.Components.Instructions
 {
 	public class Call : Instruction
 	{
-		public override ushort Opcode => 27;
+		public override ushort Opcode => 29;
 
 		public override Type[] Arguments => [typeof(Any32)];
 		public override string Name => "CALL";
@@ -25,7 +25,7 @@ namespace Dankle.Components.Instructions
 
 	public class Return : Instruction
 	{
-		public override ushort Opcode => 28;
+		public override ushort Opcode => 30;
 
 		public override Type[] Arguments => [];
 		public override string Name => "RET";
@@ -38,7 +38,7 @@ namespace Dankle.Components.Instructions
 
 	public class Push : Instruction
 	{
-		public override ushort Opcode => 29;
+		public override ushort Opcode => 31;
 
 		public override Type[] Arguments => [typeof(Any16)];
 		public override string Name => "PUSH";
@@ -52,7 +52,7 @@ namespace Dankle.Components.Instructions
 
 	public class Pop : Instruction
 	{
-		public override ushort Opcode => 30;
+		public override ushort Opcode => 32;
 
 		public override Type[] Arguments => [typeof(Any16)];
 		public override string Name => "POP";

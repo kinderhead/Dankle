@@ -34,4 +34,33 @@ namespace Dankle.Components
 			}
 		}
 	}
+
+	public class Terminal16 : Component
+	{
+		public override string Name => "Terminal";
+		public uint Addr;
+
+		public Terminal16(Computer computer, uint addr) : base(computer)
+		{
+			Addr = addr;
+			computer.AddMemoryMapEntry(new MM(addr, this));
+		}
+
+		public virtual void WriteOut(string text)
+		{
+			Console.Write(text);
+			Console.Out.Flush();
+		}
+
+		public class MM(uint addr, Terminal16 term) : MemoryMapRegisters(addr)
+		{
+			public readonly Terminal16 Terminal = term;
+
+			[WriteRegister(0, 2)]
+			public void WriteOut(uint _, byte[] data)
+			{
+				Terminal.WriteOut(Encoding.UTF8.GetString(data[1..2]));
+			}
+		}
+	}
 }

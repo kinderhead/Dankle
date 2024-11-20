@@ -88,7 +88,7 @@ namespace Dankle
 				}
 			}
 
-			throw new IndexOutOfRangeException($"Invalid memory range 0x{originalAddr:X8} to 0x{(originalAddr + originalSize):X8}");
+			throw new IndexOutOfRangeException($"Invalid memory range 0x{originalAddr:X8} to 0x{(originalAddr + originalSize - 1):X8}");
 		}
 
 		public byte[] ReadMem(uint addr, uint size)

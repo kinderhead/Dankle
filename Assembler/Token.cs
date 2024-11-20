@@ -31,6 +31,9 @@ namespace Assembler
 			Newline,
 			Register,
 			Integer,
+
+			Export,
+
 			Label,
 			Text,
 			Comma,

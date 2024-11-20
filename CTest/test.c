@@ -1,36 +1,20 @@
-// int get(int y)
-// {
-//     int x = 3;
-//     x += y;
+void write(char c)
+{
+    *((unsigned char*)(0xFFFFFFF0u)) = c;
+}
 
-//     return x;
-// }
-
-// const char* funny()
-// {
-// 	return "FODSHOFIH";
-// }
-
-// char secondFunny()
-// {
-//     return funny()[0];
-// }
+void println(const char* str)
+{
+    while (*str != 0)
+    {
+        write(*str);
+        str++;
+    }
+}
 
 int main()
 {
-    // int y;
-    // int x = get(6);
-
-    // if (x > 5)
-    // {
-    //     y = 6;
-    // }
-    // else
-    // {
-    //     y = 3;
-    // }
-
-    *((char*)(0xFFFFFFF0u)) = 'a';
+    println("Hello C!");
 
     return 0;
 }

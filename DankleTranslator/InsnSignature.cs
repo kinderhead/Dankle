@@ -99,8 +99,8 @@ namespace DankleTranslator
 
 		static InsnSignature()
 		{
-			Macros["tmp"] = "r12";
-			Macros["ldtmp2"] = "\tld r12, @2\n";
+			Macros["tmp"] = "r11";
+			Macros["ldtmp2"] = "\tld r11, @2\n";
 			Macros["ds"] = "r4";
 		}
 	}

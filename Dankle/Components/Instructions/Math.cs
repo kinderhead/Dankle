@@ -24,6 +24,25 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class Adc : Instruction
+	{
+		public override ushort Opcode => 35;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "ADC";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			var val = ctx.Core.ALU.Calculate(arg1.Read(), Operation.ADD, arg2.Read());
+			if (ctx.Core.Overflow) val = ctx.Core.ALU.Calculate(val, Operation.ADD, (ushort)1);
+			dest.Write(val);
+		}
+	}
+
 	public class Subtract : Instruction
 	{
 		public override ushort Opcode => 8;
@@ -145,7 +164,7 @@ namespace Dankle.Components.Instructions
 
 	public class Or : Instruction
 	{
-		public override ushort Opcode => 23;
+		public override ushort Opcode => 25;
 
 		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
 		public override string Name => "OR";
@@ -162,7 +181,7 @@ namespace Dankle.Components.Instructions
 
 	public class And : Instruction
 	{
-		public override ushort Opcode => 24;
+		public override ushort Opcode => 26;
 
 		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
 		public override string Name => "AND";
@@ -179,7 +198,7 @@ namespace Dankle.Components.Instructions
 
 	public class Xor : Instruction
 	{
-		public override ushort Opcode => 25;
+		public override ushort Opcode => 27;
 
 		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
 		public override string Name => "XOR";
@@ -196,7 +215,7 @@ namespace Dankle.Components.Instructions
 
 	public class Modulo : Instruction
 	{
-		public override ushort Opcode => 26;
+		public override ushort Opcode => 28;
 
 		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
 		public override string Name => "MOD";

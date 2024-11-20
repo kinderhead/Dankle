@@ -82,6 +82,8 @@ namespace Dankle.Components.Instructions
 			Register<Jump>();
 			Register<JumpEq>();
 			Register<JumpNeq>();
+			Register<JumpZ>();
+			Register<JumpNZ>();
 			Register<Or>();
 			Register<And>();
 			Register<Xor>();
@@ -92,6 +94,7 @@ namespace Dankle.Components.Instructions
 			Register<Pop>();
 			Register<Increment>();
 			Register<Decrement>();
+			Register<Adc>();
 		}
 	}
 

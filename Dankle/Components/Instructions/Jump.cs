@@ -47,4 +47,32 @@ namespace Dankle.Components.Instructions
 			if (!ctx.Core.Compare) ctx.Core.ProgramCounter = dest;
 		}
 	}
+
+	public class JumpZ : Instruction
+	{
+		public override ushort Opcode => 23;
+
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "JZ";
+
+		protected override void Handle(Context ctx)
+		{
+			var dest = ctx.GetNextArg<Any32>().Read();
+			if (ctx.Core.Zero) ctx.Core.ProgramCounter = dest;
+		}
+	}
+
+	public class JumpNZ : Instruction
+	{
+		public override ushort Opcode => 24;
+
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "JNZ";
+
+		protected override void Handle(Context ctx)
+		{
+			var dest = ctx.GetNextArg<Any32>().Read();
+			if (!ctx.Core.Zero) ctx.Core.ProgramCounter = dest;
+		}
+	}
 }
