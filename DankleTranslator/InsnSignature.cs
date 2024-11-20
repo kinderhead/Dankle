@@ -10,6 +10,7 @@ namespace DankleTranslator
 	public enum ArgumentType
 	{
 		Register,
+		ByteRegister,
 		Integer,
 		Label,
 		Pointer,
@@ -68,15 +69,21 @@ namespace DankleTranslator
 
 		public string Compile(string fmt)
 		{
+			for (int i = 0; i < Args.Count; i++)
+			{
+				if (Args[i].Item1 == ArgumentType.Pointer)
+				{
+					if (Args[i].Item2.StartsWith('r')) fmt = fmt.Replace($"@ds{i + 1}", $"[%ds,{Args[i].Item2}]");
+				}
+
+				fmt = fmt.Replace($"@{i + 1}", Args[i].Item2);
+			}
+
 			foreach (var i in Macros)
 			{
 				fmt = fmt.Replace($"%{i.Key}", i.Value);
 			}
-
-			for (int i = 0; i < Args.Count; i++)
-			{
-				fmt = fmt.Replace($"@{i + 1}", Args[i].Item2);
-			}
+			
 			return fmt;
 		}
 
@@ -88,7 +95,8 @@ namespace DankleTranslator
 		static InsnSignature()
 		{
 			Macros["tmp"] = "r12";
-			Macros["ldtmp@2"] = "\tld r12, @2\n";
+			Macros["ldtmp2"] = "\tld r12, @2\n";
+			Macros["ds"] = "r4";
 		}
 	}
 }

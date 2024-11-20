@@ -44,7 +44,7 @@ namespace DankleTranslator
         {
             var sig = GetNextInsn(token);
 
-            if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp@2\tadd @1, @1, %tmp");
+            if (sig.IsValid("add", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tadd @1, @1, %tmp");
             else if (sig.IsValid("retf", [])) Output += "\tret";
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Label]))
             {
@@ -52,9 +52,19 @@ namespace DankleTranslator
                 lastLoadedLabel = sig.Args[1].Item2;
             }
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.SS])) Output += sig.Compile($"\tld @1, {lastLoadedLabel}#H");
+            else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tmov @1, @2");
+            else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("\tld @1, @2");
+            else if (sig.IsValid("mov", [ArgumentType.ByteRegister, ArgumentType.Pointer])) Output += sig.Compile("\tldb @1, @ds2");
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");
             else if (sig.IsValid("push", [ArgumentType.CS])) return;
+            else if (sig.IsValid("pop", [ArgumentType.Register])) Output += sig.Compile("\tpop @1");
             else if (sig.IsValid("call", [ArgumentType.Label])) Output += sig.Compile("\tcall @1");
+            else if (sig.Name == "cmp")
+            {
+                var cmp = GetNextInsn(Tokens.Dequeue());
+                if (cmp.IsValid("jle", [ArgumentType.Label])) Output += sig.Compile("\tlte @1, @2") + cmp.Compile("\n\tje @1");
+                else throw new Exception("Invalid cmp call");
+            }
             else throw new Exception("Invalid insn signature");
 
             Output += "\n";
@@ -85,21 +95,33 @@ namespace DankleTranslator
         {
             var tok = token ?? Tokens.Dequeue();
 
-            if (tok.Symbol == Token.Type.Register) return (ArgumentType.Register, $"{MapRegister(tok.Text)}");
+            if (tok.Symbol == Token.Type.Register) return (ArgumentType.Register, MapRegister(tok.Text));
+            if (tok.Symbol == Token.Type.ByteRegister) return (ArgumentType.ByteRegister, MapRegister(tok.Text));
             else if (tok.Symbol == Token.Type.Integer) return (ArgumentType.Integer, tok.Text);
             else if (tok.Symbol == Token.Type.Text) return (ArgumentType.Label, tok.Text);
             else if (tok.Symbol == Token.Type.SS) return (ArgumentType.SS, "ss");
             else if (tok.Symbol == Token.Type.CS) return (ArgumentType.CS, "cs");
+            else if (tok.Symbol == Token.Type.OSquareBracket)
+            {
+                var next = Tokens.Dequeue();
+                GetNextToken(Token.Type.CSquareBracket);
+                if (next.Symbol == Token.Type.Register) return (ArgumentType.Pointer, MapRegister(next.Text));
+                else Err(tok);
+                
+            }
 			else Err(tok);
             return (ArgumentType.Label, "");
         }
 
         private static string MapRegister(string reg)
         {
+            reg = reg.Replace('l', 'x');
+
             if (reg == "ax") return "r0";
             if (reg == "bx") return "r1";
             if (reg == "cx") return "r2";
             if (reg == "dx") return "r3";
+            if (reg == "ds") return "r4";
 
             throw new Exception($"Unmapped register {reg}");
         }
@@ -107,6 +129,11 @@ namespace DankleTranslator
         private static void Err(Token tk)
         {
             throw new InvalidTokenException<Token, Token.Type>(tk);
+        }
+
+        private static void Err(Token tk, Token.Type expected)
+        {
+            throw new InvalidTokenException<Token, Token.Type>(tk, expected);
         }
     }
 }

@@ -17,6 +17,7 @@ namespace DankleTranslator
 			Whitespace,
 			Newline,
 			Register,
+			ByteRegister,
 			Integer,
 			
 			Ignore,
