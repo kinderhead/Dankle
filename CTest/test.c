@@ -30,5 +30,5 @@ int main()
         y = 3;
     }
 
-    return y;
+    return y + x;
 }

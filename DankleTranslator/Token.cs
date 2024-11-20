@@ -24,8 +24,8 @@ namespace DankleTranslator
 			FakeLabel,
 			DB,
 
-            NearPtr,
-            FarPtr,
+			SS,
+			CS,
 
 			Label,
 			Text,
