@@ -79,9 +79,13 @@ namespace DankleTranslator
 			{
 				if (Args[i].Item1 == ArgumentType.Pointer || Args[i].Item1 == ArgumentType.BytePointer)
 				{
-					if (Args[i].Item2.Contains('-')) fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2.Split('-')[0])},{Args[i].Item2}]");
-					else if (Args[i].Item2.Contains('+')) fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2.Split('+')[0])},{Args[i].Item2}]");
-					else fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2)},{Args[i].Item2}]");
+					string offset;
+					if (Args[i].Item2.Contains(',')) offset = Args[i].Item2.Split(',')[0];
+					else if (Args[i].Item2.Contains('-')) offset = GetIndirectHighReg(Args[i].Item2.Split('-')[0]);
+					else if (Args[i].Item2.Contains('+')) offset = GetIndirectHighReg(Args[i].Item2.Split('+')[0]);
+					else offset = GetIndirectHighReg(Args[i].Item2);
+
+					fmt = fmt.Replace($"@ptr{i + 1}", $"[{offset},{Args[i].Item2.Split(',').Last()}]");
 				}
 
 				fmt = fmt.Replace($"@{i + 1}", Args[i].Item2);
@@ -112,6 +116,7 @@ namespace DankleTranslator
 		{
 			Macros["tmp"] = "r11";
 			Macros["es"] = "r8";
+			Macros["ds"] = "r4";
 			Macros["ldtmp2"] = "\tld r11, @2\n";
 		}
 	}

@@ -99,7 +99,7 @@ namespace DankleTranslator
             else if (sig.IsValid("les", [ArgumentType.Register, ArgumentType.Pointer]))
             {
                 if (sig.Args[1].Item2.Length >= 4) throw new Exception("Do this :(");
-                else Output += sig.Compile("\tld @1, [ds,@2+1]\n\tld %es, [ds,@2]");
+                else Output += sig.Compile("\tld @1, [%ds,@2+1]\n\tld %es, [%ds,@2]");
             }
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");
             else if (sig.IsValid("push", [ArgumentType.CS])) return;
@@ -120,7 +120,9 @@ namespace DankleTranslator
                 if (cmp.IsValid("jle", [ArgumentType.Label])) Output += sig.Compile($"\tlte @1, {arg2}") + cmp.Compile("\n\tje @1");
                 else if (cmp.IsValid("jne", [ArgumentType.Label])) Output += sig.Compile($"\tcmp @1, {arg2}") + cmp.Compile("\n\tjne @1");
                 else if (cmp.IsValid("jae", [ArgumentType.Label])) Output += sig.Compile($"\tgte @1, {arg2}") + cmp.Compile("\n\tje @1");
-                else throw new Exception("Invalid cmp call");
+                else if (cmp.IsValid("jb", [ArgumentType.Label])) Output += sig.Compile($"\tlt @1, {arg2}") + cmp.Compile("\n\tje @1");
+                else if (cmp.IsValid("ja", [ArgumentType.Label])) Output += sig.Compile($"\tgt @1, {arg2}") + cmp.Compile("\n\tje @1");
+				else throw new Exception("Invalid cmp call");
             }
             else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Register])) HandleTestInsn(sig);
             else if (sig.IsValid("test", [ArgumentType.ByteRegister, ArgumentType.ByteRegister])) HandleTestInsn(sig);
@@ -178,7 +180,7 @@ namespace DankleTranslator
             else if (tok.Symbol == Token.Type.Text) return (ArgumentType.Label, tok.Text);
             else if (tok.Symbol == Token.Type.SS) return (ArgumentType.SS, "ss");
             else if (tok.Symbol == Token.Type.CS) return (ArgumentType.CS, "cs");
-            else if (tok.Symbol == Token.Type.OSquareBracket) return (ArgumentType.Pointer, ParsePointer(tok));
+            else if (tok.Symbol == Token.Type.OSquareBracket || tok.Symbol == Token.Type.PtrLabel) return (ArgumentType.Pointer, ParsePointer(tok));
             else if (tok.Symbol == Token.Type.BytePtr) return (ArgumentType.BytePointer, ParsePointer(Tokens.Dequeue()));
 			else Err(tok);
             return (ArgumentType.Label, "");
@@ -203,6 +205,11 @@ namespace DankleTranslator
 					Tokens.Dequeue();
 					ret += $"+{ParseInt(GetNextToken(Token.Type.Integer))}";
 				}
+			}
+            else if (tok.Symbol == Token.Type.PtrLabel)
+            {
+                var offset = MapRegister(tok.Text.Trim(':'));
+                return $"{offset},{ParsePointer(next)}";
 			}
             else Err(tok);
 

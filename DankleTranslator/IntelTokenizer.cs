@@ -17,6 +17,7 @@ namespace DankleTranslator
 
 			TokenMap[Token.Type.Ignore] = new(@"^((\.387)|EXTRN|ASSUME|DGROUP|GROUP|(CONST\d*)|ENDS|DB|END|SEGMENT|WORD|USE16|BYTE|_DATA|offset DGROUP:|far ptr|near ptr|word ptr|dword ptr)");
 			TokenMap[Token.Type.Public] = new(@"^PUBLIC");
+			TokenMap[Token.Type.PtrLabel] = new(@"^es:");
 			TokenMap[Token.Type.FakeLabel] = new(@"^[a-zA-Z_][a-zA-Z0-9_]*:[a-zA-Z_][a-zA-Z0-9_]*");
 			TokenMap[Token.Type.BytePtr] = new(@"^byte ptr");
 
