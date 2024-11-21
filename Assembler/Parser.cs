@@ -231,7 +231,8 @@ namespace Assembler
 
 					if (next.Symbol == Token.Type.Minus)
 					{
-						if (IsNum(offset)) res = (0b0100, [doubleReg, .. Utils.ToBytes(-ParseNum<short>(offset))]);
+						// I hate int
+						if (IsNum(offset)) res = (0b0100, [doubleReg, .. Utils.ToBytes((short)-ParseNum<short>(offset))]);
 						else if (offset.Symbol == Token.Type.Register) res = (0b1000, [doubleReg, ParseRegister(offset)]);
 						else throw new InvalidTokenException(offset);
 					}

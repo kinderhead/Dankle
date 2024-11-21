@@ -14,7 +14,9 @@ void println(const char* str)
 
 int main()
 {
-    println("Hello C!");
+    println("Hello C!\n");
+
+    
 
     return 0;
 }

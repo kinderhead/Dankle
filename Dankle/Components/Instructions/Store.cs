@@ -19,7 +19,9 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Pointer<ushort>>();
 			var src = ctx.GetNextArg<Register>();
 
-			dest.Write(src.Read());
+			// Make sure dest is calculated before src
+			var loc = dest.GetAddress();
+			ctx.Core.Computer.WriteMem(loc, src.Read());
 		}
 	}
 
@@ -35,7 +37,9 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Pointer<byte>>();
 			var src = ctx.GetNextArg<Register>();
 
-			dest.Write((byte)src.Read());
+			// Make sure dest is calculated before src
+			var loc = dest.GetAddress();
+			ctx.Core.Computer.WriteMem(loc, (byte)src.Read());
 		}
 	}
 }

@@ -14,6 +14,7 @@ namespace DankleTranslator
 		Integer,
 		Label,
 		Pointer,
+		BytePointer,
 
 		SS,
 		CS
@@ -76,9 +77,10 @@ namespace DankleTranslator
 
 			for (int i = 0; i < Args.Count; i++)
 			{
-				if (Args[i].Item1 == ArgumentType.Pointer)
+				if (Args[i].Item1 == ArgumentType.Pointer || Args[i].Item1 == ArgumentType.BytePointer)
 				{
-					if (Args[i].Item2.StartsWith('r')) fmt = fmt.Replace($"@ds{i + 1}", $"[%ds,{Args[i].Item2}]");
+					if (Args[i].Item2.Contains('-')) fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2.Split('-')[0])},{Args[i].Item2}]");
+					else fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2)},{Args[i].Item2}]");
 				}
 
 				fmt = fmt.Replace($"@{i + 1}", Args[i].Item2);
@@ -97,11 +99,17 @@ namespace DankleTranslator
 
 		public static readonly Dictionary<string, string> Macros = [];
 
+		public static string GetIndirectHighReg(string reg)
+		{
+			if (reg == "r1") return "r4";
+			else if (reg == "r6") return "r12";
+			else throw new Exception($"Cannot address register {reg}");
+		}
+
 		static InsnSignature()
 		{
 			Macros["tmp"] = "r11";
 			Macros["ldtmp2"] = "\tld r11, @2\n";
-			Macros["ds"] = "r4";
 		}
 	}
 }
