@@ -1,4 +1,17 @@
-long test()
+#include "lib.h"
+
+void _putchar(char c)
 {
-    return 69;
+    *((unsigned char*)(0xFFFFFFF0u)) = c;
+}
+
+void println(const char* str)
+{
+    while (*str != 0)
+    {
+        _putchar(*str);
+        str++;
+    }
+
+    _putchar('\n');
 }

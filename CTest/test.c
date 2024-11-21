@@ -1,22 +1,9 @@
-void write(char c)
-{
-    *((unsigned char*)(0xFFFFFFF0u)) = c;
-}
-
-void println(const char* str)
-{
-    while (*str != 0)
-    {
-        write(*str);
-        str++;
-    }
-}
+#include "lib.h"
+#include "printf.h"
 
 int main()
 {
-    println("Hello C!\n");
-
-    
+    printf("Hello println!\n");
 
     return 0;
 }

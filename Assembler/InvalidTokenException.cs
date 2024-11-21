@@ -23,6 +23,11 @@ namespace Assembler
 		}
 
 		public override string Message => $"Invalid token \"{Token.Text}\" at ({Token.Line}:{Token.Column})" + (Expected is null ? "" : $". Expected \"{Enum.GetName(Expected.Value)}\"");
+
+		public override string ToString()
+		{
+			return Message;
+		}
 	}
 
     public class InvalidTokenException : InvalidTokenException<Token, Token.Type>

@@ -8,23 +8,11 @@ namespace DankleTranslator
     {
         public static void Main()
         {
-            var driver = new WatcomDriver("wdis");
-            var asm = driver.Dissassemble("../CTest/test.obj");
-            var tokenizer = new IntelTokenizer(asm);
-            var tokens = tokenizer.Parse();
-            var parser = new IntelParser(tokens);
-            parser.Parse();
+            var driver = new WatcomDriver("wcc", "wdis");
+            var builder = new Builder(driver);
 
-            Console.WriteLine(parser.Output);
-
-            var computer = new Computer(0xF0000u);
-            computer.AddComponent<Terminal>(0xFFFFFFF0u);
-
-            var linker = new Linker([File.ReadAllText("cmain.asm"), parser.Output]);
-            computer.WriteMem(0x10000u, linker.AssembleAndLink(0x10000u, computer));
-            computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["init"];
-
-            computer.Run();
+            builder.AddSourceFiles("../CTest/test.c", "../CTest/lib.c");
+            builder.LinkAndRun();
         }
     }
 }
