@@ -109,11 +109,13 @@ namespace DankleTranslator
 			if (reg == "r1") return "r4";
 			else if (reg == "r6") return "r12";
 			else if (reg == "r5") return "r4";
+			else if (reg == "r7") return "r4";
 			else throw new Exception($"Cannot address register {reg}");
 		}
 
 		static InsnSignature()
 		{
+			Macros["tmpalt"] = "r10";
 			Macros["tmp"] = "r11";
 			Macros["es"] = "r8";
 			Macros["ds"] = "r4";
