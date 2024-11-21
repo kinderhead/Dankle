@@ -24,6 +24,9 @@ namespace DankleTranslator
 			TokenMap[Token.Type.SS] = new(@"^ss");
 			TokenMap[Token.Type.CS] = new(@"^cs");
 
+			TokenMap[Token.Type.Offset] = new(@"^offset");
+			TokenMap[Token.Type.Seg] = new(@"^seg");
+
 			TokenMap[Token.Type.Label] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$]+:");
 			TokenMap[Token.Type.Text] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$]+");
 			TokenMap[Token.Type.Comma] = new(@"^,");

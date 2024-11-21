@@ -29,6 +29,9 @@ namespace DankleTranslator
 			SS,
 			CS,
 
+			Offset,
+			Seg,
+
 			Label,
 			Text,
 			Comma,
