@@ -80,6 +80,7 @@ namespace DankleTranslator
 				if (Args[i].Item1 == ArgumentType.Pointer || Args[i].Item1 == ArgumentType.BytePointer)
 				{
 					if (Args[i].Item2.Contains('-')) fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2.Split('-')[0])},{Args[i].Item2}]");
+					else if (Args[i].Item2.Contains('+')) fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2.Split('+')[0])},{Args[i].Item2}]");
 					else fmt = fmt.Replace($"@ptr{i + 1}", $"[{GetIndirectHighReg(Args[i].Item2)},{Args[i].Item2}]");
 				}
 
@@ -103,12 +104,14 @@ namespace DankleTranslator
 		{
 			if (reg == "r1") return "r4";
 			else if (reg == "r6") return "r12";
+			else if (reg == "r5") return "r4";
 			else throw new Exception($"Cannot address register {reg}");
 		}
 
 		static InsnSignature()
 		{
 			Macros["tmp"] = "r11";
+			Macros["es"] = "r8";
 			Macros["ldtmp2"] = "\tld r11, @2\n";
 		}
 	}
