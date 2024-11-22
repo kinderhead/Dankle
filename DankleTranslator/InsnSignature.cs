@@ -10,8 +10,6 @@ namespace DankleTranslator
 	public enum ArgumentType
 	{
 		Register,
-		ByteRegister,
-		HighByteRegister,
 		Integer,
 		Label,
 		Pointer,
@@ -107,6 +105,7 @@ namespace DankleTranslator
 
 		public static string GetIndirectHighReg(string reg)
 		{
+			reg = reg.Split("@")[0];
 			if (reg == "r1") return "r4";
 			else if (reg == "r6") return "r12";
 			else if (reg == "r5") return "r4";
@@ -118,9 +117,12 @@ namespace DankleTranslator
 		{
 			Macros["tmpalt"] = "r10";
 			Macros["tmp"] = "r11";
+			Macros["trash"] = "r9";
 			Macros["es"] = "r8";
 			Macros["ds"] = "r4";
 			Macros["ldtmp2"] = "\tld r11, @2\n";
+			Macros["h"] = "";
+			Macros["l"] = "";
 		}
 	}
 }

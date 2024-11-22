@@ -131,7 +131,7 @@ namespace Dankle.Components
 					{
 						RegisterState.None => val,
 						RegisterState.High => (ushort)(val >> 8),
-						RegisterState.Low => (ushort)(val & 0xFFFF),
+						RegisterState.Low => (ushort)(val & 0xFF),
 						_ => throw new Exception("Invalid register state somehow"),
 					};
 				}
@@ -140,8 +140,8 @@ namespace Dankle.Components
 					registers[reg] = states[reg] switch
 					{
 						RegisterState.None => value,
-						RegisterState.High => (ushort)((registers[reg] & 0x0000FFFF) | (value << 8)),
-						RegisterState.Low => (ushort)((registers[reg] & 0xFFFF0000) | value),
+						RegisterState.High => (ushort)((registers[reg] & 0x00FF) | (value << 8)),
+						RegisterState.Low => (ushort)((registers[reg] & 0xFF00) | value),
 						_ => throw new Exception("Invalid register state somehow"),
 					};
 				}

@@ -11,9 +11,7 @@ namespace DankleTranslator
         {
             TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+");
 			TokenMap[Token.Type.Newline] = new(@"^\n+");
-			TokenMap[Token.Type.Register] = new(@"^(([a|b|c|d]x)|([d|e]s)|([s|b|i]p)|([s|d]i))\b");
-			TokenMap[Token.Type.ByteRegister] = new(@"^([a|b|c|d]l)\b");
-			TokenMap[Token.Type.HighByteRegister] = new(@"^([a|b|c|d]h)\b");
+			TokenMap[Token.Type.Register] = new(@"^(([a|b|c|d]x)|([d|e]s)|([s|b|i]p)|([s|d]i)|([a|b|c|d]l)|([a|b|c|d]h))\b");
 			TokenMap[Token.Type.Integer] = new(@"^(([0-9a-fA-F]+H)|\d+)");
 
 			TokenMap[Token.Type.Ignore] = new(@"^((\.387)|EXTRN|ASSUME|DGROUP|GROUP|(CONST\d*)|ENDS|DB|END|SEGMENT|WORD|USE16|BYTE|_DATA|offset DGROUP:|far ptr|near ptr|word ptr|dword ptr)");

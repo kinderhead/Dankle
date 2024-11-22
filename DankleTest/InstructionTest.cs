@@ -265,5 +265,27 @@ namespace DankleTest
 
 			Assert.AreEqual(0xFFFFFFFEu, core.ProgramCounter);
 		}
+
+		[TestMethod]
+		public void TestProtections()
+		{
+			using var computer = GetComputer();
+			var core = computer.GetComponent<CPUCore>();
+
+			core.Registers[1] = 0x1234;
+			computer.WriteMem<ushort>(0, 36);
+			computer.WriteMem<ushort>(2, 0x1000);
+			computer.WriteMem<ushort>(4, 37);
+			computer.WriteMem<ushort>(6, 0x1000);
+			computer.WriteMem<ushort>(8, 38);
+			computer.WriteMem<ushort>(10, 0x1000);
+
+			core.Step();
+			Assert.AreEqual(0x34, core.Registers[1]);
+			core.Step();
+			Assert.AreEqual(0x12, core.Registers[1]);
+			core.Step();
+			Assert.AreEqual(0x1234, core.Registers[1]);
+		}
 	}
 }
