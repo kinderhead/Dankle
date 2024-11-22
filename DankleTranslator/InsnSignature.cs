@@ -11,6 +11,7 @@ namespace DankleTranslator
 	{
 		Register,
 		ByteRegister,
+		HighByteRegister,
 		Integer,
 		Label,
 		Pointer,

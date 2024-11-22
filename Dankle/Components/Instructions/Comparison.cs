@@ -19,7 +19,7 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any16>();
 			var arg2 = ctx.GetNextArg<Any16>();
 
-			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.EQ, arg2.Read());
+			ctx.Core.ALU.CompareAndSetFlag((short)arg1.Read(), Comparison.EQ, (short)arg2.Read());
 		}
 	}
 
@@ -35,7 +35,7 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any16>();
 			var arg2 = ctx.GetNextArg<Any16>();
 
-			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LT, arg2.Read());
+			ctx.Core.ALU.CompareAndSetFlag((short)arg1.Read(), Comparison.LT, (short)arg2.Read());
 		}
 	}
 
@@ -51,7 +51,7 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any16>();
 			var arg2 = ctx.GetNextArg<Any16>();
 
-			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LTE, arg2.Read());
+			ctx.Core.ALU.CompareAndSetFlag((short)arg1.Read(), Comparison.LTE, (short)arg2.Read());
 		}
 	}
 
@@ -67,7 +67,7 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any16>();
 			var arg2 = ctx.GetNextArg<Any16>();
 
-			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.GT, arg2.Read());
+			ctx.Core.ALU.CompareAndSetFlag((short)arg1.Read(), Comparison.GT, (short)arg2.Read());
 		}
 	}
 
@@ -83,7 +83,7 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any16>();
 			var arg2 = ctx.GetNextArg<Any16>();
 
-			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.GTE, arg2.Read());
+			ctx.Core.ALU.CompareAndSetFlag((short)arg1.Read(), Comparison.GTE, (short)arg2.Read());
 		}
 	}
 }

@@ -95,6 +95,9 @@ namespace Dankle.Components.Instructions
 			Register<Increment>();
 			Register<Decrement>();
 			Register<Adc>();
+			Register<Low>();
+			Register<High>();
+			Register<Reset>();
 		}
 	}
 

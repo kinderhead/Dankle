@@ -1,5 +1,6 @@
 ﻿using Dankle.Components.Instructions;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,7 @@ namespace Dankle.Components
 	{
 		public override string Name => "CPU Core";
 
-		public readonly ConcurrentDictionary<int, ushort> Registers = new(Enumerable.Range(0, 16).ToDictionary(i => i, i => (ushort)0));
+		public readonly RegisterHandler Registers;
 
 		public readonly ALU ALU;
 
@@ -37,6 +38,7 @@ namespace Dankle.Components
 		public CPUCore(Computer computer) : base(computer)
 		{
 			ALU = new(this);
+			Registers = new(this);
 			StackPointer = computer.MemorySize - 1;
 			
 			RegisterHandler((CPUStepMsg i) =>
@@ -82,9 +84,10 @@ namespace Dankle.Components
 		{
 			var sb = new StringBuilder();
 
+			int idex = 0;
 			foreach (var i in Registers)
 			{
-				sb.Append($"r{i.Key}: 0x{i.Value:X4}\n");
+				sb.Append($"r{idex++}: 0x{i:X4}\n");
 			}
 
 			sb.Append($"SP: 0x{StackPointer:X8}\n");
@@ -103,6 +106,52 @@ namespace Dankle.Components
 			Instruction.Get(op).Execute(this);
 			sw.Stop();
 			Clockspeed = 1.0 / sw.Elapsed.TotalMicroseconds;
+		}
+
+		public class RegisterHandler(CPUCore core) : IEnumerable<ushort>
+		{
+			public enum RegisterState
+			{
+				None,
+				High,
+				Low
+			}
+
+			public readonly CPUCore Core = core;
+
+			private readonly ushort[] registers = Enumerable.Repeat((ushort)0, 16).ToArray();
+			private readonly RegisterState[] states = Enumerable.Repeat(RegisterState.None, 16).ToArray();
+
+			public ushort this[int reg]
+			{
+				get
+				{
+					var val = registers[reg];
+					return states[reg] switch
+					{
+						RegisterState.None => val,
+						RegisterState.High => (ushort)(val >> 8),
+						RegisterState.Low => (ushort)(val & 0xFFFF),
+						_ => throw new Exception("Invalid register state somehow"),
+					};
+				}
+				set
+				{
+					registers[reg] = states[reg] switch
+					{
+						RegisterState.None => value,
+						RegisterState.High => (ushort)((registers[reg] & 0x0000FFFF) | (value << 8)),
+						RegisterState.Low => (ushort)((registers[reg] & 0xFFFF0000) | value),
+						_ => throw new Exception("Invalid register state somehow"),
+					};
+				}
+			}
+
+			public void SetState(int reg, RegisterState state) => states[reg] = state;
+
+			public IEnumerator<ushort> GetEnumerator() => (IEnumerator<ushort>)registers.GetEnumerator();
+
+			IEnumerator IEnumerable.GetEnumerator() => registers.GetEnumerator();
 		}
 	}
 
