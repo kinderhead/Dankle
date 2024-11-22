@@ -99,6 +99,7 @@ namespace Dankle.Components.Instructions
 			Register<High>();
 			Register<Reset>();
 			Register<Sbb>();
+			Register<UnsignedDiv32>();
 		}
 	}
 

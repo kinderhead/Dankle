@@ -73,7 +73,7 @@ namespace Assembler
 			var tok = Parser.Tokens.Dequeue();
 			return tok.Symbol switch
 			{
-				Token.Type.OParam => (0b0001, [Parser.ParseStandaloneDoubleRegister(tok)]),
+				Token.Type.OParen => (0b0001, [Parser.ParseStandaloneDoubleRegister(tok)]),
 				Token.Type.Integer or Token.Type.Text => (0b0000, Utils.ToBytes(Parser.ParseNum<uint>(tok))),
 				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
 				_ => throw new InvalidTokenException(tok),

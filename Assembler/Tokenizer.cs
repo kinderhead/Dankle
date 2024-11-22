@@ -34,8 +34,8 @@ namespace Assembler
 			TokenMap[Token.Type.Comma] = new(@"^,");
 			TokenMap[Token.Type.OSquareBracket] = new(@"^\[");
 			TokenMap[Token.Type.CSquareBracket] = new(@"^\]");
-			TokenMap[Token.Type.OParam] = new(@"^\(");
-			TokenMap[Token.Type.CParam] = new(@"^\)");
+			TokenMap[Token.Type.OParen] = new(@"^\(");
+			TokenMap[Token.Type.CParen] = new(@"^\)");
 			TokenMap[Token.Type.Plus] = new(@"^\+");
 			TokenMap[Token.Type.Minus] = new(@"^\-");
 			TokenMap[Token.Type.String] = new(@"^""[^""]+""");

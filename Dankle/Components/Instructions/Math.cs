@@ -151,6 +151,23 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class UnsignedDiv32 : Instruction
+	{
+		public override ushort Opcode => 40;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32), typeof(Any32)];
+		public override string Name => "UDIVL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.DIV, arg2.Read()));
+		}
+	}
+
 	public class LeftShift : Instruction
 	{
 		public override ushort Opcode => 13;

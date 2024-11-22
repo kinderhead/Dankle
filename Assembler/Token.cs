@@ -39,8 +39,8 @@ namespace Assembler
 			Comma,
 			OSquareBracket,
 			CSquareBracket,
-			OParam,
-			CParam,
+			OParen,
+			CParen,
 			Plus,
 			Minus,
 			String

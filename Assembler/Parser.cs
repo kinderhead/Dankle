@@ -172,9 +172,9 @@ namespace Assembler
 		public byte ParseStandaloneDoubleRegister(Token? paren = null)
 		{
 			paren ??= Tokens.Dequeue();
-			Assume(paren.Value, Token.Type.OParam);
+			Assume(paren.Value, Token.Type.OParen);
 			var ret = ParseDoubleRegister();
-			GetNextToken(Token.Type.CParam);
+			GetNextToken(Token.Type.CParen);
 			return ret;
 		}
 
