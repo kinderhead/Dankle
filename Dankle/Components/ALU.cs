@@ -30,6 +30,18 @@ namespace Dankle.Components
                 else Core.Overflow = Calculate(long.CreateTruncating(left), op, long.CreateTruncating(right), true) != long.CreateTruncating(ret);
             }
 
+            if (!TypeInfo<T>.IsFloatingPoint && op == Operation.ADD)
+            {
+                if (TypeInfo<T>.IsUnsigned) Core.Carry = ret < left;
+                else throw new NotImplementedException();
+            }
+
+            if (!TypeInfo<T>.IsFloatingPoint && op == Operation.SUB)
+            {
+                if (TypeInfo<T>.IsUnsigned) Core.Carry = left < right;
+                else throw new NotImplementedException();
+            }
+
             return ret;
         }
 

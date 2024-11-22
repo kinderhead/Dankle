@@ -25,10 +25,12 @@ namespace Dankle.Components
 		public bool ShouldStep = false;
 
 		private int _overflow;
+		private int _carry;
 		private int _zero;
 		private int _compare;
 
 		public bool Overflow { get => Interlocked.CompareExchange(ref _overflow, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _overflow, 1, 0) : Interlocked.CompareExchange(ref _overflow, 0, 1); } }
+		public bool Carry { get => Interlocked.CompareExchange(ref _carry, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _carry, 1, 0) : Interlocked.CompareExchange(ref _carry, 0, 1); } }
 		public bool Zero { get => Interlocked.CompareExchange(ref _zero, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _zero, 1, 0) : Interlocked.CompareExchange(ref _zero, 0, 1); } }
 		public bool Compare { get => Interlocked.CompareExchange(ref _compare, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _compare, 1, 0) : Interlocked.CompareExchange(ref _compare, 0, 1); } }
 
@@ -149,7 +151,7 @@ namespace Dankle.Components
 
 			public void SetState(int reg, RegisterState state) => states[reg] = state;
 
-			public IEnumerator<ushort> GetEnumerator() => (IEnumerator<ushort>)registers.GetEnumerator();
+			public IEnumerator<ushort> GetEnumerator() => ((IEnumerable<ushort>)registers).GetEnumerator();
 
 			IEnumerator IEnumerable.GetEnumerator() => registers.GetEnumerator();
 		}

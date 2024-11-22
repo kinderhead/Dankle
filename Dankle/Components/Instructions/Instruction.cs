@@ -98,6 +98,7 @@ namespace Dankle.Components.Instructions
 			Register<Low>();
 			Register<High>();
 			Register<Reset>();
+			Register<Sbb>();
 		}
 	}
 

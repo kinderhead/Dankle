@@ -312,6 +312,8 @@ namespace Assembler
 
 		public T GetVariable<T>(string name)
 		{
+			if (typeof(T) == typeof(ushort) && name == "HADDR") return (T)(object)ushort.CreateTruncating(Addr >> 16);
+
 			Variables.TryGetValue(typeof(T), out var vars);
 			object? ret = null;
 			vars?.TryGetValue(name, out ret);

@@ -37,8 +37,10 @@ namespace Dankle.Components.Instructions
 			var arg2 = ctx.GetNextArg<Register>();
 			var dest = ctx.GetNextArg<Register>();
 
+			var carry = ctx.Core.Carry;
+
 			var val = ctx.Core.ALU.Calculate(arg1.Read(), Operation.ADD, arg2.Read());
-			if (ctx.Core.Overflow) val = ctx.Core.ALU.Calculate(val, Operation.ADD, (ushort)1);
+			if (carry) val = ctx.Core.ALU.Calculate(val, Operation.ADD, (ushort)1);
 			dest.Write(val);
 		}
 	}
@@ -57,6 +59,27 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Register>();
 
 			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.SUB, arg2.Read()));
+		}
+	}
+
+	public class Sbb : Instruction
+	{
+		public override ushort Opcode => 39;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "SBB";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			var carry = ctx.Core.Carry;
+
+			var val = ctx.Core.ALU.Calculate(arg1.Read(), Operation.SUB, arg2.Read());
+			if (carry) val = ctx.Core.ALU.Calculate(val, Operation.SUB, (ushort)1);
+			dest.Write(val);
 		}
 	}
 

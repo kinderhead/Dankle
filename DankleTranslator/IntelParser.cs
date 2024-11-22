@@ -73,6 +73,7 @@ namespace DankleTranslator
             else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsub @1, @2, @1");
             else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsub @1, %tmp, @1");
 			else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsub @1, %tmp, @1");
+            else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsbb @1, @2, @1");
             else if (sig.IsValid("neg", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tld %tmpalt, -1\n\txor %tmp, %tmpalt, %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("ret", [])) Output += "\tret";
             else if (sig.IsValid("ret", [ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @1\n\tadd r13, %tmp, r13\n\tret");
@@ -92,7 +93,7 @@ namespace DankleTranslator
                 else HandleInsn(next);
                 return;
             }
-            else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.SS])) Output += sig.Compile("\tmov @1, r12");
+            else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.SS])) Output += sig.Compile("\tld @1, HADDR");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tmov @1, @2");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("\tld @1, @2");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld @1, @ptr2");
