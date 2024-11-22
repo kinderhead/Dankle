@@ -73,7 +73,10 @@ namespace DankleTranslator
             else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsub @1, @2, @1");
             else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsub @1, %tmp, @1");
 			else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsub @1, %tmp, @1");
+			else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsbb @1, %tmp, @1");
             else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsbb @1, @2, @1");
+			else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsbb @1, %tmp, @1");
+            else if (sig.IsValid("neg", [ArgumentType.Register])) Output += sig.Compile("\tld %tmp, -1\n\txor @1, %tmp, @1");
             else if (sig.IsValid("neg", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tld %tmpalt, -1\n\txor %tmp, %tmpalt, %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("ret", [])) Output += "\tret";
             else if (sig.IsValid("ret", [ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @1\n\tadd r13, %tmp, r13\n\tret");
@@ -142,11 +145,21 @@ namespace DankleTranslator
                 {
                     arg1 = "@ptr1";
                 }
+                else if (sig.Args[0].Item1 == ArgumentType.BytePointer)
+                {
+                    Output += sig.Compile("\tldb %tmp, @ptr1");
+                    arg1 = "%tmp";
+                }
 
                 var arg2 = "@2";
                 if (sig.Args[1].Item1 == ArgumentType.Pointer)
                 {
                     arg2 = "@ptr2";
+                }
+                else if (sig.Args[1].Item1 == ArgumentType.BytePointer)
+                {
+                    Output += sig.Compile("\tldb %tmpalt, @ptr2");
+                    arg1 = "%tmpalt";
                 }
 
                 var byteRegHandle = "";
@@ -171,8 +184,6 @@ namespace DankleTranslator
                     else if (cmp.IsValid("ja", [ArgumentType.Label])) Output += sig.Compile($"{byteRegHandle}\tgt {arg1}, {arg2}\n{RestoreRegisters(sig)}") + cmp.Compile("\tje @1\n");
                     else throw new Exception("Invalid cmp call");
 
-					Output += "\n";
-
 					byteRegHandle = PrepareRegisters(sig);
                 }
             }
@@ -191,12 +202,12 @@ namespace DankleTranslator
                 HandleTestInsn(sig);
                 return;
             }
-            else if (sig.IsValid("and", [ArgumentType.BytePointer, ArgumentType.Integer])) Output += sig.Compile("\tldb %tmp, @ptr1\n\tand %tmp, @2, %tmp\n\tstb @ptr1, %tmp");
+            else if (sig.IsValid("and", [ArgumentType.BytePointer, ArgumentType.Integer])) Output += sig.Compile("\tldb %tmp, @ptr1\n\tld %tmpalt, @2\n\tand %tmp, %tmpalt, %tmp\n\tstb @ptr1, %tmp");
             else if (sig.IsValid("or", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tor @1, @2, @1");
-            else if (sig.IsValid("or", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tor @1, @2, @1");
+            else if (sig.IsValid("or", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tor @1, %tmp, @1");
             else if (sig.IsValid("or", [ArgumentType.BytePointer, ArgumentType.Integer])) Output += sig.Compile("\tldb %tmp, @ptr1\n\tld %tmpalt, @2\n\tor %tmp, %tmpalt, %tmp\n\tstb @ptr1, %tmp");
             else if (sig.IsValid("xor", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\txor @1, @2, @1");
-            else if (sig.IsValid("shl", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("\tshl @1, @2, @1");
+            else if (sig.IsValid("shl", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tlsh @1, %tmp, @1");
             else
             {
                 Console.WriteLine(Output);

@@ -1,10 +1,10 @@
 #include "lib.h"
-#include "printf.h"
+//#include "printf.h"
 
-void math(long x, long y)
+void math(unsigned long x, unsigned long y)
 {
-    long ret = x - y;
-    if (ret == 0xFFFF)
+    long ret = x / y;
+    if (ret == 0x48D159E)
     {
         println("Yay");
     }
@@ -16,7 +16,7 @@ void math(long x, long y)
 
 int main()
 {
-    printf("Hello printf!\n");
-    //math(0x10000, 1);
+    //printf("Hello printf!\n");
+    math(0x12345678, 4);
     return 0;
 }

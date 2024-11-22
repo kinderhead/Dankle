@@ -187,6 +187,10 @@ namespace Assembler
 			{
 				return GetVariable<T>(token.Value.Text);
 			}
+			else if (token.Value.Symbol == Token.Type.Minus)
+			{
+				return -ParseNum<T>(Tokens.Dequeue());
+			}
 
 			try
 			{

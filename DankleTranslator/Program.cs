@@ -11,7 +11,7 @@ namespace DankleTranslator
             var driver = new WatcomDriver("wcc", "wdis");
             var builder = new Builder(driver);
 
-            builder.AddSourceFiles("../CTest/test.c", "../CTest/lib.c", "../CTest/printf.c");
+            builder.AddSourceFiles("../CTest/test.c", "../CTest/lib.c");
             builder.LinkAndRun();
         }
     }

@@ -30,7 +30,7 @@ namespace Assembler
 			var tok = Parser.Tokens.Dequeue();
 			return tok.Symbol switch
 			{
-				Token.Type.Integer or Token.Type.Text => (0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
+				Token.Type.Integer or Token.Type.Text or Token.Type.Minus => (0b0000, Utils.ToBytes(Parser.ParseNum<ushort>(tok))),
 				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
 				_ => throw new InvalidTokenException(tok),
 			};
