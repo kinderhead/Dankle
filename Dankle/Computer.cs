@@ -23,11 +23,16 @@ namespace Dankle
 
 		public bool Debug = false;
 
+		public readonly CPUCore MainCore;
+
+		public SortedDictionary<string, uint> Symbols = [];
+
 		public Computer(uint memSize)
 		{
 			MemorySize = memSize;
 			AddMemoryMapEntry(new RAM(memSize));
 			AddComponent<CPUCore>();
+			MainCore = GetComponent<CPUCore>();
 		}
 
 		public void AddComponent<T>(params object[] args) where T : Component

@@ -38,6 +38,11 @@ namespace DankleTranslator
 			computer.WriteMem(0x10000u, linker.AssembleAndLink(0x10000u, computer));
 			computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["init"];
 
+			foreach (var i in linker.Symbols)
+			{
+				computer.Symbols[i.Key] = i.Value;
+			}
+
 			computer.Run();
 		}
 	}

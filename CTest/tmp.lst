@@ -7,8 +7,6 @@
 		EXTRN	__PIA:BYTE
 		EXTRN	_putchar_:BYTE
 		EXTRN	__U4D:BYTE
-		EXTRN	__U8DR:BYTE
-		EXTRN	__U8DQ:BYTE
 		EXTRN	__PTS:BYTE
 		EXTRN	_big_code_:BYTE
 DGROUP		GROUP	CONST,CONST2,_DATA
@@ -457,226 +455,105 @@ L$33:
 	mov		dx,word ptr [bp-28H]
 	call		near ptr _ntoa_format_
 	jmp		near ptr L$25
-_ntoa_long_long_:
-	push		si
-	push		di
-	push		bp
-	mov		bp,sp
-	sub		sp,24H
-	push		ax
-	push		dx
-	push		bx
-	push		cx
-	mov		di,word ptr [bp+0cH]
-	mov		word ptr [bp-2],0
-	cmp		word ptr [bp+12H],0
-	jne		L$34
-	cmp		word ptr [bp+10H],0
-	jne		L$34
-	cmp		word ptr [bp+0eH],0
-	jne		L$34
-	test		di,di
-	jne		L$34
-	and		byte ptr [bp+22H],0efH
-L$34:
-	test		byte ptr [bp+23H],4
-	je		L$35
-	cmp		word ptr [bp+12H],0
-	jne		L$35
-	cmp		word ptr [bp+10H],0
-	jne		L$35
-	cmp		word ptr [bp+0eH],0
-	jne		L$35
-	test		di,di
-	je		L$37
-L$35:
-	mov		ax,word ptr [bp+12H]
-	mov		bx,word ptr [bp+10H]
-	mov		cx,word ptr [bp+0eH]
-	mov		dx,di
-	lea		si,[bp+16H]
-	call		far ptr __U8DR
-	mov		bl,dl
-	cmp		dl,0aH
-	jae		L$36
-	xor		dh,dh
-	add		dx,30H
-	jmp		L$40
-L$36:
-	test		byte ptr [bp+22H],20H
-	je		L$38
-	mov		dx,41H
-	jmp		L$39
-L$37:
-	jmp		L$42
-L$38:
-	mov		dx,61H
-L$39:
-	xor		bh,bh
-	add		dx,bx
-	sub		dx,0aH
-L$40:
-	mov		word ptr [bp-4],dx
-	mov		bx,word ptr [bp-2]
-	inc		word ptr [bp-2]
-	mov		dx,ss
-	lea		ax,[bp-24H]
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		bx,ax
-	mov		ds,dx
-	mov		al,byte ptr [bp-4]
-	mov		byte ptr [bx],al
-	mov		ax,word ptr [bp+12H]
-	mov		bx,word ptr [bp+10H]
-	mov		cx,word ptr [bp+0eH]
-	mov		dx,di
-	lea		si,[bp+16H]
-	call		far ptr __U8DQ
-	mov		word ptr [bp+12H],ax
-	mov		word ptr [bp+10H],bx
-	mov		word ptr [bp+0eH],cx
-	mov		di,dx
-	test		ax,ax
-	jne		L$41
-	test		bx,bx
-	jne		L$41
-	test		cx,cx
-	jne		L$41
-	test		dx,dx
-	je		L$42
-L$41:
-	cmp		word ptr [bp-2],20H
-	jae		L$42
-	jmp		near ptr L$35
-L$42:
-	push		word ptr [bp+22H]
-	push		word ptr [bp+20H]
-	push		word ptr [bp+1eH]
-	push		word ptr [bp+16H]
-	mov		al,byte ptr [bp+14H]
-	xor		ah,ah
-	push		ax
-	push		word ptr [bp-2]
-	lea		dx,[bp-24H]
-	push		ss
-	push		dx
-	push		word ptr [bp+0aH]
-	push		word ptr [bp+8]
-	mov		bx,word ptr [bp-2aH]
-	mov		cx,word ptr [bp-2cH]
-	mov		ax,word ptr [bp-26H]
-	mov		dx,word ptr [bp-28H]
-	call		near ptr _ntoa_format_
-	mov		sp,bp
-	pop		bp
-	pop		di
-	pop		si
-	ret		1cH
 _vsnprintf_:
 	push		si
 	push		di
 	push		bp
 	mov		bp,sp
-	sub		sp,2eH
-	mov		word ptr [bp-2eH],ax
-	mov		word ptr [bp-2cH],dx
-	mov		di,bx
-	mov		word ptr [bp-0aH],cx
+	sub		sp,24H
+	mov		word ptr [bp-24H],ax
+	mov		word ptr [bp-22H],dx
+	mov		word ptr [bp-6],bx
+	mov		di,cx
 	xor		si,si
 	test		cx,cx
-	jne		L$43
+	jne		L$34
 	test		bx,bx
-	jne		L$43
-	mov		word ptr [bp-2eH],offset _out_null_
-	mov		word ptr [bp-2cH],seg _out_null_
-L$43:
-	jmp		near ptr L$114
-L$44:
-	mov		word ptr [bp-8],0
+	jne		L$34
+	mov		word ptr [bp-24H],offset _out_null_
+	mov		word ptr [bp-22H],seg _out_null_
+L$34:
+	jmp		near ptr L$91
+L$35:
+	mov		word ptr [bp-1eH],0
 	mov		ax,bx
 	mov		dx,ds
 	mov		bx,1
 	xor		cx,cx
 	call		far ptr __PIA
-L$45:
 	mov		word ptr [bp+0aH],ax
+	jmp		L$39
+L$36:
+	cmp		byte ptr [bp-4],23H
+	je		L$43
+	cmp		byte ptr [bp-4],20H
+	je		L$42
+	jmp		L$44
+L$37:
+	or		byte ptr [bp-1eH],1
+L$38:
+	mov		word ptr [bp+0aH],cx
+L$39:
 	mov		word ptr [bp+0cH],dx
 	lds		bx,dword ptr [bp+0aH]
 	mov		al,byte ptr [bx]
-	mov		byte ptr [bp-6],al
+	mov		byte ptr [bp-4],al
 	mov		ax,bx
 	mov		dx,ds
 	mov		bx,1
 	xor		cx,cx
 	call		far ptr __PIA
-	cmp		byte ptr [bp-6],2bH
-	jb		L$46
-	jbe		L$49
-	cmp		byte ptr [bp-6],30H
-	je		L$47
-	cmp		byte ptr [bp-6],2dH
-	je		L$48
-	jmp		L$52
-L$46:
-	cmp		byte ptr [bp-6],23H
-	je		L$51
-	cmp		byte ptr [bp-6],20H
-	je		L$50
-	jmp		L$52
-L$47:
-	or		byte ptr [bp-8],1
-	jmp		L$45
-L$48:
-	or		byte ptr [bp-8],2
-	jmp		L$45
-L$49:
-	or		byte ptr [bp-8],4
-	jmp		L$45
-L$50:
-	or		byte ptr [bp-8],8
-	jmp		L$45
-L$51:
-	or		byte ptr [bp-8],10H
-	jmp		L$45
-L$52:
-	mov		word ptr [bp-10H],0
+	mov		cx,ax
+	mov		ax,dx
+	cmp		byte ptr [bp-4],2bH
+	jb		L$36
+	jbe		L$41
+	cmp		byte ptr [bp-4],30H
+	je		L$37
+	cmp		byte ptr [bp-4],2dH
+	je		L$40
+	jmp		L$44
+L$40:
+	or		byte ptr [bp-1eH],2
+	jmp		L$38
+L$41:
+	or		byte ptr [bp-1eH],4
+	jmp		L$38
+L$42:
+	or		byte ptr [bp-1eH],8
+	jmp		L$38
+L$43:
+	or		byte ptr [bp-1eH],10H
+	jmp		L$38
+L$44:
+	mov		word ptr [bp-0cH],0
 	lds		bx,dword ptr [bp+0aH]
 	mov		al,byte ptr [bx]
 	cmp		al,30H
-	jb		L$53
+	jb		L$45
 	cmp		al,39H
-	ja		L$53
+	ja		L$45
 	mov		dx,ss
 	lea		ax,[bp+0aH]
 	call		near ptr _atoi_
-	mov		word ptr [bp-10H],ax
-	jmp		L$56
-L$53:
+	mov		word ptr [bp-0cH],ax
+	jmp		L$48
+L$45:
 	lds		bx,dword ptr [bp+0aH]
 	cmp		byte ptr [bx],2aH
-	jne		L$56
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-28H],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,2
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-28H]
-	mov		ax,word ptr [bx]
+	jne		L$48
+	add		word ptr [bp+0eH],2
+	lds		bx,dword ptr [bp+0eH]
+	mov		ax,word ptr [bx-2]
 	test		ax,ax
-	jge		L$54
-	or		byte ptr [bp-8],2
-	mov		word ptr [bp-10H],ax
-	neg		word ptr [bp-10H]
-	jmp		L$55
-L$54:
-	mov		word ptr [bp-10H],ax
-L$55:
+	jge		L$46
+	or		byte ptr [bp-1eH],2
+	mov		word ptr [bp-0cH],ax
+	neg		word ptr [bp-0cH]
+	jmp		L$47
+L$46:
+	mov		word ptr [bp-0cH],ax
+L$47:
 	mov		ax,word ptr [bp+0aH]
 	mov		dx,word ptr [bp+0cH]
 	mov		bx,1
@@ -684,12 +561,12 @@ L$55:
 	call		far ptr __PIA
 	mov		word ptr [bp+0aH],ax
 	mov		word ptr [bp+0cH],dx
-L$56:
+L$48:
 	mov		word ptr [bp-12H],0
 	lds		bx,dword ptr [bp+0aH]
 	cmp		byte ptr [bx],2eH
-	jne		L$57
-	or		byte ptr [bp-7],4
+	jne		L$51
+	or		byte ptr [bp-1dH],4
 	mov		ax,bx
 	mov		dx,ds
 	mov		bx,1
@@ -701,35 +578,25 @@ L$56:
 	mov		bx,ax
 	mov		al,byte ptr [bx]
 	cmp		al,30H
-	jb		L$58
+	jb		L$49
 	cmp		al,39H
-	ja		L$58
+	ja		L$49
 	mov		dx,ss
 	lea		ax,[bp+0aH]
 	call		near ptr _atoi_
 	mov		word ptr [bp-12H],ax
-L$57:
-	jmp		L$60
-L$58:
+	jmp		L$51
+L$49:
 	lds		bx,dword ptr [bp+0aH]
 	cmp		byte ptr [bx],2aH
-	jne		L$60
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-2aH],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,2
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-2aH]
-	mov		ax,word ptr [bx]
+	jne		L$51
+	add		word ptr [bp+0eH],2
+	lds		bx,dword ptr [bp+0eH]
+	mov		ax,word ptr [bx-2]
 	test		ax,ax
-	jg		L$59
+	jg		L$50
 	xor		ax,ax
-L$59:
+L$50:
 	mov		word ptr [bp-12H],ax
 	mov		ax,word ptr [bp+0aH]
 	mov		dx,word ptr [bp+0cH]
@@ -738,7 +605,7 @@ L$59:
 	call		far ptr __PIA
 	mov		word ptr [bp+0aH],ax
 	mov		word ptr [bp+0cH],dx
-L$60:
+L$51:
 	lds		bx,dword ptr [bp+0aH]
 	mov		al,byte ptr [bx]
 	mov		byte ptr [bp-2],al
@@ -747,433 +614,233 @@ L$60:
 	mov		bx,1
 	xor		cx,cx
 	call		far ptr __PIA
-	mov		word ptr [bp-1cH],ax
+	mov		word ptr [bp-16H],ax
 	mov		ds,dx
-	mov		ax,word ptr [bp-8]
-	or		ah,2
-	mov		word ptr [bp-20H],ax
 	mov		ax,word ptr [bp+0aH]
 	mov		dx,word ptr [bp+0cH]
 	mov		bx,2
 	xor		cx,cx
 	call		far ptr __PIA
-	cmp		byte ptr [bp-2],6cH
-	jb		L$61
-	jbe		L$62
-	mov		al,byte ptr [bp-2]
-	cmp		al,7aH
-	je		L$65
-	cmp		al,74H
-	je		L$65
-	jmp		L$66
-L$61:
 	cmp		byte ptr [bp-2],6aH
-	je		L$65
+	jb		L$52
+	mov		cx,word ptr [bp-1eH]
+	or		ch,2
+	cmp		byte ptr [bp-2],6aH
+	jbe		L$56
+	cmp		byte ptr [bp-2],7aH
+	je		L$56
+	cmp		byte ptr [bp-2],6cH
+	je		L$53
+	jmp		L$57
+L$52:
 	cmp		byte ptr [bp-2],68H
-	je		L$64
-	jmp		L$66
-L$62:
-	or		byte ptr [bp-7],1
-	mov		bx,word ptr [bp-1cH]
+	je		L$55
+	jmp		L$57
+L$53:
+	or		byte ptr [bp-1dH],1
+	mov		bx,word ptr [bp-16H]
 	mov		word ptr [bp+0aH],bx
 	mov		word ptr [bp+0cH],ds
 	cmp		byte ptr [bx],6cH
-	jne		L$66
-	or		byte ptr [bp-7],2
-L$63:
+	jne		L$57
+	or		byte ptr [bp-1dH],2
+L$54:
 	mov		word ptr [bp+0aH],ax
 	mov		word ptr [bp+0cH],dx
-	jmp		L$66
-L$64:
-	or		byte ptr [bp-8],80H
-	mov		bx,word ptr [bp-1cH]
+	jmp		L$57
+L$55:
+	or		byte ptr [bp-1eH],80H
+	mov		bx,word ptr [bp-16H]
 	mov		word ptr [bp+0aH],bx
 	mov		word ptr [bp+0cH],ds
 	cmp		byte ptr [bx],68H
-	jne		L$66
-	or		byte ptr [bp-8],40H
-	jmp		L$63
-L$65:
-	mov		ax,word ptr [bp-20H]
-	mov		word ptr [bp-8],ax
-	mov		bx,word ptr [bp-1cH]
+	jne		L$57
+	or		byte ptr [bp-1eH],40H
+	jmp		L$54
+L$56:
+	mov		word ptr [bp-1eH],cx
+	mov		bx,word ptr [bp-16H]
 	mov		word ptr [bp+0aH],bx
 	mov		word ptr [bp+0cH],ds
-L$66:
+L$57:
 	lds		bx,dword ptr [bp+0aH]
 	mov		al,byte ptr [bx]
-	mov		byte ptr [bp-4],al
 	cmp		al,69H
-	jb		L$69
-	jbe		L$71
-	mov		ax,word ptr [bp+0eH]
-	mov		dx,word ptr [bp+10H]
-	mov		bx,4
-	xor		cx,cx
-	call		far ptr __PIA
-	cmp		byte ptr [bp-4],73H
-	jb		L$68
-	jbe		L$74
-	mov		al,byte ptr [bp-4]
+	jb		L$60
+	jbe		L$62
+	lds		bx,dword ptr [bp+0eH]
+	add		bx,4
+	cmp		al,73H
+	jb		L$59
+	jbe		L$65
 	cmp		al,78H
-	je		L$71
+	je		L$62
 	cmp		al,75H
-L$67:
-	je		L$71
-	jmp		near ptr L$138
-L$68:
-	cmp		byte ptr [bp-4],70H
-	je		L$76
-	cmp		byte ptr [bp-4],6fH
-	jmp		L$67
-L$69:
+L$58:
+	je		L$62
+	jmp		near ptr L$119
+L$59:
+	cmp		al,70H
+	je		L$67
+	cmp		al,6fH
+	jmp		L$58
+L$60:
 	cmp		al,62H
-	jb		L$70
-	jbe		L$71
+	jb		L$61
+	jbe		L$62
 	cmp		al,64H
-	je		L$71
+	je		L$62
 	cmp		al,63H
-	je		L$77
-	jmp		near ptr L$138
-L$70:
+	je		L$68
+	jmp		near ptr L$119
+L$61:
 	cmp		al,58H
-	je		L$71
+	je		L$62
 	cmp		al,25H
-	je		L$78
-	jmp		near ptr L$138
+	je		L$69
+	jmp		near ptr L$119
+L$62:
+	lds		bx,dword ptr [bp+0aH]
+	mov		al,byte ptr [bx]
+	cmp		al,78H
+	je		L$63
+	cmp		al,58H
+	jne		L$64
+L$63:
+	mov		ax,10H
+	jmp		L$71
+L$64:
+	cmp		al,6fH
+	jne		L$66
+	mov		ax,8
+	jmp		L$71
+L$65:
+	jmp		near ptr L$105
+L$66:
+	cmp		al,62H
+	jne		L$70
+	mov		ax,2
+	jmp		L$71
+L$67:
+	jmp		near ptr L$117
+L$68:
+	jmp		near ptr L$100
+L$69:
+	jmp		near ptr L$118
+L$70:
+	mov		ax,0aH
+	and		byte ptr [bp-1eH],0efH
 L$71:
 	lds		bx,dword ptr [bp+0aH]
-	mov		al,byte ptr [bx]
-	cmp		al,78H
-	je		L$72
-	cmp		al,58H
-	jne		L$73
-L$72:
-	mov		word ptr [bp-1aH],10H
-	jmp		L$80
-L$73:
-	cmp		al,6fH
-	jne		L$75
-	mov		word ptr [bp-1aH],8
-	jmp		L$80
-L$74:
-	jmp		near ptr L$124
-L$75:
-	cmp		al,62H
-	jne		L$79
-	mov		word ptr [bp-1aH],2
-	jmp		L$80
-L$76:
-	jmp		near ptr L$136
-L$77:
-	jmp		near ptr L$118
-L$78:
-	jmp		near ptr L$137
-L$79:
-	mov		word ptr [bp-1aH],0aH
-	and		byte ptr [bp-8],0efH
-L$80:
-	lds		bx,dword ptr [bp+0aH]
 	cmp		byte ptr [bx],58H
+	jne		L$72
+	or		byte ptr [bp-1eH],20H
+L$72:
+	lds		bx,dword ptr [bp+0aH]
+	cmp		byte ptr [bx],69H
+	je		L$73
+	cmp		byte ptr [bx],64H
+	je		L$73
+	and		byte ptr [bp-1eH],0f3H
+L$73:
+	test		byte ptr [bp-1dH],4
+	je		L$74
+	and		byte ptr [bp-1eH],0feH
+L$74:
+	lds		bx,dword ptr [bp+0aH]
+	cmp		byte ptr [bx],69H
+	je		L$75
+	cmp		byte ptr [bx],64H
 	jne		L$81
-	or		byte ptr [bp-8],20H
-L$81:
-	lds		bx,dword ptr [bp+0aH]
-	mov		al,byte ptr [bx]
-	cmp		al,69H
-	je		L$82
-	cmp		al,64H
-	je		L$82
-	and		byte ptr [bp-8],0f3H
-L$82:
-	test		byte ptr [bp-7],4
-	je		L$83
-	and		byte ptr [bp-8],0feH
-L$83:
-	lds		bx,dword ptr [bp+0aH]
-	mov		al,byte ptr [bx]
-	cmp		al,69H
-	je		L$84
-	cmp		al,64H
-	jne		L$86
-L$84:
-	mov		al,byte ptr [bp-7]
-	test		al,2
-	je		L$87
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-28H],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,8
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-28H]
-	mov		dx,word ptr [bx+6]
-	mov		ax,word ptr [bx+4]
-	mov		word ptr [bp-1eH],ax
-	mov		ax,word ptr [bx+2]
-	mov		cx,word ptr [bx]
-	push		word ptr [bp-8]
-	push		word ptr [bp-10H]
+L$75:
+	test		byte ptr [bp-1dH],2
+	jne		L$82
+	test		byte ptr [bp-1dH],1
+	je		L$80
+	add		word ptr [bp+0eH],4
+	lds		bx,dword ptr [bp+0eH]
+	mov		cx,word ptr [bx-4]
+	mov		dx,word ptr [bx-2]
+	push		word ptr [bp-1eH]
+	push		word ptr [bp-0cH]
 	push		word ptr [bp-12H]
 	xor		bx,bx
-	push		bx
-	push		bx
-	push		bx
-	push		word ptr [bp-1aH]
-	test		dx,dx
-	jl		L$85
-	jne		L$88
-	cmp		word ptr [bp-1eH],0
-	jne		L$88
-	test		ax,ax
-	jmp		L$88
-L$85:
-	mov		bl,1
-	jmp		L$89
-L$86:
-	jmp		near ptr L$106
-L$87:
-	jmp		L$94
-L$88:
-	xor		bl,bl
-L$89:
-	mov		byte ptr [bp-28H],bl
-	mov		byte ptr [bp-27H],0
-	push		word ptr [bp-28H]
-	test		dx,dx
-	jg		L$90
-	jne		L$91
-	cmp		word ptr [bp-1eH],0
-	ja		L$90
-	jne		L$91
-	test		ax,ax
-	ja		L$90
-	jne		L$91
-	test		cx,cx
-	jbe		L$91
-L$90:
-	mov		bx,word ptr [bp-1eH]
-	mov		word ptr [bp-22H],cx
-	jmp		L$92
-L$91:
-	xor		bx,bx
-	sub		bx,cx
-	mov		word ptr [bp-22H],bx
-	mov		bx,0
-	sbb		bx,ax
-	mov		ax,bx
-	mov		bx,0
-	sbb		bx,word ptr [bp-1eH]
-	mov		cx,0
-	sbb		cx,dx
-	mov		dx,cx
-L$92:
-	push		dx
 	push		bx
 	push		ax
-	push		word ptr [bp-22H]
-L$93:
-	push		word ptr [bp+8]
-	push		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	mov		ax,word ptr [bp-2eH]
-	mov		dx,word ptr [bp-2cH]
-	call		near ptr _ntoa_long_long_
-	jmp		near ptr L$112
-L$94:
-	test		al,1
-	je		L$100
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-2aH],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,4
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-2aH]
-	mov		dx,word ptr [bx]
-	mov		ax,word ptr [bx+2]
-	push		word ptr [bp-8]
-	push		word ptr [bp-10H]
-	push		word ptr [bp-12H]
-	xor		bx,bx
-	push		bx
-	push		word ptr [bp-1aH]
-	test		ax,ax
-	jge		L$95
-	mov		bl,1
-	jmp		L$96
-L$95:
-	xor		bl,bl
-L$96:
-	xor		bh,bh
-	push		bx
-	test		ax,ax
-	jg		L$98
-	jne		L$97
 	test		dx,dx
-	ja		L$98
-L$97:
-	neg		ax
-	neg		dx
-	sbb		ax,0
-L$98:
-	push		ax
-	push		dx
-L$99:
-	push		word ptr [bp+8]
-	push		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	mov		ax,word ptr [bp-2eH]
-	mov		dx,word ptr [bp-2cH]
-	call		near ptr _ntoa_long_
-	jmp		near ptr L$112
-L$100:
-	mov		ax,word ptr [bp+0eH]
-	mov		dx,word ptr [bp+10H]
-	mov		bx,2
-	xor		cx,cx
-	call		far ptr __PIA
-	test		byte ptr [bp-8],40H
-	je		L$101
-	lds		bx,dword ptr [bp+0eH]
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		al,byte ptr [bx]
-	xor		ah,ah
-	jmp		L$102
-L$101:
-	test		byte ptr [bp-8],80H
-	lds		bx,dword ptr [bp+0eH]
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		ax,word ptr [bx]
-L$102:
-	mov		dx,ax
-	push		word ptr [bp-8]
-	push		word ptr [bp-10H]
-	push		word ptr [bp-12H]
-	xor		bx,bx
-	push		bx
-	push		word ptr [bp-1aH]
-	test		ax,ax
-	jge		L$103
+	jge		L$76
 	mov		al,1
-	jmp		L$104
-L$103:
+	jmp		L$77
+L$76:
 	xor		al,al
-L$104:
+L$77:
 	xor		ah,ah
 	push		ax
 	test		dx,dx
-	jg		L$105
+	jg		L$79
+	jne		L$78
+	test		cx,cx
+	ja		L$79
+L$78:
 	neg		dx
-L$105:
-	xor		ax,ax
-	jmp		L$98
-L$106:
-	mov		al,byte ptr [bp-7]
-	test		al,2
-	je		L$107
-	push		word ptr [bp-8]
-	push		word ptr [bp-10H]
-	push		word ptr [bp-12H]
-	xor		ax,ax
-	push		ax
-	push		ax
-	push		ax
-	push		word ptr [bp-1aH]
-	push		ax
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-2aH],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,8
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-2aH]
-	push		word ptr [bx+6]
-	push		word ptr [bx+4]
-	push		word ptr [bx+2]
-	push		word ptr [bx]
-	jmp		near ptr L$93
-L$107:
-	test		al,1
-	je		L$108
-	push		word ptr [bp-8]
-	push		word ptr [bp-10H]
-	push		word ptr [bp-12H]
-	xor		ax,ax
-	push		ax
-	push		word ptr [bp-1aH]
-	push		ax
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-2aH],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,4
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-2aH]
-	push		word ptr [bx+2]
-	push		word ptr [bx]
-	jmp		near ptr L$99
-L$108:
-	mov		ax,word ptr [bp+0eH]
-	mov		dx,word ptr [bp+10H]
-	mov		bx,2
-	xor		cx,cx
-	call		far ptr __PIA
-	test		byte ptr [bp-8],40H
-	je		L$109
+	neg		cx
+	sbb		dx,0
+L$79:
+	push		dx
+	push		cx
+	jmp		L$89
+L$80:
 	lds		bx,dword ptr [bp+0eH]
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		al,byte ptr [bx]
+	add		bx,2
+	test		byte ptr [bp-1eH],40H
+	je		L$83
+	mov		word ptr [bp+0eH],bx
+	mov		bl,byte ptr [bx-2]
+	xor		bh,bh
+	jmp		L$84
+L$81:
+	jmp		near ptr L$95
+L$82:
+	jmp		L$90
+L$83:
+	test		byte ptr [bp-1eH],80H
+	mov		word ptr [bp+0eH],bx
+	mov		bx,word ptr [bx-2]
+L$84:
+	mov		dx,bx
+	push		word ptr [bp-1eH]
+	push		word ptr [bp-0cH]
+	push		word ptr [bp-12H]
+	xor		cx,cx
+	push		cx
+	push		ax
+	test		bx,bx
+	jge		L$85
+	mov		al,1
+	jmp		L$86
+L$85:
+	xor		al,al
+L$86:
 	xor		ah,ah
-	jmp		L$110
-L$109:
-	test		byte ptr [bp-8],80H
-	lds		bx,dword ptr [bp+0eH]
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		ax,word ptr [bx]
-L$110:
-	push		word ptr [bp-8]
-	push		word ptr [bp-10H]
-	push		word ptr [bp-12H]
-	xor		dx,dx
-	push		dx
-	push		word ptr [bp-1aH]
-	push		dx
-L$111:
-	push		dx
 	push		ax
+	test		dx,dx
+	jg		L$87
+	neg		dx
+L$87:
+	xor		ax,ax
+L$88:
+	push		ax
+	push		dx
+L$89:
 	push		word ptr [bp+8]
 	push		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	mov		ax,word ptr [bp-2eH]
-	mov		dx,word ptr [bp-2cH]
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
+	mov		ax,word ptr [bp-24H]
+	mov		dx,word ptr [bp-22H]
 	call		near ptr _ntoa_long_
-L$112:
 	mov		si,ax
-L$113:
+L$90:
 	mov		ax,word ptr [bp+0aH]
 	mov		dx,word ptr [bp+0cH]
 	mov		bx,1
@@ -1181,238 +848,265 @@ L$113:
 	call		far ptr __PIA
 	mov		word ptr [bp+0aH],ax
 	mov		word ptr [bp+0cH],dx
-L$114:
+L$91:
 	lds		bx,dword ptr [bp+0aH]
 	mov		al,byte ptr [bx]
 	test		al,al
-	je		L$120
+	je		L$97
 	cmp		al,25H
-	jne		L$115
-	jmp		near ptr L$44
-L$115:
+	jne		L$92
+	jmp		near ptr L$35
+L$92:
 	push		word ptr [bp+8]
 	mov		dx,si
-L$116:
+L$93:
 	xor		ah,ah
 	inc		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-L$117:
-	call		dword ptr [bp-2eH]
-	jmp		L$113
-L$118:
-	mov		word ptr [bp-0eH],1
-	test		byte ptr [bp-8],2
-	jne		L$121
-L$119:
-	mov		ax,word ptr [bp-0eH]
-	inc		word ptr [bp-0eH]
-	cmp		ax,word ptr [bp-10H]
-	jae		L$121
-	push		word ptr [bp+8]
-	mov		dx,si
-	inc		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	mov		ax,20H
-	call		dword ptr [bp-2eH]
-	jmp		L$119
-L$120:
-	jmp		near ptr L$139
-L$121:
-	push		word ptr [bp+8]
-	mov		word ptr [bp-28H],si
-	inc		si
-	mov		bx,word ptr [bp+0eH]
-	mov		word ptr [bp-2aH],bx
-	mov		ds,word ptr [bp+10H]
-	mov		ax,bx
-	mov		dx,ds
-	mov		bx,2
-	xor		cx,cx
-	call		far ptr __PIA
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		bx,word ptr [bp-2aH]
-	mov		al,byte ptr [bx]
-	xor		ah,ah
-	mov		dx,word ptr [bp-28H]
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	call		dword ptr [bp-2eH]
-	test		byte ptr [bp-8],2
-	jne		L$123
-L$122:
-	jmp		near ptr L$113
-L$123:
-	mov		ax,word ptr [bp-0eH]
-	inc		word ptr [bp-0eH]
-	cmp		ax,word ptr [bp-10H]
-	jae		L$122
-	push		word ptr [bp+8]
-	mov		dx,si
-	inc		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	mov		ax,20H
-	call		dword ptr [bp-2eH]
-	jmp		L$123
-L$124:
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
+L$94:
+	call		dword ptr [bp-24H]
+	jmp		L$90
+L$95:
+	test		byte ptr [bp-1dH],2
+	jne		L$90
+	test		byte ptr [bp-1dH],1
+	je		L$96
+	push		word ptr [bp-1eH]
+	push		word ptr [bp-0cH]
+	push		word ptr [bp-12H]
+	xor		dx,dx
+	push		dx
+	push		ax
+	push		dx
+	add		word ptr [bp+0eH],4
 	lds		bx,dword ptr [bp+0eH]
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		ax,word ptr [bx]
-	mov		word ptr [bp-16H],ax
-	mov		ax,word ptr [bx+2]
-	mov		word ptr [bp-14H],ax
+	push		word ptr [bx-2]
+	push		word ptr [bx-4]
+	jmp		L$89
+L$96:
+	lds		bx,dword ptr [bp+0eH]
+	add		bx,2
+	test		byte ptr [bp-1eH],40H
+	je		L$98
+	mov		word ptr [bp+0eH],bx
+	mov		bl,byte ptr [bx-2]
+	xor		bh,bh
+	jmp		L$99
+L$97:
+	jmp		near ptr L$120
+L$98:
+	test		byte ptr [bp-1eH],80H
+	mov		word ptr [bp+0eH],bx
+	mov		bx,word ptr [bx-2]
+L$99:
+	push		word ptr [bp-1eH]
+	push		word ptr [bp-0cH]
+	push		word ptr [bp-12H]
+	xor		dx,dx
+	push		dx
+	push		ax
+	push		dx
+	push		dx
+	push		bx
+	jmp		near ptr L$89
+L$100:
+	mov		word ptr [bp-0aH],1
+	test		byte ptr [bp-1eH],2
+	jne		L$102
+L$101:
+	mov		ax,word ptr [bp-0aH]
+	inc		word ptr [bp-0aH]
+	cmp		ax,word ptr [bp-0cH]
+	jae		L$102
+	push		word ptr [bp+8]
+	mov		dx,si
+	inc		si
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
+	mov		ax,20H
+	call		dword ptr [bp-24H]
+	jmp		L$101
+L$102:
+	push		word ptr [bp+8]
+	mov		dx,si
+	inc		si
+	add		word ptr [bp+0eH],2
+	lds		bx,dword ptr [bp+0eH]
+	mov		al,byte ptr [bx-2]
+	xor		ah,ah
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
+	call		dword ptr [bp-24H]
+	test		byte ptr [bp-1eH],2
+	jne		L$104
+L$103:
+	jmp		near ptr L$90
+L$104:
+	mov		ax,word ptr [bp-0aH]
+	inc		word ptr [bp-0aH]
+	cmp		ax,word ptr [bp-0cH]
+	jae		L$103
+	push		word ptr [bp+8]
+	mov		dx,si
+	inc		si
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
+	mov		ax,20H
+	call		dword ptr [bp-24H]
+	jmp		L$104
+L$105:
+	mov		word ptr [bp+0eH],bx
+	mov		ax,word ptr [bx-4]
+	mov		word ptr [bp-10H],ax
+	mov		ax,word ptr [bx-2]
+	mov		word ptr [bp-0eH],ax
 	mov		ax,word ptr [bp-12H]
 	test		ax,ax
-	jne		L$125
+	jne		L$106
 	mov		ax,0ffffH
-L$125:
-	mov		bx,word ptr [bp-16H]
-	mov		word ptr [bp-26H],bx
-	mov		dx,word ptr [bp-14H]
-	mov		word ptr [bp-24H],dx
-	mov		word ptr [bp-18H],ax
+L$106:
+	mov		bx,word ptr [bp-10H]
+	mov		word ptr [bp-1aH],bx
+	mov		dx,word ptr [bp-0eH]
+	mov		word ptr [bp-18H],dx
+	mov		word ptr [bp-14H],ax
 	mov		ax,bx
-L$126:
+L$107:
 	mov		ds,dx
 	mov		bx,ax
 	cmp		byte ptr [bx],0
-	je		L$127
-	dec		word ptr [bp-18H]
-	cmp		word ptr [bp-18H],0ffffH
-	je		L$127
+	je		L$108
+	dec		word ptr [bp-14H]
+	cmp		word ptr [bp-14H],0ffffH
+	je		L$108
 	mov		dx,ds
 	mov		bx,1
 	xor		cx,cx
 	call		far ptr __PIA
-	jmp		L$126
-L$127:
+	jmp		L$107
+L$108:
 	mov		dx,ds
-	mov		bx,word ptr [bp-26H]
-	mov		cx,word ptr [bp-24H]
+	mov		bx,word ptr [bp-1aH]
+	mov		cx,word ptr [bp-18H]
 	call		far ptr __PTS
-	mov		word ptr [bp-0cH],ax
-	test		byte ptr [bp-7],4
-	je		L$129
+	mov		word ptr [bp-8],ax
+	test		byte ptr [bp-1dH],4
+	je		L$110
 	cmp		ax,word ptr [bp-12H]
-	jb		L$128
+	jb		L$109
 	mov		ax,word ptr [bp-12H]
-L$128:
-	mov		word ptr [bp-0cH],ax
-L$129:
-	test		byte ptr [bp-8],2
-	jne		L$131
-L$130:
-	mov		ax,word ptr [bp-0cH]
-	inc		word ptr [bp-0cH]
-	cmp		ax,word ptr [bp-10H]
-	jae		L$131
+L$109:
+	mov		word ptr [bp-8],ax
+L$110:
+	test		byte ptr [bp-1eH],2
+	jne		L$112
+L$111:
+	mov		ax,word ptr [bp-8]
+	inc		word ptr [bp-8]
+	cmp		ax,word ptr [bp-0cH]
+	jae		L$112
 	push		word ptr [bp+8]
 	mov		dx,si
 	inc		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
 	mov		ax,20H
-	call		dword ptr [bp-2eH]
-	jmp		L$130
-L$131:
-	lds		bx,dword ptr [bp-16H]
+	call		dword ptr [bp-24H]
+	jmp		L$111
+L$112:
+	lds		bx,dword ptr [bp-10H]
 	cmp		byte ptr [bx],0
-	je		L$133
-	test		byte ptr [bp-7],4
-	je		L$132
+	je		L$114
+	test		byte ptr [bp-1dH],4
+	je		L$113
 	dec		word ptr [bp-12H]
 	cmp		word ptr [bp-12H],0ffffH
-	je		L$133
-L$132:
+	je		L$114
+L$113:
 	push		word ptr [bp+8]
-	mov		word ptr [bp-2aH],si
-	lds		bx,dword ptr [bp-16H]
+	mov		word ptr [bp-20H],si
+	lds		bx,dword ptr [bp-10H]
 	mov		al,byte ptr [bx]
-	mov		byte ptr [bp-28H],al
-	mov		byte ptr [bp-27H],0
+	mov		byte ptr [bp-1cH],al
+	mov		byte ptr [bp-1bH],0
 	inc		si
 	mov		ax,bx
 	mov		dx,ds
 	mov		bx,1
 	xor		cx,cx
 	call		far ptr __PIA
-	mov		word ptr [bp-16H],ax
-	mov		word ptr [bp-14H],dx
-	mov		dx,word ptr [bp-2aH]
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
-	mov		ax,word ptr [bp-28H]
-	call		dword ptr [bp-2eH]
-	jmp		L$131
-L$133:
-	test		byte ptr [bp-8],2
-	jne		L$135
-L$134:
-	jmp		near ptr L$113
-L$135:
-	mov		ax,word ptr [bp-0cH]
-	inc		word ptr [bp-0cH]
-	cmp		ax,word ptr [bp-10H]
-	jae		L$134
+	mov		word ptr [bp-10H],ax
+	mov		word ptr [bp-0eH],dx
+	mov		dx,word ptr [bp-20H]
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
+	mov		ax,word ptr [bp-1cH]
+	call		dword ptr [bp-24H]
+	jmp		L$112
+L$114:
+	test		byte ptr [bp-1eH],2
+	jne		L$116
+L$115:
+	jmp		near ptr L$90
+L$116:
+	mov		ax,word ptr [bp-8]
+	inc		word ptr [bp-8]
+	cmp		ax,word ptr [bp-0cH]
+	jae		L$115
 	push		word ptr [bp+8]
 	mov		dx,si
 	inc		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
 	mov		ax,20H
-	call		dword ptr [bp-2eH]
-	jmp		L$135
-L$136:
-	or		byte ptr [bp-8],21H
-	push		word ptr [bp-8]
-	mov		bx,8
-	push		bx
+	call		dword ptr [bp-24H]
+	jmp		L$116
+L$117:
+	or		byte ptr [bp-1eH],21H
+	push		word ptr [bp-1eH]
+	mov		ax,8
+	push		ax
 	push		word ptr [bp-12H]
-	xor		bx,bx
-	push		bx
-	mov		bx,10H
-	push		bx
-	xor		bx,bx
-	push		bx
-	lds		bx,dword ptr [bp+0eH]
-	mov		word ptr [bp+0eH],ax
-	mov		word ptr [bp+10H],dx
-	mov		ax,word ptr [bx]
-	mov		dx,word ptr [bx+2]
-	jmp		near ptr L$111
-L$137:
+	xor		ax,ax
+	push		ax
+	mov		ax,10H
+	push		ax
+	xor		ax,ax
+	push		ax
+	mov		word ptr [bp+0eH],bx
+	mov		dx,word ptr [bx-4]
+	mov		ax,word ptr [bx-2]
+	jmp		near ptr L$88
+L$118:
 	push		word ptr [bp+8]
 	mov		dx,si
 	inc		si
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
 	mov		ax,25H
-	jmp		near ptr L$117
-L$138:
+	jmp		near ptr L$94
+L$119:
 	push		word ptr [bp+8]
 	mov		dx,si
 	lds		bx,dword ptr [bp+0aH]
 	mov		al,byte ptr [bx]
-	jmp		near ptr L$116
-L$139:
+	jmp		near ptr L$93
+L$120:
 	push		word ptr [bp+8]
 	mov		ax,word ptr [bp+8]
 	cmp		si,ax
-	jae		L$140
+	jae		L$121
 	mov		ax,si
-	jmp		L$141
-L$140:
+	jmp		L$122
+L$121:
 	dec		ax
-L$141:
+L$122:
 	mov		dx,ax
-	mov		bx,di
-	mov		cx,word ptr [bp-0aH]
+	mov		bx,word ptr [bp-6]
+	mov		cx,di
 	xor		ax,ax
-	call		dword ptr [bp-2eH]
+	call		dword ptr [bp-24H]
 	mov		ax,si
 	mov		sp,bp
 	pop		bp
@@ -1426,13 +1120,9 @@ printf__:
 	push		bp
 	mov		bp,sp
 	sub		sp,2
-	mov		dx,ss
-	lea		ax,[bp+0cH]
-	mov		bx,4
-	xor		cx,cx
-	call		far ptr __PIA
-	push		dx
-	push		ax
+	lea		bx,[bp+10H]
+	push		ss
+	push		bx
 	push		word ptr [bp+0eH]
 	push		word ptr [bp+0cH]
 	mov		ax,0ffffH
@@ -1443,31 +1133,27 @@ printf__:
 	mov		dx,seg _out_char_
 	call		near ptr _vsnprintf_
 	mov		sp,bp
-	jmp		L$143
+	jmp		L$124
 sprintf__:
 	push		bx
 	push		cx
 	push		dx
 	push		bp
 	mov		bp,sp
-	mov		dx,ss
-	lea		ax,[bp+10H]
-	mov		bx,4
-	xor		cx,cx
-	call		far ptr __PIA
+	lea		dx,[bp+14H]
+	push		ss
 	push		dx
-	push		ax
 	push		word ptr [bp+12H]
 	push		word ptr [bp+10H]
 	mov		ax,0ffffH
 	push		ax
-L$142:
+L$123:
 	mov		bx,word ptr [bp+0cH]
 	mov		cx,word ptr [bp+0eH]
 	mov		ax,offset _out_buffer_
 	mov		dx,seg _out_buffer_
 	call		near ptr _vsnprintf_
-L$143:
+L$124:
 	pop		bp
 	pop		dx
 	pop		cx
@@ -1479,17 +1165,13 @@ snprintf__:
 	push		dx
 	push		bp
 	mov		bp,sp
-	mov		dx,ss
-	lea		ax,[bp+12H]
-	mov		bx,4
-	xor		cx,cx
-	call		far ptr __PIA
+	lea		dx,[bp+16H]
+	push		ss
 	push		dx
-	push		ax
 	push		word ptr [bp+14H]
 	push		word ptr [bp+12H]
 	push		word ptr [bp+10H]
-	jmp		L$142
+	jmp		L$123
 vprintf__:
 	push		bp
 	mov		bp,sp

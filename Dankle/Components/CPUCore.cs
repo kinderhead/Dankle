@@ -41,7 +41,6 @@ namespace Dankle.Components
 		{
 			ALU = new(this);
 			Registers = new(this);
-			StackPointer = computer.MemorySize - 1;
 			
 			RegisterHandler((CPUStepMsg i) =>
 			{
@@ -104,8 +103,37 @@ namespace Dankle.Components
 		{
 			var sw = new Stopwatch();
 			sw.Start();
+			var addr = ProgramCounter;
 			var op = GetNext();
-			Instruction.Get(op).Execute(this);
+			var insn = Instruction.Get(op);
+
+			try
+			{
+				insn.Execute(this);
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine(ex.Message);
+
+				var symbol = "";
+
+				if (Computer.Symbols.Count > 0)
+				{
+					foreach (var i in Computer.Symbols.Reverse())
+					{
+						if (i.Value <= addr)
+						{
+							symbol = $" ({i.Key}+0x{(addr - i.Value):X8})";
+							break;
+						}
+					}
+				}
+
+				Console.Error.WriteLine($"Error at insn {insn.Name} at 0x{addr:X8}{symbol}\n\n{GetDump()}");
+
+				throw;
+			}
+
 			sw.Stop();
 			Clockspeed = 1.0 / sw.Elapsed.TotalMicroseconds;
 		}

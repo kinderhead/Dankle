@@ -67,15 +67,15 @@ namespace DankleTranslator
             else if (sig.IsValid("add", [ArgumentType.Pointer, ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tld %tmpalt, @2\n\tadd %tmp, %tmpalt, %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("adc", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tadc @1, @2, @1");
             else if (sig.IsValid("inc", [ArgumentType.Register])) Output += sig.Compile("\tinc @1");
-			else if (sig.IsValid("inc", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tinc %tmp\n\tst @ptr1, %tmp");
+            else if (sig.IsValid("inc", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tinc %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("dec", [ArgumentType.Register])) Output += sig.Compile("\tdec @1");
             else if (sig.IsValid("dec", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tdec %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsub @1, @2, @1");
             else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsub @1, %tmp, @1");
-			else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsub @1, %tmp, @1");
-			else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsbb @1, %tmp, @1");
+            else if (sig.IsValid("sub", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsub @1, %tmp, @1");
+            else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsbb @1, %tmp, @1");
             else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsbb @1, @2, @1");
-			else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsbb @1, %tmp, @1");
+            else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsbb @1, %tmp, @1");
             else if (sig.IsValid("neg", [ArgumentType.Register])) Output += sig.Compile("\tld %tmp, -1\n\txor @1, %tmp, @1");
             else if (sig.IsValid("neg", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tld %tmpalt, -1\n\txor %tmp, %tmpalt, %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("ret", [])) Output += "\tret";
@@ -86,7 +86,10 @@ namespace DankleTranslator
             {
                 if (HasByteRegs(sig)) throw new NotImplementedException();
 
-                Output += sig.Compile("\tld @1, @2#L\n");
+                var label = sig.Args[1].Item2;
+                if (!label.Contains('#')) label += "#L";
+
+                Output += sig.Compile($"\tld @1, {label}\n");
                 if (Tokens.Peek().Symbol != Token.Type.Text) return;
                 var next = GetNextInsn(Tokens.Dequeue());
                 if (next.IsValid("mov", [ArgumentType.Register, ArgumentType.SS]))
@@ -129,13 +132,17 @@ namespace DankleTranslator
             }
             else if (sig.IsValid("lds", [ArgumentType.Register, ArgumentType.Pointer])) Output += LoadMem32Into("@1", "%ds", sig.Args[1].Item2, sig);
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");
-            else if (sig.IsValid("push", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tpush %tmp");
-            else if (sig.IsValid("push", [ArgumentType.CS])) return;
-            else if (sig.IsValid("push", [ArgumentType.SS])) return;
+            else if (sig.IsValid("push", [ArgumentType.Pointer])) Output += sig.Compile("\tpush @ptr1");
+            else if (sig.IsValid("push", [ArgumentType.CS])) Output += sig.Compile("\tpush HADDR");
+            else if (sig.IsValid("push", [ArgumentType.SS])) Output += sig.Compile("\tpush HADDR");
             else if (sig.IsValid("pop", [ArgumentType.Register])) Output += sig.Compile("\tpop @1");
             else if (sig.IsValid("je", [ArgumentType.Label])) Output += sig.Compile("\tjz @1");
             else if (sig.IsValid("jne", [ArgumentType.Label])) Output += sig.Compile("\tjnz @1");
-            else if (sig.IsValid("call", [ArgumentType.Label])) Output += sig.Compile("\tcall @1");
+            else if (sig.IsValid("call", [ArgumentType.Label]))
+            {
+                if (sig.Args[0].Item2 == "__U4D") Output += sig.Compile("\tudivl (r3, r0), (r2, r1), (r3, r0)\n\tumodl (r3, r0), (r2, r1), (r2, r1)");
+                else Output += sig.Compile("\tcall @1");
+            }
             else if (sig.IsValid("call", [ArgumentType.Pointer])) Output += sig.Compile($"{LoadMem32Into("%tmpalt", "%tmp", sig.Args[0].Item2, sig)}\n\tcall [%tmpalt,%tmp]");
             else if (sig.IsValid("jmp", [ArgumentType.Label])) Output += sig.Compile("\tjmp @1");
             else if (sig.Name == "cmp")
@@ -170,7 +177,7 @@ namespace DankleTranslator
 
                     if (!cmp.Name.StartsWith('j') || cmp.Name == "jmp")
                     {
-						if (HasByteRegs(sig) && byteRegHandle == "") Output += RestoreRegisters(sig);
+                        if (HasByteRegs(sig) && byteRegHandle == "") Output += RestoreRegisters(sig);
                         HandleInsn(cmp);
                         return;
                     }
@@ -184,7 +191,7 @@ namespace DankleTranslator
                     else if (cmp.IsValid("ja", [ArgumentType.Label])) Output += sig.Compile($"{byteRegHandle}\tgt {arg1}, {arg2}\n{RestoreRegisters(sig)}") + cmp.Compile("\tje @1\n");
                     else throw new Exception("Invalid cmp call");
 
-					byteRegHandle = PrepareRegisters(sig);
+                    byteRegHandle = PrepareRegisters(sig);
                 }
             }
             else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Register]))
@@ -192,12 +199,12 @@ namespace DankleTranslator
                 HandleTestInsn(sig);
                 return;
             }
-			else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Integer]))
-			{
-				HandleTestInsn(sig);
-				return;
-			}
-			else if (sig.IsValid("test", [ArgumentType.BytePointer, ArgumentType.Integer]))
+            else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Integer]))
+            {
+                HandleTestInsn(sig);
+                return;
+            }
+            else if (sig.IsValid("test", [ArgumentType.BytePointer, ArgumentType.Integer]))
             {
                 HandleTestInsn(sig);
                 return;

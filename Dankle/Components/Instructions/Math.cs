@@ -269,4 +269,21 @@ namespace Dankle.Components.Instructions
 			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MOD, arg2.Read()));
 		}
 	}
+
+	public class Modulo32 : Instruction
+	{
+		public override ushort Opcode => 41;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32), typeof(Any32)];
+		public override string Name => "UMODL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MOD, arg2.Read()));
+		}
+	}
 }

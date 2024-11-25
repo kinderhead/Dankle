@@ -100,6 +100,7 @@ namespace Dankle.Components.Instructions
 			Register<Reset>();
 			Register<Sbb>();
 			Register<UnsignedDiv32>();
+			Register<Modulo32>();
 		}
 	}
 

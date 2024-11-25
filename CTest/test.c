@@ -16,7 +16,9 @@ void math(unsigned long x, unsigned long y)
 
 int main()
 {
-    //printf("Hello printf!\n");
-    math(0x12345678, 4);
+    char str[16];
+    itoa(69, str, 10);
+    println(str);
+    //math(0x12345678, 4);
     return 0;
 }

@@ -13,7 +13,7 @@ namespace Dankle.Components.Instructions
 
 		public override Type[] Arguments => [typeof(Register)];
 
-		public override string Name => "low";
+		public override string Name => "LOW";
 
 		protected override void Handle(Context ctx)
 		{
@@ -27,7 +27,7 @@ namespace Dankle.Components.Instructions
 
 		public override Type[] Arguments => [typeof(Register)];
 
-		public override string Name => "high";
+		public override string Name => "HIGH";
 
 		protected override void Handle(Context ctx)
 		{
@@ -41,7 +41,7 @@ namespace Dankle.Components.Instructions
 
 		public override Type[] Arguments => [typeof(Register)];
 
-		public override string Name => "rst";
+		public override string Name => "RST";
 
 		protected override void Handle(Context ctx)
 		{
