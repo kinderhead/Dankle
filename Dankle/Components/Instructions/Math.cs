@@ -320,4 +320,18 @@ namespace Dankle.Components.Instructions
 			dest.Write((uint)ctx.Core.ALU.Calculate((int)arg1.Read(), Operation.MOD, (int)arg2.Read()));
 		}
 	}
+
+	public class Negate : Instruction
+	{
+		public override ushort Opcode => 51;
+
+		public override Type[] Arguments => [typeof(Register)];
+		public override string Name => "NEG";
+
+		protected override void Handle(Context ctx)
+		{
+			var reg = ctx.GetNextArg<Register>();
+			reg.Write((ushort)-(short)reg.Read());
+		}
+	}
 }

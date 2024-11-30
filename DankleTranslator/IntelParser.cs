@@ -76,13 +76,14 @@ namespace DankleTranslator
             else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsbb @1, %tmp, @1");
             else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsbb @1, @2, @1");
             else if (sig.IsValid("sbb", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsbb @1, %tmp, @1");
-            else if (sig.IsValid("neg", [ArgumentType.Register])) Output += sig.Compile("\tld %tmp, -1\n\txor @1, %tmp, @1");
-            else if (sig.IsValid("neg", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tld %tmpalt, -1\n\txor %tmp, %tmpalt, %tmp\n\tst @ptr1, %tmp");
+            else if (sig.IsValid("neg", [ArgumentType.Register])) Output += sig.Compile("\tneg @1");
+            else if (sig.IsValid("neg", [ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr1\n\tneg %tmp\n\tst @ptr1, %tmp");
             else if (sig.IsValid("idiv", [ArgumentType.Register]))
             {
                 if (sig.Args[0].Item2.Contains('%')) throw new NotImplementedException();
 
-                Output += sig.Compile("\tld r9, 0\n\tsdivl (r3, r0), (r9, @1), (%tmp, %tmpalt)\n\tsmodl (r3, r0), (r9, @1), (%tmp, r3)\n\tmov r0, %tmpalt");
+                Output += sig.Compile("\tmov %tmp, @1\n\tcall __IDIV");
+                //Output += sig.Compile("\tld r9, 0\n\tsdivl (r3, r0), (r9, @1), (%tmp, %tmpalt)\n\tsmodl (r3, r0), (r9, @1), (%tmp, r3)\n\tmov r0, %tmpalt");
             }
 			else if (sig.IsValid("ret", [])) Output += "\tret";
             else if (sig.IsValid("ret", [ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @1\n\tadd r13, %tmp, r13\n\tret");
@@ -147,7 +148,7 @@ namespace DankleTranslator
 					ptr = sig.Args[1].Item2.Split('-').First();
 				}
 
-				Output += sig.Compile($"\tld @1, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset + 1)}]\n\tld %es, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset)}]");
+				Output += sig.Compile($"\tld @1, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset)}]\n\tld %es, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset + 2)}]");
             }
             else if (sig.IsValid("lds", [ArgumentType.Register, ArgumentType.Pointer])) Output += LoadMem32Into("@1", "%ds", sig.Args[1].Item2, sig);
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");

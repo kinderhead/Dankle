@@ -93,7 +93,7 @@ namespace Dankle
 				}
 			}
 
-			throw new IndexOutOfRangeException($"Invalid memory range 0x{originalAddr:X8} to 0x{(originalAddr + originalSize - 1):X8}");
+			throw new IndexOutOfRangeException($"Invalid memory range 0x{originalAddr:X8} to 0x{originalAddr + originalSize - 1:X8}");
 		}
 
 		public byte[] ReadMem(uint addr, uint size)
@@ -112,6 +112,8 @@ namespace Dankle
 
 		public void WriteMem(uint addr, byte[] data)
 		{
+			//if (addr == 0x0001FFE3) StartDebugAsTask();
+
 			foreach (var entry in GetMemoryMapsForRange(addr, (uint)data.Length))
 			{
 				var part = new byte[entry.Value.size];
@@ -166,6 +168,14 @@ namespace Dankle
 			Run(false);
 
 			StartDebugging();
+		}
+
+		public void StartDebugAsTask()
+		{
+			if (MainCore.ShouldStep) return;
+
+			MainCore.ShouldStep = true;
+			Task.Run(StartDebugging);
 		}
 
 		public void StartDebugging()

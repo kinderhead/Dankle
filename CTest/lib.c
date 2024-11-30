@@ -18,7 +18,7 @@ void println(const char* str)
 
 void itoa(int num, char* str, int base)
 {
-    BREAK();
+    //BREAK();
     int i = 0;
     int isNegative = 0;
 
@@ -29,7 +29,7 @@ void itoa(int num, char* str, int base)
     }
  
     if (num < 0 && base == 10) {
-        isNegative = 0;
+        isNegative = 1;
         num = -num;
     }
  

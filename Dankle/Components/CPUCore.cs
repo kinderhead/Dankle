@@ -31,11 +31,15 @@ namespace Dankle.Components
 		private int _compare;
 		private int _sign;
 
+		private int _le;
+
 		public bool Overflow { get => Interlocked.CompareExchange(ref _overflow, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _overflow, 1, 0) : Interlocked.CompareExchange(ref _overflow, 0, 1); } }
 		public bool Carry { get => Interlocked.CompareExchange(ref _carry, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _carry, 1, 0) : Interlocked.CompareExchange(ref _carry, 0, 1); } }
 		public bool Zero { get => Interlocked.CompareExchange(ref _zero, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _zero, 1, 0) : Interlocked.CompareExchange(ref _zero, 0, 1); } }
 		public bool Compare { get => Interlocked.CompareExchange(ref _compare, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _compare, 1, 0) : Interlocked.CompareExchange(ref _compare, 0, 1); } }
 		public bool Sign { get => Interlocked.CompareExchange(ref _sign, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _sign, 1, 0) : Interlocked.CompareExchange(ref _sign, 0, 1); } }
+		
+		public bool LittleEndianEmulation { get => Interlocked.CompareExchange(ref _le, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _le, 1, 0) : Interlocked.CompareExchange(ref _le, 0, 1); } }
 
 		public byte Flags
 		{

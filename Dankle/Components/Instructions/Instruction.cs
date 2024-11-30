@@ -116,6 +116,9 @@ namespace Dankle.Components.Instructions
 			Register<PopFlags>();
 			Register<SignedDiv32>();
 			Register<SignedModulo32>();
+			Register<LE>();
+			Register<BE>();
+			Register<Negate>();
 		}
 	}
 

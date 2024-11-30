@@ -17,10 +17,7 @@ namespace Dankle.Components
 
 		public void Break()
 		{
-			if (Computer.MainCore.ShouldStep) return;
-
-			Computer.MainCore.ShouldStep = true;
-			Task.Run(Computer.StartDebugging);
+			Computer.StartDebugAsTask();
 		}
 
 		public class MM(uint addr, Debugger db) : MemoryMapRegisters(addr)

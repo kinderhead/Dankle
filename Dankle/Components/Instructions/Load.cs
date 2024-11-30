@@ -35,7 +35,7 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Register>();
 			var src = ctx.GetNextArg<Any8Num>();
 
-			dest.Write((byte)src.Read());
+			dest.Write(src.Read());
 		}
 	}
 }

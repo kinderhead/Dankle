@@ -1,5 +1,6 @@
 ﻿using Dankle.Components.Instructions;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -20,8 +21,33 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new Pointer<T>(ctx, argnum);
 
-		public override T Read() => Ctx.Core.Computer.ReadMem<T>(GetAddress());
-		public override void Write(T value) => Ctx.Core.Computer.WriteMem(GetAddress(), value);
+		public override T Read()
+		{
+			var val = Ctx.Core.Computer.ReadMem<T>(GetAddress());
+			if (Ctx.Core.LittleEndianEmulation)
+			{
+				if (val is ushort us) return (T)(object)BinaryPrimitives.ReverseEndianness(us);
+				else if (val is short s) return (T)(object)BinaryPrimitives.ReverseEndianness(s);
+				else if (val is uint ui) return (T)(object)BinaryPrimitives.ReverseEndianness(ui);
+				else if (val is int i) return (T)(object)BinaryPrimitives.ReverseEndianness(i);
+				else if (val is byte) return val;
+				else throw new NotImplementedException();
+			}
+			return val;
+		}
+		public override void Write(T value)
+		{
+			if (Ctx.Core.LittleEndianEmulation)
+			{
+				if (value is ushort us) Ctx.Core.Computer.WriteMem(GetAddress(), BinaryPrimitives.ReverseEndianness(us));
+				else if (value is short s) Ctx.Core.Computer.WriteMem(GetAddress(), BinaryPrimitives.ReverseEndianness(s));
+				else if (value is uint ui) Ctx.Core.Computer.WriteMem(GetAddress(), BinaryPrimitives.ReverseEndianness(ui));
+				else if (value is int i) Ctx.Core.Computer.WriteMem(GetAddress(), BinaryPrimitives.ReverseEndianness(i));
+				else if (value is byte) Ctx.Core.Computer.WriteMem(GetAddress(), value);
+				else throw new NotImplementedException();
+			}
+			else Ctx.Core.Computer.WriteMem(GetAddress(), value);
+		}
 
 		public uint GetAddress()
 		{
