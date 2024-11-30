@@ -308,7 +308,7 @@ namespace Assembler
 				if (num <= ushort.MaxValue) SetVariable(name, ushort.CreateTruncating(num));
 
 				SetVariable(name + "#L", (ushort)(num & 0xFFFF));
-				SetVariable(name + "#H", (ushort)(num >> 16));
+				SetVariable(name + "#H", (ushort)(num >>> 16));
 			}
 
 			vars[name] = value;
@@ -316,7 +316,7 @@ namespace Assembler
 
 		public T GetVariable<T>(string name)
 		{
-			if (typeof(T) == typeof(ushort) && name == "HADDR") return (T)(object)ushort.CreateTruncating(Addr >> 16);
+			if (typeof(T) == typeof(ushort) && name == "HADDR") return (T)(object)ushort.CreateTruncating(Addr >>> 16);
 
 			Variables.TryGetValue(typeof(T), out var vars);
 			object? ret = null;

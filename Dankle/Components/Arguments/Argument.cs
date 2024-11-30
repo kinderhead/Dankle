@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,14 @@ namespace Dankle.Components.Arguments
 {
 	public interface IArgument
 	{
+		public string Dissassemble();
+
 		public IArgument Create(Context ctx, int argnum);
+
+		public static IArgument Create(Type type, Context ctx, int argnum)
+		{
+			return (IArgument?)type.GetMethod("Create")?.Invoke(Activator.CreateInstance(type), [ctx, argnum]) ?? throw new Exception("Could not create argument");
+		}
 	}
 
 	public abstract class Argument<T> : IArgument where T : IBinaryInteger<T>
@@ -34,5 +42,7 @@ namespace Dankle.Components.Arguments
 
 		public abstract T Read();
 		public abstract void Write(T value);
+
+		public abstract string Dissassemble();
 	}
 }

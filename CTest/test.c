@@ -16,9 +16,12 @@ void math(unsigned long x, unsigned long y)
 
 int main()
 {
+    println("Starting");
+
     char str[16];
     itoa(69, str, 10);
     println(str);
     //math(0x12345678, 4);
+
     return 0;
 }

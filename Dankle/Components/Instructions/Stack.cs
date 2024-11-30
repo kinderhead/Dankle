@@ -63,4 +63,30 @@ namespace Dankle.Components.Instructions
 			dest.Write(ctx.Core.Pop<ushort>());
 		}
 	}
+
+	public class PushFlags : Instruction
+	{
+		public override ushort Opcode => 45;
+
+		public override Type[] Arguments => [];
+		public override string Name => "PUSHF";
+
+		protected override void Handle(Context ctx)
+		{
+			ctx.Core.Push(ctx.Core.Flags);
+		}
+	}
+
+	public class PopFlags : Instruction
+	{
+		public override ushort Opcode => 46;
+
+		public override Type[] Arguments => [];
+		public override string Name => "POPF";
+
+		protected override void Handle(Context ctx)
+		{
+			ctx.Core.Flags = ctx.Core.Pop<byte>();
+		}
+	}
 }

@@ -7,8 +7,8 @@ namespace Dankle.Components
     {
         public readonly CPUCore Core = core;
 
-        public T Calculate<T>(T left, Operation op, T right, bool skipFlags = false) where T : INumber<T>
-        {
+        public T Calculate<T>(T left, Operation op, T right, bool skipFlags = false) where T : IBinaryInteger<T>, IShiftOperators<T, int, T>, IBitwiseOperators<T, T, T>
+		{
             if (!skipFlags && TypeInfo<T>.Size > 4) throw new InvalidOperationException("Long number types are not supported by ");
 
             T ret = op switch
@@ -24,23 +24,24 @@ namespace Dankle.Components
             if (skipFlags) return ret;
 
             Core.Zero = ret == T.AdditiveIdentity;
-            if (!TypeInfo<T>.IsFloatingPoint && op != Operation.MOD)
+            if (op != Operation.MOD)
             {
                 if (TypeInfo<T>.IsUnsigned) Core.Overflow = Calculate(ulong.CreateTruncating(left), op, ulong.CreateTruncating(right), true) != ulong.CreateTruncating(ret);
                 else Core.Overflow = Calculate(long.CreateTruncating(left), op, long.CreateTruncating(right), true) != long.CreateTruncating(ret);
             }
-
-            if (!TypeInfo<T>.IsFloatingPoint && op == Operation.ADD)
+            else if (op == Operation.ADD)
             {
                 if (TypeInfo<T>.IsUnsigned) Core.Carry = ret < left;
                 else throw new NotImplementedException();
             }
-
-            if (!TypeInfo<T>.IsFloatingPoint && op == Operation.SUB)
+            else if (op == Operation.SUB)
             {
                 if (TypeInfo<T>.IsUnsigned) Core.Carry = left < right;
                 else throw new NotImplementedException();
             }
+
+            if (TypeInfo<T>.IsUnsigned) Core.Sign = ret > (T.AllBitsSet >>> 1);
+            else Core.Sign = T.IsNegative(ret);
 
             return ret;
         }
@@ -53,19 +54,23 @@ namespace Dankle.Components
                 {
                     Core.Zero = left == T.AdditiveIdentity;
 					Core.Overflow = false;
-                }
+					if (TypeInfo<T>.IsUnsigned) Core.Sign = left > (T.AllBitsSet >>> 1);
+					else Core.Sign = T.IsNegative(left);
+				}
                 return left;
             }
 
             T ret;
             if (op == ShiftOperation.LSH) ret = left << right;
-            else if (op == ShiftOperation.RSH) ret = left >> right;
+            else if (op == ShiftOperation.RSH) ret = left >>> right;
             else throw new ArgumentException($"Invalid operation {op}");
 
             if (skipFlags) return ret;
 
             Core.Zero = ret == T.AdditiveIdentity;
 			Core.Overflow = T.PopCount(ret) != T.PopCount(left);
+			if (TypeInfo<T>.IsUnsigned) Core.Sign = ret > (T.AllBitsSet >>> 1);
+			else Core.Sign = T.IsNegative(ret);
 
 			return ret;
         }
@@ -81,7 +86,9 @@ namespace Dankle.Components
             };
 
 			Core.Zero = ret == T.AdditiveIdentity;
-            return ret;
+			if (TypeInfo<T>.IsUnsigned) Core.Sign = ret > (T.AllBitsSet >>> 1);
+			else Core.Sign = T.IsNegative(ret);
+			return ret;
 		}
 
         public void CompareAndSetFlag<T>(T left, Comparison op, T right) where T : IComparisonOperators<T, T, bool>

@@ -1,4 +1,5 @@
-﻿using Dankle.Components.Instructions;
+﻿using Dankle.Components.Arguments;
+using Dankle.Components.Instructions;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -19,8 +20,8 @@ namespace Dankle.Components
 
 		public readonly ALU ALU;
 
-		public uint ProgramCounter { get => Utils.Merge(Registers[14], Registers[15]); set { Registers[14] = (ushort)(value >> 16); Registers[15] = (ushort)value; } }
-		public uint StackPointer { get => Utils.Merge(Registers[12], Registers[13]); set { Registers[12] = (ushort)(value >> 16); Registers[13] = (ushort)value; } }
+		public uint ProgramCounter { get => Utils.Merge(Registers[14], Registers[15]); set { Registers[14] = (ushort)(value >>> 16); Registers[15] = (ushort)value; } }
+		public uint StackPointer { get => Utils.Merge(Registers[12], Registers[13]); set { Registers[12] = (ushort)(value >>> 16); Registers[13] = (ushort)value; } }
 
 		public bool ShouldStep = false;
 
@@ -28,11 +29,37 @@ namespace Dankle.Components
 		private int _carry;
 		private int _zero;
 		private int _compare;
+		private int _sign;
 
 		public bool Overflow { get => Interlocked.CompareExchange(ref _overflow, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _overflow, 1, 0) : Interlocked.CompareExchange(ref _overflow, 0, 1); } }
 		public bool Carry { get => Interlocked.CompareExchange(ref _carry, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _carry, 1, 0) : Interlocked.CompareExchange(ref _carry, 0, 1); } }
 		public bool Zero { get => Interlocked.CompareExchange(ref _zero, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _zero, 1, 0) : Interlocked.CompareExchange(ref _zero, 0, 1); } }
 		public bool Compare { get => Interlocked.CompareExchange(ref _compare, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _compare, 1, 0) : Interlocked.CompareExchange(ref _compare, 0, 1); } }
+		public bool Sign { get => Interlocked.CompareExchange(ref _sign, 1, 1) == 1; set { var _ = value ? Interlocked.CompareExchange(ref _sign, 1, 0) : Interlocked.CompareExchange(ref _sign, 0, 1); } }
+
+		public byte Flags
+		{
+			get
+			{
+				byte flags = 0;
+
+				if (Overflow) flags |= 0b10000000;
+				if (Carry) flags |= 0b01000000;
+				if (Zero) flags |= 0b00100000;
+				if (Compare) flags |= 0b00010000;
+				if (Sign) flags |= 0b00001000;
+
+				return flags;
+			}
+			set
+			{
+				Overflow = (value & 0b10000000) != 0;
+				Carry = (value & 0b01000000) != 0;
+				Zero = (value & 0b00100000) != 0;
+				Compare = (value & 0b00010000) != 0;
+				Sign = (value & 0b00001000) != 0;
+			}
+		}
 
 		// In Megahertz
 		public double Clockspeed { get; private set; }
@@ -92,12 +119,37 @@ namespace Dankle.Components
 			}
 
 			sb.Append($"SP: 0x{StackPointer:X8}\n");
-			sb.Append($"PC: 0x{ProgramCounter:X8}");
+			sb.Append($"PC: 0x{ProgramCounter:X8}\n");
+			sb.Append($"Flags: 0b{Flags:B8}");
 
 			return sb.ToString();
 		}
 
 		public void Dump() => Console.WriteLine(GetDump());
+
+		public string Dissassemble(uint addr)
+		{
+			var oldPC = ProgramCounter;
+			ProgramCounter = addr;
+			var insn = Instruction.Get(GetNext());
+			var text = new StringBuilder(insn.Name.ToLower() + " ");
+
+			int idex = 0;
+
+			var ctx = Instruction.GetNextContext(this);
+			foreach (var i in insn.Arguments)
+			{
+				var arg = IArgument.Create(i, ctx, idex++);
+
+				text.Append(arg.Dissassemble());
+				text.Append(", ");
+			}
+
+			if (idex > 0) text.Length -= 2;
+
+			ProgramCounter = oldPC;
+			return text.ToString();
+		}
 
 		private void Cycle()
 		{
@@ -160,7 +212,7 @@ namespace Dankle.Components
 					return states[reg] switch
 					{
 						RegisterState.None => val,
-						RegisterState.High => (ushort)(val >> 8),
+						RegisterState.High => (ushort)(val >>> 8),
 						RegisterState.Low => (ushort)(val & 0xFF),
 						_ => throw new Exception("Invalid register state somehow"),
 					};

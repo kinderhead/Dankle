@@ -20,6 +20,8 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new Immediate<T>(ctx, argnum);
 
+		public override string Dissassemble() => $"0x{Ctx.Core.GetNext<T>():X8}";
+
 		public override T Read() => Ctx.Core.GetNext<T>();
 
 		public override void Write(T value) => throw new InvalidOperationException("Cannot write to an immediate value");

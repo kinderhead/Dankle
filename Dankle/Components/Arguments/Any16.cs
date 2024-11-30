@@ -19,6 +19,7 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new Any16(ctx, argnum);
 
+		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
 		public override ushort Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(ushort value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
@@ -43,6 +44,7 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new Any16Num(ctx, argnum);
 
+		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
 		public override ushort Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(ushort value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
@@ -66,6 +68,7 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new Any8Num(ctx, argnum);
 
+		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
 		public override byte Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(byte value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 
@@ -89,6 +92,7 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new Any32(ctx, argnum);
 
+		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
 		public override uint Read() => GetArg(Ctx.Data[ArgNum]).Read();
 		public override void Write(uint value) => GetArg(Ctx.Data[ArgNum]).Write(value);
 

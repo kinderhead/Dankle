@@ -18,19 +18,27 @@ namespace Dankle.Components.Instructions
 		public abstract Type[] Arguments { get; }
 		public abstract string Name { get; }
 
-		public void Execute(CPUCore core)
+		public static Context GetNextContext(CPUCore core)
 		{
-			core.Computer.PrintDebug($"0x{(core.ProgramCounter - 1):X8}: {Name}");
-
 			var info = core.GetNext();
 			var data = new byte[4];
 
 			data[3] = (byte)(info & 0x000F);
-			data[2] = (byte)((info >> 4) & 0x000F);
-			data[1] = (byte)((info >> 8) & 0x000F);
-			data[0] = (byte)((info >> 12) & 0x000F);
+			data[2] = (byte)((info >>> 4) & 0x000F);
+			data[1] = (byte)((info >>> 8) & 0x000F);
+			data[0] = (byte)((info >>> 12) & 0x000F);
 
-			Handle(new(core, data));
+			return new(core, data);
+		}
+
+		public void Execute(CPUCore core)
+		{
+			if (core.Computer.Debug)
+			{
+				Console.WriteLine($"0x{core.ProgramCounter - 2:X8}: {core.Dissassemble(core.ProgramCounter - 2)}");
+			}
+
+			Handle(GetNextContext(core));
 		}
 
 		protected abstract void Handle(Context ctx);
@@ -101,6 +109,13 @@ namespace Dankle.Components.Instructions
 			Register<Sbb>();
 			Register<UnsignedDiv32>();
 			Register<Modulo32>();
+			Register<CompareFlags>();
+			Register<CompareFlagsEven>();
+			Register<CompareFlagsOdd>();
+			Register<PushFlags>();
+			Register<PopFlags>();
+			Register<SignedDiv32>();
+			Register<SignedModulo32>();
 		}
 	}
 

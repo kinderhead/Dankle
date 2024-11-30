@@ -33,6 +33,7 @@ namespace DankleTranslator
 		{
 			var computer = new Computer(0xF0000u);
 			computer.AddComponent<Terminal>(0xFFFFFFF0u);
+			computer.AddComponent<Debugger>(0xFFFFFFF2u);
 
 			var linker = new Linker([File.ReadAllText("cmain.asm"), ..progs]);
 			computer.WriteMem(0x10000u, linker.AssembleAndLink(0x10000u, computer));
@@ -42,6 +43,8 @@ namespace DankleTranslator
 			{
 				computer.Symbols[i.Key] = i.Value;
 			}
+
+			//computer.Debug = true;
 
 			computer.Run();
 		}

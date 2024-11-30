@@ -36,6 +36,7 @@ namespace DankleTest
 			Assert.AreEqual(65535, core.ALU.Calculate<ushort>(3, Operation.SUB, 4));
 			Assert.IsFalse(core.Zero);
 			Assert.IsTrue(core.Overflow);
+			Assert.IsTrue(core.Sign);
 		}
 
 		[TestMethod]

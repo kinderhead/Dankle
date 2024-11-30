@@ -26,6 +26,7 @@ namespace Dankle.Components.Arguments
 		{
 		}
 
+		public override string Dissassemble() => $"r{(UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum])}";
 		public override ushort Read() => Ctx.Core.Registers[UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum]];
 		public override void Write(ushort value) => Ctx.Core.Registers[UseArgNumAsRegister ? ArgNum : Ctx.Data[ArgNum]] = value;
 	}
@@ -42,16 +43,22 @@ namespace Dankle.Components.Arguments
 
 		public override IArgument Create(Context ctx, int argnum) => new DoubleRegister(ctx, argnum);
 
+		public override string Dissassemble()
+		{
+			var data = Ctx.Core.GetNext<byte>();
+			return $"(r{data >>> 4}, r{data & 0xF})";
+		}
+
 		public override uint Read()
 		{
 			var data = Ctx.Core.GetNext<byte>();
-			return Utils.Merge(Ctx.Core.Registers[data >> 4], Ctx.Core.Registers[data & 0xF]);
+			return Utils.Merge(Ctx.Core.Registers[data >>> 4], Ctx.Core.Registers[data & 0xF]);
 		}
 
 		public override void Write(uint value)
 		{
 			var data = Ctx.Core.GetNext<byte>();
-			Ctx.Core.Registers[data >> 4] = (ushort)(value >> 16);
+			Ctx.Core.Registers[data >>> 4] = (ushort)(value >>> 16);
 			Ctx.Core.Registers[data & 0xF] = (ushort)value;
 		}
 	}

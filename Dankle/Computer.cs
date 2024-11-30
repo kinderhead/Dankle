@@ -161,19 +161,26 @@ namespace Dankle
 
 		public void RunDebug()
 		{
-			var core = GetComponent<CPUCore>();
-			core.ShouldStep = true;
+			MainCore.ShouldStep = true;
 			Debug = true;
 			Run(false);
+
+			StartDebugging();
+		}
+
+		public void StartDebugging()
+		{
+			MainCore.ShouldStep = true;
+			Debug = true;
 
 			while (!StoppingOrStopped)
 			{
 				Console.Write("Dbg > ");
 				var cmd = Console.ReadLine();
-				if (cmd == null) break;
+				if (cmd is null) break;
 
-				if (cmd == "") core.Step();
-				else if (cmd == "dump") core.Dump();
+				if (cmd == "") MainCore.Step();
+				else if (cmd == "dump") MainCore.Dump();
 				else if (cmd == "read")
 				{
 					Console.Write("Read address > ");
@@ -181,7 +188,12 @@ namespace Dankle
 					var val = ReadMem(addr);
 					Console.WriteLine($"0x{addr:X8}: {val} | 0x{val:X2} | {Encoding.UTF8.GetString([val])}");
 				}
+				else if (cmd == "go") break;
 			}
+
+			MainCore.ShouldStep = false;
+			Debug = false;
+			MainCore.Step();
 		}
 
 		public void Dispose()

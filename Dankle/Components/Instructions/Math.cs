@@ -168,6 +168,23 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class SignedDiv32 : Instruction
+	{
+		public override ushort Opcode => 47;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32), typeof(Any32)];
+		public override string Name => "SDIVL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write((uint)ctx.Core.ALU.Calculate((int)arg1.Read(), Operation.DIV, (int)arg2.Read()));
+		}
+	}
+
 	public class LeftShift : Instruction
 	{
 		public override ushort Opcode => 13;
@@ -284,6 +301,23 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Any32>();
 
 			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MOD, arg2.Read()));
+		}
+	}
+
+	public class SignedModulo32 : Instruction
+	{
+		public override ushort Opcode => 48;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32), typeof(Any32)];
+		public override string Name => "SMODL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write((uint)ctx.Core.ALU.Calculate((int)arg1.Read(), Operation.MOD, (int)arg2.Read()));
 		}
 	}
 }

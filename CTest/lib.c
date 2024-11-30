@@ -1,6 +1,6 @@
 #include "lib.h"
 
-void _putchar(char c)
+inline void _putchar(char c)
 {
     *((unsigned char*)(0xFFFFFFF0u)) = c;
 }
@@ -18,6 +18,7 @@ void println(const char* str)
 
 void itoa(int num, char* str, int base)
 {
+    BREAK();
     int i = 0;
     int isNegative = 0;
 
