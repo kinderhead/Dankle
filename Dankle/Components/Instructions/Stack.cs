@@ -23,6 +23,22 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class XCall : Instruction
+	{
+		public override ushort Opcode => 52;
+
+		public override Type[] Arguments => [typeof(Any32)];
+		public override string Name => "XCALL";
+
+		protected override void Handle(Context ctx)
+		{
+			var dest = ctx.GetNextArg<Any32>().Read();
+
+			ctx.Core.Push(ctx.Core.Registers[15]);
+			ctx.Core.ProgramCounter = dest;
+		}
+	}
+
 	public class Return : Instruction
 	{
 		public override ushort Opcode => 30;

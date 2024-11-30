@@ -31,6 +31,9 @@ namespace DankleTranslator
 			Offset,
 			Seg,
 
+			NearPtr,
+			FarPtr,
+
 			Label,
 			Text,
 			Comma,

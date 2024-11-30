@@ -16,7 +16,10 @@ namespace DankleTranslator
 		BytePointer,
 
 		SS,
-		CS
+		CS,
+
+		NearLabel,
+		FarLabel
 	}
 
 	public readonly struct InsnSignature(string name, List<(ArgumentType, string)> args)

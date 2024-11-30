@@ -1,6 +1,6 @@
 #include "lib.h"
 
-inline void _putchar(char c)
+void _putchar(char c)
 {
     *((unsigned char*)(0xFFFFFFF0u)) = c;
 }

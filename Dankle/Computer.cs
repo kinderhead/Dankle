@@ -1,5 +1,6 @@
 ﻿using Dankle.Components;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -112,7 +113,7 @@ namespace Dankle
 
 		public void WriteMem(uint addr, byte[] data)
 		{
-			//if (addr == 0x0001FFE3) StartDebugAsTask();
+			//if (addr == 0x0000FFE3) StartDebugAsTask();
 
 			foreach (var entry in GetMemoryMapsForRange(addr, (uint)data.Length))
 			{
@@ -185,20 +186,49 @@ namespace Dankle
 
 			while (!StoppingOrStopped)
 			{
-				Console.Write("Dbg > ");
-				var cmd = Console.ReadLine();
-				if (cmd is null) break;
-
-				if (cmd == "") MainCore.Step();
-				else if (cmd == "dump") MainCore.Dump();
-				else if (cmd == "read")
+				try
 				{
-					Console.Write("Read address > ");
-					var addr = uint.Parse((Console.ReadLine() ?? "").Trim("0x"), System.Globalization.NumberStyles.HexNumber);
-					var val = ReadMem(addr);
-					Console.WriteLine($"0x{addr:X8}: {val} | 0x{val:X2} | {Encoding.UTF8.GetString([val])}");
+					Console.Write("Dbg > ");
+					var args = Console.ReadLine()?.Split(" ");
+					if (args is null) break;
+
+					var cmd = args[0];
+
+					if (cmd == "") MainCore.Step();
+					else if (cmd == "dump") MainCore.Dump();
+					else if (cmd == "read")
+					{
+						var addr = uint.Parse(args[1].Trim("0x"), System.Globalization.NumberStyles.HexNumber);
+						var val = ReadMem(addr);
+						Console.WriteLine($"0x{addr:X8}: {val} | 0x{val:X2} | {Encoding.UTF8.GetString([val])}");
+					}
+					else if (cmd == "go") break;
+					else if (cmd == "goto")
+					{
+						var addr = uint.Parse(args[1].Trim("0x"), System.Globalization.NumberStyles.HexNumber);
+						while (MainCore.ProgramCounter != addr) MainCore.Step();
+					}
+					else if (cmd == "dis")
+					{
+						var pc = MainCore.ProgramCounter;
+						for (var i = 0; i < int.Parse(args[1]); i++)
+						{
+							try
+							{
+								Console.WriteLine(MainCore.Dissassemble(MainCore.ProgramCounter, false));
+							}
+							catch
+							{
+								break;
+							}
+						}
+						MainCore.ProgramCounter = pc;
+					}
 				}
-				else if (cmd == "go") break;
+				catch (Exception e)
+				{
+					Console.Error.WriteLine(e.Message);
+				}
 			}
 
 			MainCore.ShouldStep = false;

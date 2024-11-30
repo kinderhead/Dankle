@@ -14,7 +14,7 @@ namespace DankleTranslator
 			TokenMap[Token.Type.Register] = new(@"^(([a|b|c|d]x)|([d|e]s)|([s|b|i]p)|([s|d]i)|([a|b|c|d]l)|([a|b|c|d]h))\b");
 			TokenMap[Token.Type.Integer] = new(@"^(([0-9a-fA-F]+H)|\d+)");
 
-			TokenMap[Token.Type.Ignore] = new(@"^((\.387)|EXTRN|ASSUME|DGROUP|GROUP|(CONST\d*)|ENDS|DB|END|SEGMENT|WORD|USE16|BYTE|_DATA|offset DGROUP:|far ptr|near ptr|word ptr|dword ptr)");
+			TokenMap[Token.Type.Ignore] = new(@"^((\.387)|EXTRN|ASSUME|DGROUP|GROUP|(CONST\d*)|ENDS|DB|END|SEGMENT|WORD|USE16|BYTE|_DATA|offset DGROUP:|word ptr|dword ptr)");
 			TokenMap[Token.Type.Public] = new(@"^PUBLIC");
 			TokenMap[Token.Type.PtrLabel] = new(@"^es:");
 			TokenMap[Token.Type.FakeLabel] = new(@"^[a-zA-Z_][a-zA-Z0-9_]*:[a-zA-Z_][a-zA-Z0-9_]*");
@@ -25,6 +25,9 @@ namespace DankleTranslator
 
 			TokenMap[Token.Type.Offset] = new(@"^offset");
 			TokenMap[Token.Type.Seg] = new(@"^seg");
+
+			TokenMap[Token.Type.NearPtr] = new(@"^near ptr");
+			TokenMap[Token.Type.FarPtr] = new(@"^far ptr");
 
 			TokenMap[Token.Type.Label] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$]+:");
 			TokenMap[Token.Type.Text] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$]+");

@@ -119,6 +119,7 @@ namespace Dankle.Components.Instructions
 			Register<LE>();
 			Register<BE>();
 			Register<Negate>();
+			Register<XCall>();
 		}
 	}
 

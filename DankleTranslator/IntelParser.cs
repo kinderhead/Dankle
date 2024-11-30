@@ -85,8 +85,8 @@ namespace DankleTranslator
                 Output += sig.Compile("\tmov %tmp, @1\n\tcall __IDIV");
                 //Output += sig.Compile("\tld r9, 0\n\tsdivl (r3, r0), (r9, @1), (%tmp, %tmpalt)\n\tsmodl (r3, r0), (r9, @1), (%tmp, r3)\n\tmov r0, %tmpalt");
             }
-			else if (sig.IsValid("ret", [])) Output += "\tret";
-            else if (sig.IsValid("ret", [ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @1\n\tadd r13, %tmp, r13\n\tret");
+            else if (sig.IsValid("ret", [])) Output += "\tpop r15";
+            else if (sig.IsValid("ret", [ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @1\n\tadd r13, %tmp, r13\n\tpop r15");
             else if (sig.IsValid("retf", [])) Output += "\tret";
             else if (sig.IsValid("retf", [ArgumentType.Integer])) Output += sig.Compile("\tld %tmp, @1\n\tadd r13, %tmp, r13\n\tret");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.Label]))
@@ -132,24 +132,7 @@ namespace DankleTranslator
                 }
                 else throw new Exception("Invalid lea call");
             }
-            else if (sig.IsValid("les", [ArgumentType.Register, ArgumentType.Pointer]))
-            {
-                var offset = 0;
-                var ptr = sig.Args[1].Item2;
-
-                if (sig.Args[1].Item2.Contains('+'))
-                {
-                    offset = Convert.ToInt16(sig.Args[1].Item2.Split('+').Last(), 16);
-                    ptr = sig.Args[1].Item2.Split('+').First();
-                }
-                else if (sig.Args[1].Item2.Contains('-'))
-                {
-                    offset = -Convert.ToInt16(sig.Args[1].Item2.Split('-').Last(), 16);
-					ptr = sig.Args[1].Item2.Split('-').First();
-				}
-
-				Output += sig.Compile($"\tld @1, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset)}]\n\tld %es, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset + 2)}]");
-            }
+            else if (sig.IsValid("les", [ArgumentType.Register, ArgumentType.Pointer])) Output += LoadMem32Into("@1", "%es", sig.Args[1].Item2, sig);
             else if (sig.IsValid("lds", [ArgumentType.Register, ArgumentType.Pointer])) Output += LoadMem32Into("@1", "%ds", sig.Args[1].Item2, sig);
             else if (sig.IsValid("push", [ArgumentType.Register])) Output += sig.Compile("\tpush @1");
             else if (sig.IsValid("push", [ArgumentType.Pointer])) Output += sig.Compile("\tpush @ptr1");
@@ -158,21 +141,30 @@ namespace DankleTranslator
             else if (sig.IsValid("pop", [ArgumentType.Register])) Output += sig.Compile("\tpop @1");
             else if (sig.IsValid("cmp", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tsub @1, @2, %tmp");
             else if (sig.IsValid("cmp", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tsub @1, %tmp, %tmp");
-			else if (sig.IsValid("cmp", [ArgumentType.Pointer, ArgumentType.Integer])) Output += sig.Compile("\tld %tmpalt, @ptr1\n%ldtmp2\tsub %tmpalt, %tmp, %tmp");
+            else if (sig.IsValid("cmp", [ArgumentType.Pointer, ArgumentType.Integer])) Output += sig.Compile("\tld %tmpalt, @ptr1\n%ldtmp2\tsub %tmpalt, %tmp, %tmp");
+            else if (sig.IsValid("cmp", [ArgumentType.BytePointer, ArgumentType.Integer])) Output += sig.Compile("\tldb %tmpalt, @ptr1\n%ldtmp2\tsub %tmpalt, %tmp, %tmp");
             else if (sig.IsValid("cmp", [ArgumentType.Register, ArgumentType.Pointer])) Output += sig.Compile("\tld %tmp, @ptr2\n\tsub @1, %tmp, %tmp");
+            else if (sig.IsValid("cmp", [ArgumentType.Register, ArgumentType.BytePointer])) Output += sig.Compile("\tldb %tmp, @ptr2\n\tsub @1, %tmp, %tmp");
 			else if (sig.IsValid("je", [ArgumentType.Label])) Output += sig.Compile("\tjz @1");
             else if (sig.IsValid("jne", [ArgumentType.Label])) Output += sig.Compile("\tjnz @1");
+            else if (sig.IsValid("jg", [ArgumentType.Label])) Output += sig.Compile("\tcmpfe 0b10001000\n\tcmpf 0b00110000, 0b00100000\n\tje @1");
             else if (sig.IsValid("jge", [ArgumentType.Label])) Output += sig.Compile("\tcmpfe 0b10001000\n\tje @1");
             else if (sig.IsValid("jle", [ArgumentType.Label])) Output += sig.Compile("\tcmpfo 0b10001000\n\tje @1\n\tjz @1");
             else if (sig.IsValid("jl", [ArgumentType.Label])) Output += sig.Compile("\tcmpfo 0b10001000\n\tje @1");
-			else if (sig.IsValid("call", [ArgumentType.Label]))
+            else if (sig.IsValid("jae", [ArgumentType.Label])) Output += sig.Compile("\tcmpf 0b01000000, 0b00000000\n\tje @1");
+            else if (sig.IsValid("ja", [ArgumentType.Label])) Output += sig.Compile("\tcmpf 0b01100000, 0b00000000\n\tje @1");
+            else if (sig.IsValid("jb", [ArgumentType.Label])) Output += sig.Compile("\tcmpf 0b01000000, 0b01000000\n\tje @1");
+            else if (sig.IsValid("jbe", [ArgumentType.Label])) Output += sig.Compile("\tcmpf 0b01000000, 0b01000000\n\tje @1\n\tjz @1");
+            else if (sig.IsValid("call", [ArgumentType.FarLabel]))
             {
                 if (sig.Args[0].Item2 == "__U4D") Output += sig.Compile("\tudivl (r3, r0), (r2, r1), (%tmp, %tmpalt)\n\tumodl (r3, r0), (r2, r1), (r2, r1)\n\tmov r3, %tmp\n\tmov r0, %tmpalt");
                 else Output += sig.Compile("\tcall @1");
             }
-            else if (sig.IsValid("call", [ArgumentType.Pointer])) Output += sig.Compile($"{LoadMem32Into("%tmpalt", "%tmp", sig.Args[0].Item2, sig)}\n\tcall [%tmpalt,%tmp]");
+            else if (sig.IsValid("call", [ArgumentType.NearLabel])) Output += sig.Compile("\txcall @1");
+            else if (sig.IsValid("call", [ArgumentType.Pointer])) Output += sig.Compile($"{LoadMem32Into("%tmp", "%tmpalt", sig.Args[0].Item2, sig)}\n\tcall (%tmpalt,%tmp)");
             else if (sig.IsValid("jmp", [ArgumentType.Label])) Output += sig.Compile("\tjmp @1");
-            else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tand @1, @2, %tmp");
+            else if (sig.IsValid("jmp", [ArgumentType.NearLabel])) Output += sig.Compile("\tjmp @1");
+			else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\tand @1, @2, %tmp");
             else if (sig.IsValid("test", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tand %tmp, %tmp, %tmp");
             else if (sig.IsValid("test", [ArgumentType.BytePointer, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tldb %tmpalt, @ptr1\n\tand %tmp, %tmpalt, %tmp");
             else if (sig.IsValid("and", [ArgumentType.BytePointer, ArgumentType.Integer])) Output += sig.Compile("\tldb %tmp, @ptr1\n\tld %tmpalt, @2\n\tand %tmp, %tmpalt, %tmp\n\tstb @ptr1, %tmp");
@@ -182,7 +174,7 @@ namespace DankleTranslator
             else if (sig.IsValid("xor", [ArgumentType.Register, ArgumentType.Register])) Output += sig.Compile("\txor @1, @2, @1");
             else if (sig.IsValid("shl", [ArgumentType.Register, ArgumentType.Integer])) Output += sig.Compile("%ldtmp2\tlsh @1, %tmp, @1");
             else if (sig.IsValid("cwd", [])) Output += sig.Compile("\tcall __CWD");
-			else
+            else
             {
                 Console.WriteLine(Output);
                 throw new Exception("Invalid insn signature");
@@ -261,27 +253,20 @@ namespace DankleTranslator
 
         private static string LoadMem32Into(string high, string low, string ptr, InsnSignature sig)
         {
-			if (ptr.Length >= 4)
+			var offset = 0;
+
+			if (ptr.Contains('+'))
 			{
-				int offset;
-				string reg;
-				if (ptr.Contains('-'))
-				{
-					offset = -Convert.ToInt32(ptr.Split('-')[1], 16);
-					reg = ptr.Split('-')[0];
-				}
-				else if (ptr.Contains('+'))
-				{
-					offset = Convert.ToInt32(ptr.Split('+')[1], 16);
-					reg = ptr.Split('+')[0];
-				}
-				else throw new Exception("Huh?");
-
-				var seg = InsnSignature.GetIndirectHighReg(reg);
-
-				return sig.Compile($"\tld {low}, [{seg},{reg}{(offset >= 0 ? "+" : "")}{offset}]\n\tld {high}, [{seg},{reg}{((offset + 2) >= 0 ? "+" : "")}{offset + 2}]");
+				offset = Convert.ToInt16(ptr.Split('+').Last(), 16);
+				ptr = ptr.Split('+').First();
 			}
-			else throw new Exception("Do this :(");
+			else if (ptr.Contains('-'))
+			{
+				offset = -Convert.ToInt16(ptr.Split('-').Last(), 16);
+				ptr = ptr.Split('-').First();
+			}
+
+			return sig.Compile($"\tld {high}, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset)}]\n\tld {low}, [{InsnSignature.GetIndirectHighReg(ptr)},{ptr}{ToPointerOffset(offset + 2)}]");
 		}
 
         private InsnSignature GetNextInsn(Token first)
@@ -312,7 +297,9 @@ namespace DankleTranslator
             if (tok.Symbol == Token.Type.Register) return (ArgumentType.Register, MapRegister(tok.Text));
 			else if (tok.Symbol == Token.Type.Integer) return (ArgumentType.Integer, ParseInt(tok));
             else if (tok.Symbol == Token.Type.Text) return (ArgumentType.Label, tok.Text);
-            else if (tok.Symbol == Token.Type.Offset) return (ArgumentType.Label, GetNextToken(Token.Type.Text).Text + "#L");
+			else if (tok.Symbol == Token.Type.NearPtr) return (ArgumentType.NearLabel, GetNextToken(Token.Type.Text).Text);
+			else if (tok.Symbol == Token.Type.FarPtr) return (ArgumentType.FarLabel, GetNextToken(Token.Type.Text).Text);
+			else if (tok.Symbol == Token.Type.Offset) return (ArgumentType.Label, GetNextToken(Token.Type.Text).Text + "#L");
             else if (tok.Symbol == Token.Type.Seg) return (ArgumentType.Label, GetNextToken(Token.Type.Text).Text + "#H");
             else if (tok.Symbol == Token.Type.SS) return (ArgumentType.SS, "ss");
             else if (tok.Symbol == Token.Type.CS) return (ArgumentType.CS, "cs");

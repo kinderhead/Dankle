@@ -1,6 +1,7 @@
 ﻿using Dankle.Components.Arguments;
 using Dankle.Components.Instructions;
 using System;
+using System.Buffers.Binary;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -102,12 +103,12 @@ namespace Dankle.Components
 		public void Push<T>(T val) where T : IBinaryInteger<T>
 		{
 			StackPointer -= TypeInfo<T>.Size;
-			Computer.WriteMem(StackPointer, val);
+			Computer.WriteMem(StackPointer, FixEndian(val));
 		}
 
 		public T Pop<T>() where T : IBinaryInteger<T>
 		{
-			T ret = Computer.ReadMem<T>(StackPointer);
+			T ret = FixEndian(Computer.ReadMem<T>(StackPointer));
 			StackPointer += TypeInfo<T>.Size;
 			return ret;
 		}
@@ -131,7 +132,7 @@ namespace Dankle.Components
 
 		public void Dump() => Console.WriteLine(GetDump());
 
-		public string Dissassemble(uint addr)
+		public string Dissassemble(uint addr, bool resetPC = true)
 		{
 			var oldPC = ProgramCounter;
 			ProgramCounter = addr;
@@ -151,7 +152,7 @@ namespace Dankle.Components
 
 			if (idex > 0) text.Length -= 2;
 
-			ProgramCounter = oldPC;
+			if (resetPC) ProgramCounter = oldPC;
 			return text.ToString();
 		}
 
@@ -187,11 +188,25 @@ namespace Dankle.Components
 
 				Console.Error.WriteLine($"Error at insn {insn.Name} at 0x{addr:X8}{symbol}\n\n{GetDump()}");
 
-				throw;
+				Computer.StartDebugAsTask();
 			}
 
 			sw.Stop();
 			Clockspeed = 1.0 / sw.Elapsed.TotalMicroseconds;
+		}
+
+		public T FixEndian<T>(T val) where T : IBinaryInteger<T>
+		{
+			if (LittleEndianEmulation)
+			{
+				if (val is ushort us) return (T)(object)BinaryPrimitives.ReverseEndianness(us);
+				else if (val is short s) return (T)(object)BinaryPrimitives.ReverseEndianness(s);
+				else if (val is uint ui) return (T)(object)BinaryPrimitives.ReverseEndianness(ui);
+				else if (val is int i) return (T)(object)BinaryPrimitives.ReverseEndianness(i);
+				else if (val is byte) return val;
+				else throw new NotImplementedException();
+			}
+			return val;
 		}
 
 		public class RegisterHandler(CPUCore core) : IEnumerable<ushort>

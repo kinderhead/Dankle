@@ -9,9 +9,9 @@ namespace DankleTranslator
         public static void Main()
         {
             var driver = new WatcomDriver("wcc", "wdis");
-            var builder = new Builder(driver);
+            var builder = new Builder(driver, "../CTest/build");
 
-            builder.AddSourceFiles("../CTest/test.c", "../CTest/lib.c");
+            builder.AddSourceFiles("../CTest/test.c", "../CTest/lib.c", "../CTest/printf.c");
             builder.LinkAndRun();
         }
     }

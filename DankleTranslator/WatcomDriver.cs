@@ -12,7 +12,7 @@ namespace DankleTranslator
 		{
 			var proc = new Process();
 			proc.StartInfo.FileName = WCC;
-			proc.StartInfo.Arguments = $"-0 -bt=dos -mh -s -za99 -i=../CTest -fo={objectFilePath} {sourcePath}";
+			proc.StartInfo.Arguments = $"-0 -bt=dos -mh -s -za99 -ecc -i=../CTest -fo={objectFilePath} {sourcePath}";
 			proc.StartInfo.RedirectStandardOutput = true;
 			proc.Start();
 

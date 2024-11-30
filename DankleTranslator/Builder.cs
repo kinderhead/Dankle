@@ -9,23 +9,31 @@ using System.Threading.Tasks;
 
 namespace DankleTranslator
 {
-	public class Builder(IDriver driver)
+	public class Builder(IDriver driver, string buildDir)
 	{
 		public readonly IDriver Driver = driver;
+		public readonly string BuildDir = buildDir;
 
 		private readonly List<string> progs = [];
 
 		public void AddSourceFiles(params string[] paths)
 		{
+			Directory.CreateDirectory(BuildDir);
+
 			foreach (var i in paths)
 			{
-				Driver.Compile(i, "../CTest/tmp.obj");
-				var asm = Driver.Dissassemble("../CTest/tmp.obj");
+				var objectFile = Path.Join(BuildDir, Path.GetFileNameWithoutExtension(i) + ".obj");
+
+				if (File.GetLastWriteTime(i) > File.GetLastWriteTime(objectFile)) Driver.Compile(i, objectFile);
+				var asm = Driver.Dissassemble(objectFile);
 				var tokenizer = new IntelTokenizer(asm);
 				var tokens = tokenizer.Parse();
 				var parser = new IntelParser(tokens);
 				parser.Parse();
 				progs.Add(parser.Output);
+
+				File.WriteAllText(Path.Join(BuildDir, Path.GetFileNameWithoutExtension(i) + ".asm"), parser.Output);
+				File.WriteAllText(Path.Join(BuildDir, Path.GetFileNameWithoutExtension(i) + "_8086.asm"), asm);
 			}
 		}
 
