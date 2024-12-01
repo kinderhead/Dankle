@@ -3,11 +3,13 @@
 
 int main()
 {
-    // BREAK();
+    //BREAK();
+
     // char test[16];
     // itoa(50, test, 10);
-    // println(test);
-    printf("Hello gaming\n");
+    // println("test");
+
+    printf("Woah: %i\n", 5);
 
     return 0;
 }

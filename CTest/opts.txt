@@ -1,2 +1,2 @@
-Compilation: wcc -0 -bt=dos -mh -s -za99 -ecc test.c
+Compilation: wcc -0 -bt=dos -mh -s -za99 -ecc -zc test.c
 Disassembly: wdis test.o -fp -fi -a
