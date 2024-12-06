@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DankleUI", "DankleUI\Dankle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DankleTranslator", "DankleTranslator\DankleTranslator.csproj", "{7FBFEC3E-509F-4097-9A14-DDD7A7B1B75B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DankleC", "DankleC\DankleC.csproj", "{4A5A8266-8E09-4D02-8A62-157DFBCEEA53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{7FBFEC3E-509F-4097-9A14-DDD7A7B1B75B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FBFEC3E-509F-4097-9A14-DDD7A7B1B75B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FBFEC3E-509F-4097-9A14-DDD7A7B1B75B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A5A8266-8E09-4D02-8A62-157DFBCEEA53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A5A8266-8E09-4D02-8A62-157DFBCEEA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A5A8266-8E09-4D02-8A62-157DFBCEEA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A5A8266-8E09-4D02-8A62-157DFBCEEA53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

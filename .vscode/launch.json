@@ -21,6 +21,12 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/DankleTranslator/DankleTranslator.csproj"
+        },
+        {
+            "name": "C#: C Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/DankleC/DankleC.csproj",
         }
 
     ]
