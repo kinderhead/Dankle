@@ -116,7 +116,8 @@ namespace DankleTranslator
             else if (sig.IsValid("mov", [ArgumentType.Pointer, ArgumentType.Label])) Output += sig.Compile("%ldtmp2\tst @ptr1, %tmp");
             else if (sig.IsValid("mov", [ArgumentType.Register, ArgumentType.BytePointer])) Output += sig.Compile("\tldb @1, @ptr2");
             else if (sig.IsValid("mov", [ArgumentType.BytePointer, ArgumentType.Register])) Output += sig.Compile("\tstb @ptr1, @2");
-            else if (sig.IsValid("lea", [ArgumentType.Register, ArgumentType.Pointer]))
+            else if (sig.IsValid("movsw", [])) Output += sig.Compile("\tld %tmp, [r8,r7]\n\tst [r4,r5], %tmp\n\tld %tmp, 2\n\tadd r8, %tmp, r8\n\tadd r4, %tmp, r4");
+			else if (sig.IsValid("lea", [ArgumentType.Register, ArgumentType.Pointer]))
             {
                 if (sig.Args[1].Item2.Contains('-'))
                 {
