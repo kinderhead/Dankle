@@ -11,6 +11,8 @@ namespace Dankle.Components.Arguments
 {
 	public class Pointer<T> : Argument<T> where T : IBinaryInteger<T>
 	{
+		public override Type[] AssignableFrom => [];
+
 		public Pointer(Context ctx, int type) : base(ctx, type)
 		{
 		}

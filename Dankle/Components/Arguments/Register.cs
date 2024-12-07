@@ -13,6 +13,8 @@ namespace Dankle.Components.Arguments
 
 		private readonly bool UseArgNumAsRegister = false;
 
+		public override Type[] AssignableFrom => [];
+
 		public Register(Context ctx, int argnum) : base(ctx, argnum)
 		{
 		}
@@ -40,6 +42,8 @@ namespace Dankle.Components.Arguments
 		public DoubleRegister(Context ctx, int argnum) : base(ctx, argnum)
 		{
 		}
+
+		public override Type[] AssignableFrom => [];
 
 		public override IArgument Create(Context ctx, int argnum) => new DoubleRegister(ctx, argnum);
 

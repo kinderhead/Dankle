@@ -17,6 +17,8 @@ namespace Dankle.Components.Arguments
 		{
 		}
 
+		public override Type[] AssignableFrom => [typeof(Immediate<ushort>), typeof(Register), typeof(Pointer<ushort>)];
+
 		public override IArgument Create(Context ctx, int argnum) => new Any16(ctx, argnum);
 
 		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
@@ -42,6 +44,8 @@ namespace Dankle.Components.Arguments
 		{
 		}
 
+		public override Type[] AssignableFrom => [typeof(Immediate<ushort>), typeof(Pointer<ushort>)];
+
 		public override IArgument Create(Context ctx, int argnum) => new Any16Num(ctx, argnum);
 
 		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
@@ -66,6 +70,8 @@ namespace Dankle.Components.Arguments
 		{
 		}
 
+		public override Type[] AssignableFrom => [typeof(Immediate<byte>), typeof(Pointer<byte>)];
+
 		public override IArgument Create(Context ctx, int argnum) => new Any8Num(ctx, argnum);
 
 		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
@@ -89,6 +95,8 @@ namespace Dankle.Components.Arguments
 		public Any32(Context ctx, int type) : base(ctx, type)
 		{
 		}
+
+		public override Type[] AssignableFrom => [typeof(Immediate<uint>), typeof(Register), typeof(Pointer<uint>)];
 
 		public override IArgument Create(Context ctx, int argnum) => new Any32(ctx, argnum);
 

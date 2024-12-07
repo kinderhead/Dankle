@@ -75,6 +75,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.variableExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitVariableExpression([NotNull] CParser.VariableExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.type"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -8,6 +8,6 @@ namespace DankleC.ASTObjects
 {
 	public class ScopeNode : IASTObject
 	{
-		public readonly List<IStatementNode> Statements = [];
+		public readonly List<IStatement> Statements = [];
 	}
 }

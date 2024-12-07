@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace DankleC.ASTObjects
 {
@@ -9,11 +10,58 @@ namespace DankleC.ASTObjects
         ConstPointer
     }
 
-    public class TypeSpecifier : IASTObject
+    public abstract class TypeSpecifier : IASTObject
     {
         public PointerType PointerType = PointerType.None;
         public bool IsConst = false;
-    }
+
+        public int Size
+        {
+            get
+            {
+				if (PointerType == PointerType.None) return GetTypeSize();
+				return 4;
+			}
+        }
+
+        public abstract bool AreEqual(TypeSpecifier a);
+        public abstract string GetName();
+
+        public static bool operator==(TypeSpecifier a, TypeSpecifier b) => a.Equals(b);
+        public static bool operator!=(TypeSpecifier a, TypeSpecifier b) => !a.Equals(b);
+        protected abstract int GetTypeSize();
+
+		public override string ToString()
+		{
+            var builder = new StringBuilder();
+
+            if (IsConst) builder.Append("const ");
+            builder.Append(GetName());
+
+            if (PointerType == PointerType.Pointer) builder.Append(" *");
+            else if (PointerType == PointerType.ConstPointer) builder.Append("const");
+
+            return builder.ToString();
+		}
+
+		public override bool Equals(object? obj)
+		{
+			if (ReferenceEquals(this, obj)) return true;
+            if (obj is null) return false;
+			if (obj is TypeSpecifier type)
+            {
+                if (type.PointerType != PointerType || type.IsConst != IsConst) return false;
+                return AreEqual(type);
+            }
+
+            return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
+	}
 
     public enum BuiltinType
     {
@@ -40,10 +88,45 @@ namespace DankleC.ASTObjects
     public class BuiltinTypeSpecifier(BuiltinType type) : TypeSpecifier
     {
         public readonly BuiltinType Type = type;
-    }
+
+		public override bool AreEqual(TypeSpecifier a)
+		{
+            if (a is not BuiltinTypeSpecifier type) return false;
+            return Type == type.Type;
+		}
+
+        public override string GetName() => Enum.GetName(Type) ?? "<err>";
+
+		protected override int GetTypeSize()
+		{
+			return Type switch
+			{
+				BuiltinType.UnsignedChar or BuiltinType.SignedChar or BuiltinType.Bool => 1,
+				BuiltinType.UnsignedShort or BuiltinType.SignedShort => 2,
+				BuiltinType.Float or BuiltinType.UnsignedInt or BuiltinType.SignedInt => 4,
+				BuiltinType.Double or BuiltinType.LongDouble or BuiltinType.UnsignedLong or BuiltinType.SignedLong => 8,
+				BuiltinType.UnsignedLongLong or BuiltinType.SignedLongLong => 8,
+				BuiltinType.Void => 0,
+				_ => throw new NotImplementedException(),
+			};
+		}
+	}
 
 	public class UserTypeSpecifier(string type) : TypeSpecifier
 	{
 		public readonly string Type = type;
+
+		public override bool AreEqual(TypeSpecifier a)
+		{
+			if (a is not UserTypeSpecifier type) return false;
+			return Type == type.Type;
+		}
+
+        public override string GetName() => Type;
+
+		protected override int GetTypeSize()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

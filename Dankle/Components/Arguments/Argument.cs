@@ -11,9 +11,17 @@ namespace Dankle.Components.Arguments
 {
 	public interface IArgument
 	{
+		// Used by code generation
+		public Type[] AssignableFrom { get; }
+
 		public string Dissassemble();
 
 		public IArgument Create(Context ctx, int argnum);
+
+		public static IArgument Create(Type type)
+		{
+			return (IArgument?)Activator.CreateInstance(type) ?? throw new Exception("Could not create argument");
+		}
 
 		public static IArgument Create(Type type, Context ctx, int argnum)
 		{
@@ -37,6 +45,8 @@ namespace Dankle.Components.Arguments
 		}
 
 		public Type ArgType => typeof(T);
+
+		public abstract Type[] AssignableFrom { get; }
 
 		public abstract IArgument Create(Context ctx, int argnum);
 

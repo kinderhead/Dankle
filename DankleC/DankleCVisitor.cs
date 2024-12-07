@@ -35,7 +35,7 @@ namespace DankleC
 
 			foreach (var i in context.statement())
 			{
-				scope.Statements.Add((IStatementNode)Visit(i));
+				scope.Statements.Add((IStatement)Visit(i));
 			}
 
 			return scope;
@@ -46,7 +46,7 @@ namespace DankleC
 			if (context.Constant() is ITerminalNode c)
 			{
 				var text = c.GetText();
-				if (!text.Contains('.')) return new ConstantExpressionNode(new BuiltinTypeSpecifier(BuiltinType.SignedInt), int.Parse(text));
+				if (!text.Contains('.')) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), int.Parse(text));
 				else throw new NotImplementedException();
 			}
 			else
@@ -57,7 +57,7 @@ namespace DankleC
 					IsConst = true,
 					PointerType = PointerType.Pointer
 				};
-				return new ConstantExpressionNode(type, text);
+				return new ConstantExpression(type, text);
 			}
 		}
 
@@ -115,7 +115,7 @@ namespace DankleC
 
 		public TypeSpecifier Visit(CParser.TypeContext context) => (TypeSpecifier)Visit((IParseTree)context);
 		public ScopeNode Visit(CParser.ScopeContext context) => (ScopeNode)Visit((IParseTree)context);
-		public IExpressionNode Visit(CParser.ExpressionContext context) => (IExpressionNode)Visit((IParseTree)context);
+		public IExpression Visit(CParser.ExpressionContext context) => (IExpression)Visit((IParseTree)context);
 
 		#endregion
 	}

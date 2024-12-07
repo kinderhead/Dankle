@@ -55,11 +55,16 @@ returnStatement
 
 expression
     : constantExpression
+    | variableExpression
     ;
 
 constantExpression
     : Constant
     | StringLiteral
+    ;
+
+variableExpression
+    : Identifier
     ;
 
 type

@@ -18,6 +18,8 @@ namespace Dankle.Components.Arguments
 		{
 		}
 
+		public override Type[] AssignableFrom => [];
+
 		public override IArgument Create(Context ctx, int argnum) => new Immediate<T>(ctx, argnum);
 
 		public override string Dissassemble() => $"0x{Ctx.Core.GetNext<T>():X8}";
