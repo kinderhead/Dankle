@@ -307,16 +307,16 @@ declarator
 
 directDeclarator
     : Identifier
-    | '(' declarator ')'
-    | directDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    | directDeclarator '[' typeQualifierList? '*' ']'
+    // | '(' declarator ')'
+    // | directDeclarator '[' typeQualifierList? assignmentExpression? ']'
+    // | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
+    // | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
+    // | directDeclarator '[' typeQualifierList? '*' ']'
     | directDeclarator '(' parameterTypeList ')'
     | directDeclarator '(' identifierList? ')'
     | Identifier ':' DigitSequence         // bit field
-    | vcSpecificModifer Identifier         // Visual C Extension
-    | '(' vcSpecificModifer declarator ')' // Visual C Extension
+    // | vcSpecificModifer Identifier         // Visual C Extension
+    // | '(' vcSpecificModifer declarator ')' // Visual C Extension
     ;
 
 vcSpecificModifer
@@ -504,7 +504,7 @@ compilationUnit
     ;
 
 translationUnit
-    : externalDeclaration+
+    : (externalDeclaration | lineMarker)+
     ;
 
 externalDeclaration
