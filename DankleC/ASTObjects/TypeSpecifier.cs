@@ -26,6 +26,8 @@ namespace DankleC.ASTObjects
 
         public abstract bool AreEqual(TypeSpecifier a);
         public abstract string GetName();
+        public abstract bool IsNumber();
+        public abstract bool IsSigned();
 
         public static bool operator==(TypeSpecifier a, TypeSpecifier b) => a.Equals(b);
         public static bool operator!=(TypeSpecifier a, TypeSpecifier b) => !a.Equals(b);
@@ -61,6 +63,8 @@ namespace DankleC.ASTObjects
 		{
 			return base.GetHashCode();
 		}
+
+        public static TypeSpecifier GetBigger(TypeSpecifier a, TypeSpecifier b) => a.Size >= b.Size ? a : b;
 	}
 
     public enum BuiltinType
@@ -97,6 +101,17 @@ namespace DankleC.ASTObjects
 
         public override string GetName() => Enum.GetName(Type) ?? "<err>";
 
+        public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool && Type != BuiltinType.String;
+
+		public override bool IsSigned()
+		{
+			return Type switch
+			{
+				BuiltinType.SignedChar or BuiltinType.SignedShort or BuiltinType.SignedInt or BuiltinType.SignedLong or BuiltinType.SignedLongLong or BuiltinType.Float or BuiltinType.Double or BuiltinType.LongDouble => true,
+				_ => false,
+			};
+		}
+
 		protected override int GetTypeSize()
 		{
 			return Type switch
@@ -123,6 +138,9 @@ namespace DankleC.ASTObjects
 		}
 
         public override string GetName() => Type;
+
+        public override bool IsNumber() => false;
+        public override bool IsSigned() => false;
 
 		protected override int GetTypeSize()
 		{

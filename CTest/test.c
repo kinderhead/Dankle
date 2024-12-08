@@ -1,5 +1,6 @@
-int main()
+short main()
 {
-    int x = 5;
-    return x;
+    short x = 5;
+    short y = 3;
+    return x + y;
 }

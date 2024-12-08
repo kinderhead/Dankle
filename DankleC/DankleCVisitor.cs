@@ -2,10 +2,11 @@ using System;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using DankleC.ASTObjects;
+using DankleC.ASTObjects.Expressions;
 
 namespace DankleC
 {
-    public class DankleCVisitor : CBaseVisitor<IASTObject>
+	public class DankleCVisitor : CBaseVisitor<IASTObject>
     {
         public override IASTObject VisitRoot([NotNull] CParser.RootContext context)
         {
@@ -41,12 +42,24 @@ namespace DankleC
 			return scope;
 		}
 
+		#region Expressions
+
 		public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
 			if (context.Constant() is ITerminalNode c)
 			{
 				var text = c.GetText();
-				if (!text.Contains('.')) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), int.Parse(text));
+				if (!text.Contains('.'))
+				{
+					var num = long.Parse(text);
+					if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), num);
+					else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), num);
+					else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), num);
+					else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), num);
+					else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), num);
+					else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), num);
+					else throw new NotImplementedException();
+				}
 				else throw new NotImplementedException();
 			}
 			else
@@ -63,10 +76,36 @@ namespace DankleC
 
 		public override IASTObject VisitVariableExpression([NotNull] CParser.VariableExpressionContext context) => new VariableExpression(context.Identifier().GetText());
 
+		public override IASTObject VisitPrimaryExpression([NotNull] CParser.PrimaryExpressionContext context)
+		{
+			if (context.expression() is CParser.ExpressionContext ex) return Visit(ex);
+			else return Visit(context.children[0]);
+		}
+
+		public override IASTObject VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context)
+		{
+			if (context.additiveExpression() is CParser.AdditiveExpressionContext add) return Visit(add);
+			return new AssignmentExpression(context.Identifier().GetText(), (IExpression)Visit(context.assignmentExpression()));
+		}
+
+		public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
+		{
+			if (context.additiveExpression() is null) return Visit(context.multiplicativeExpression());
+			return new ArithmeticExpression((IExpression)Visit(context.multiplicativeExpression()), ArithmeticOperation.Addition, (IExpression)Visit(context.additiveExpression()));
+		}
+
+		public override IASTObject VisitMultiplicativeExpression([NotNull] CParser.MultiplicativeExpressionContext context)
+		{
+			if (context.multiplicativeExpression() is null) return Visit(context.unaryExpression());
+			return new ArithmeticExpression((IExpression)Visit(context.unaryExpression()), ArithmeticOperation.Multiplication, (IExpression)Visit(context.multiplicativeExpression()));
+		}
+
+		#endregion
+
 		#region Statements
 
 		public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(Visit(context.expression()));
-		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.type()), context.Identifier().GetText(), Visit(context.expression()));
+		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new InitAssignmentStatement(Visit(context.type()), context.Identifier().GetText(), Visit(context.expression()));
 
 		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
 

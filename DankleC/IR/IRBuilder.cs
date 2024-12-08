@@ -14,8 +14,8 @@ namespace DankleC.IR
 
 		public readonly List<IRFunction> Functions = [];
 
-		private IRFunction currentFunction;
-		private IRScope currentScope;
+		public IRFunction CurrentFunction { get; private set; }
+		public IRScope CurrentScope { get; private set; }
 
 		public void Build()
 		{
@@ -29,9 +29,9 @@ namespace DankleC.IR
 		{
 			var func = new IRFunction(node.Name, node.ReturnType);
 
-			currentFunction = func;
+			CurrentFunction = func;
 
-			HandleScope(func, new(node.Scope, this));
+			HandleScope(func, new(node.Scope, this, 0));
 			func.Insns.Add(new ReturnInsn());
 
 			Functions.Add(func);
@@ -39,14 +39,15 @@ namespace DankleC.IR
 
 		public void HandleScope(IRFunction func, IRScope scope)
 		{
-			currentScope = scope;
+			CurrentScope = scope;
 			foreach (var i in scope.Scope.Statements)
 			{
 				i.BuildIR(this, func, scope);
 			}
+			scope.End();
 		}
 
-		public void Add(IRInsn insn) => currentFunction.Insns.Add(insn);
+		public void Add(IRInsn insn) => CurrentFunction.Insns.Add(insn);
 
 		public ResolvedExpression Cast(ResolvedExpression expr, TypeSpecifier type)
 		{
@@ -55,11 +56,21 @@ namespace DankleC.IR
 			else if (expr.Type is BuiltinTypeSpecifier actual && type is BuiltinTypeSpecifier expected)
 			{
 				if (actual.Size == expected.Size) return expr.ChangeType(expected);
-				throw new NotImplementedException();
+				return expr.AsCasted(expected);
 			}
 
 			throw new InvalidOperationException($"Cannot cast {expr.Type} to {type}");
 		}
+
+		public static int[] FitTempRegs(int bytes)
+		{
+			var regs = NumRegForBytes(bytes);
+			if (regs == 1) return [8];
+			if (regs == 2) return [8, 9];
+			throw new NotImplementedException();
+		}
+
+		public static int NumRegForBytes(int bytes) => (int)Math.Ceiling(bytes / 2.0);
 	}
 #pragma warning restore CS8618
 }

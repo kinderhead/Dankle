@@ -7,25 +7,31 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
-	public class IRScope(ScopeNode scope, IRBuilder builder)
+	public class IRScope(ScopeNode scope, IRBuilder builder, int startIndex, int regStart = IRScope.START_VAR_REG)
 	{
-		public const int MAX_VAR_REG = 7;
+		public const int END_VAR_REG = 7;
+		public const int START_VAR_REG = 4;
 
 		public readonly ScopeNode Scope = scope;
 		public readonly IRBuilder Builder = builder;
+		public readonly int StartIndex = startIndex;
+
 		public readonly List<Variable> Locals = [];
 
-		private int varReg = 4;
+		private readonly List<int> preservedRegs = [];
+
+		private int varReg = regStart;
 
 		public Variable AllocLocal(string name, TypeSpecifier type)
 		{
-			if (((MAX_VAR_REG - varReg + 1) * 2) - type.Size > 0)
+			if (((END_VAR_REG - varReg + 1) * 2) - type.Size >= 0)
 			{
 				var regs = new List<int>();
 
 				for (var i = 0; i < Math.Ceiling(type.Size / 2.0); i++)
 				{
 					regs.Add(varReg + i);
+					preservedRegs.Add(varReg + i);
 				}
 
 				varReg += regs.Count;
@@ -46,6 +52,17 @@ namespace DankleC.IR
 			}
 
 			throw new Exception($"Could not find variable with name {name}");
+		}
+
+		public void End()
+		{
+			ushort regs = 0;
+			foreach (var i in preservedRegs)
+			{
+				regs |= (ushort)(1 << 15 - i);
+			}
+			Builder.CurrentFunction.Insns.Insert(StartIndex, new PushRegs(regs));
+			Builder.CurrentFunction.Insns.Add(new PopRegs(regs));
 		}
 	}
 }

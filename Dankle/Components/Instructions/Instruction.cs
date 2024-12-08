@@ -120,6 +120,8 @@ namespace Dankle.Components.Instructions
 			Register<BE>();
 			Register<Negate>();
 			Register<XCall>();
+			Register<PushRegisters>();
+			Register<PopRegisters>();
 		}
 	}
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DankleC.ASTObjects
+namespace DankleC.ASTObjects.Expressions
 {
 	public class VariableExpression(string name) : UnresolvedExpression
 	{
@@ -28,6 +28,16 @@ namespace DankleC.ASTObjects
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
 		{
 			Variable.Read(regs);
+		}
+
+		public override int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
+		{
+			if (Variable is RegisterVariable regvar)
+			{
+				if (regs.Length == regvar.Registers.Length) return regvar.Registers;
+				throw new InvalidOperationException();
+			}
+			throw new NotImplementedException();
 		}
 	}
 }

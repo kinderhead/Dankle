@@ -27,6 +27,7 @@ namespace DankleC.IR
 
 			for (int i = 0; i < Registers.Length; i++)
 			{
+				if (regs[i] < 0) continue;
 				Scope.Builder.Add(new MoveReg(regs[i], Registers[i]));
 			}
 		}

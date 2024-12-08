@@ -53,18 +53,44 @@ assignmentStatement
     : type Identifier Assign expression
     ;
 
+assignmentExpression
+    : additiveExpression
+    | Identifier Assign assignmentExpression
+    ;
+
 returnStatement
     : Return expression
     ;
 
 expression
+    : assignmentExpression
+    ;
+
+unaryExpression
+    : postfixExpression
+    ;
+
+postfixExpression
+    : primaryExpression
+    ;
+
+primaryExpression
     : constantExpression
     | variableExpression
+    | LeftParen expression RightParen
     ;
 
 constantExpression
     : Constant
     | StringLiteral
+    ;
+
+additiveExpression
+    : multiplicativeExpression (Plus additiveExpression)?
+    ;
+
+multiplicativeExpression
+    : unaryExpression (Star multiplicativeExpression)?
     ;
 
 variableExpression

@@ -69,6 +69,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.assignmentExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.returnStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -81,11 +87,41 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitExpression([NotNull] CParser.ExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.unaryExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitUnaryExpression([NotNull] CParser.UnaryExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.postfixExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.primaryExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPrimaryExpression([NotNull] CParser.PrimaryExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.constantExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.additiveExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.multiplicativeExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMultiplicativeExpression([NotNull] CParser.MultiplicativeExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.variableExpression"/>.
 	/// </summary>

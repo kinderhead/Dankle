@@ -105,4 +105,38 @@ namespace Dankle.Components.Instructions
 			ctx.Core.Flags = ctx.Core.Pop<byte>();
 		}
 	}
+
+	public class PushRegisters : Instruction
+	{
+		public override ushort Opcode => 53;
+
+		public override Type[] Arguments => [typeof(Any16)];
+		public override string Name => "PUSHR";
+
+		protected override void Handle(Context ctx)
+		{
+			var mask = ctx.GetNextArg<Any16>().Read();
+			for (int i = 0; i < 16; i++)
+			{
+				if (((mask >>> i) & 1) == 1) ctx.Core.Push(ctx.Core.Registers[15 - i]);
+			}
+		}
+	}
+
+	public class PopRegisters : Instruction
+	{
+		public override ushort Opcode => 54;
+
+		public override Type[] Arguments => [typeof(Any16)];
+		public override string Name => "POPR";
+
+		protected override void Handle(Context ctx)
+		{
+			var mask = ctx.GetNextArg<Any16>().Read();
+			for (int i = 0; i < 16; i++)
+			{
+				if (((mask << i) & 0b1000000000000000) != 0) ctx.Core.Registers[i] = ctx.Core.Pop<ushort>();
+			}
+		}
+	}
 }

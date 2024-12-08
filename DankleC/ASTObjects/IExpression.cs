@@ -1,4 +1,5 @@
-﻿using DankleC.IR;
+﻿using DankleC.ASTObjects.Expressions;
+using DankleC.IR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,35 @@ namespace DankleC.ASTObjects
 		public TypeSpecifier? GetTypeSpecifier() => Type;
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
 
+		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
 		public abstract void WriteToRegisters(int[] regs, IRBuilder builder);
 
-		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
+		public virtual int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
+		{
+			WriteToRegisters(regs, builder);
+			return regs;
+		}
+
+		public virtual ResolvedExpression AsCasted(TypeSpecifier type) => new CastExpression(this, type);
 	}
 
 	public abstract class UnresolvedExpression : IExpression
 	{
 		public TypeSpecifier? GetTypeSpecifier() => null;
 		public abstract ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
+	}
+
+	public class AssignmentExpression(string name, IExpression expr) : UnresolvedExpression
+	{
+		public readonly string Name = name;
+		public readonly IExpression Expression = expr;
+
+		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+		{
+			var variable = scope.GetVariable(Name);
+			var expr = builder.Cast(Expression.Resolve(builder, func, scope), variable.Type);
+			variable.Write(expr);
+			return new ResolvedVariableExpression(variable, variable.Type);
+		}
 	}
 }

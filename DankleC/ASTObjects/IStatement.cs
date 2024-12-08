@@ -20,12 +20,13 @@ namespace DankleC.ASTObjects
 		{
 			var expr = builder.Cast(Expression.Resolve(builder, func, scope), func.ReturnType);
 
-			if (func.ReturnType.Size == 4) expr.WriteToRegisters([0, 1], builder);
+			if (func.ReturnType.Size <= 2) expr.WriteToRegisters([0], builder);
+			else if (func.ReturnType.Size <= 4) expr.WriteToRegisters([0, 1], builder);
 			else throw new NotImplementedException();
 		}
 	}
 
-	public class AssignmentStatement(TypeSpecifier type, string name, IExpression expr) : IStatement
+	public class InitAssignmentStatement(TypeSpecifier type, string name, IExpression expr) : IStatement
 	{
 		public readonly TypeSpecifier Type = type;
 		public readonly string Name = name;
@@ -33,8 +34,8 @@ namespace DankleC.ASTObjects
 
 		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope)
 		{
-			var expr = Expression.Resolve(builder, func, scope);
-			var variable = scope.AllocLocal(Name, expr.Type);
+			var expr = builder.Cast(Expression.Resolve(builder, func, scope), Type);
+			var variable = scope.AllocLocal(Name, Type);
 			variable.Write(expr);
 		}
 	}
