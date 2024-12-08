@@ -24,4 +24,18 @@ namespace DankleC.ASTObjects
 			else throw new NotImplementedException();
 		}
 	}
+
+	public class AssignmentStatement(TypeSpecifier type, string name, IExpression expr) : IStatement
+	{
+		public readonly TypeSpecifier Type = type;
+		public readonly string Name = name;
+		public readonly IExpression Expression = expr;
+
+		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope)
+		{
+			var expr = Expression.Resolve(builder, func, scope);
+			var variable = scope.AllocLocal(Name, expr.Type);
+			variable.Write(expr);
+		}
+	}
 }

@@ -32,4 +32,15 @@ namespace DankleC.IR
 			gen.Add(CodeGenInsn.Build<Load>(new CodeGenRegister(Register), new CodeGenImmediate<ushort>(Val)));
 		}
 	}
+
+	public class MoveReg(int dest, int src) : IRInsn
+	{
+		public readonly int Dest = dest;
+		public readonly int Src = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CodeGenInsn.Build<Move>(new CodeGenRegister(Dest), new CodeGenRegister(Src)));
+		}
+	}
 }

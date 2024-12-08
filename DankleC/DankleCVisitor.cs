@@ -61,9 +61,14 @@ namespace DankleC
 			}
 		}
 
+		public override IASTObject VisitVariableExpression([NotNull] CParser.VariableExpressionContext context) => new VariableExpression(context.Identifier().GetText());
+
 		#region Statements
 
 		public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(Visit(context.expression()));
+		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.type()), context.Identifier().GetText(), Visit(context.expression()));
+
+		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
 
 		#endregion
 
@@ -78,7 +83,7 @@ namespace DankleC
 			t.IsConst = context.@const is not null;
 			t.PointerType = context.Star() is not null ? PointerType.Pointer : PointerType.None;
 			if (context.pconst is not null && t.PointerType == PointerType.Pointer) t.PointerType = PointerType.ConstPointer;
-			else t.IsConst = true;
+			else if (context.pconst is not null) t.IsConst = true;
 
 			return t;
 		}

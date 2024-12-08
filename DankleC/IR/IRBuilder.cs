@@ -31,7 +31,7 @@ namespace DankleC.IR
 
 			currentFunction = func;
 
-			HandleScope(func, new(node.Scope));
+			HandleScope(func, new(node.Scope, this));
 			func.Insns.Add(new ReturnInsn());
 
 			Functions.Add(func);
