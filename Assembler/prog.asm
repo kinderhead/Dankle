@@ -1,12 +1,14 @@
 main:
     ld r0, text
-    ld r1, 0
-test:
-    inc r1
-    call write
-    cmp r1, 5
-    jne test
-
+write:
+    ldb r1, [r0]
+    cmp r1, 0
+    je end
+    stb [0xFFFFFFF0], r1
+    inc r0
+    jmp write
+end:
     hlt
 
-text: "Gaming\n"
+text: "Hello World"
+

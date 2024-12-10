@@ -8,7 +8,7 @@ namespace Assembler
 	{
 		static void Main()
 		{
-			var prog = Encoding.Default.GetString(File.ReadAllBytes("prog.asm"));
+			var prog = Encoding.Default.GetString(File.ReadAllBytes("../../../prog.asm"));
 
 			using var computer = new Computer(0xFFFF);
 			//computer.Debug = true;
