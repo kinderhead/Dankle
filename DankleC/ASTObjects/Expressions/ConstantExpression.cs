@@ -18,26 +18,43 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (Math.Ceiling(Type.Size / 2.0) != regs.Length) throw new InvalidOperationException("Mismatched expression write");
 
+			var words = GetWords();
+			for (int i = 0; i < words.Length; i++)
+			{
+				builder.Add(new LoadImmToReg(regs[i], words[i]));
+			}
+		}
+
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		{
+			throw new NotImplementedException();
+		}
+
+		public ushort[] GetWords()
+		{
+			var words = new List<ushort>();
 			var t = (BuiltinTypeSpecifier)Type;
 
 			if (t.Type == BuiltinType.UnsignedInt)
 			{
 				var val = Convert.ToUInt32(Value);
-				builder.Add(new LoadImmToReg(regs[0], (ushort)(val >>> 16)));
-				builder.Add(new LoadImmToReg(regs[1], (ushort)(val & 0xFFFF)));
+				words.Add((ushort)(val >>> 16));
+				words.Add((ushort)(val & 0xFFFF));
 			}
 			else if (t.Type == BuiltinType.SignedInt)
 			{
 				var val = Convert.ToInt32(Value);
-				builder.Add(new LoadImmToReg(regs[0], (ushort)(val >>> 16)));
-				builder.Add(new LoadImmToReg(regs[1], (ushort)(val & 0xFFFF)));
+				words.Add((ushort)(val >>> 16));
+				words.Add((ushort)(val & 0xFFFF));
 			}
 			else if (t.Type == BuiltinType.SignedShort)
 			{
 				var val = Convert.ToInt16(Value);
-				builder.Add(new LoadImmToReg(regs[0], (ushort)val));
+				words.Add((ushort)val);
 			}
 			else throw new NotImplementedException();
+
+			return [.. words];
 		}
 	}
 }

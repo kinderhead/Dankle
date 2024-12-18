@@ -54,19 +54,21 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var leftregs = Left.GetOrWriteToRegisters(regs, builder);
 			var rightregs = Right.GetOrWriteToRegisters(IRBuilder.FitTempRegs(Type.Size), builder);
+			Compute(leftregs, rightregs, regs, builder);
+		}
 
-			if (Type.Size > 4) throw new NotImplementedException();
-
+		public void Compute(int[] leftregs, int[] rightregs, int[] output, IRBuilder builder)
+		{
 			if (Type.Size <= 2)
 			{
 				switch (Op)
 				{
 					case ArithmeticOperation.Addition:
-						builder.Add(new AddRegs(leftregs[0], rightregs[0], regs[0]));
+						builder.Add(new AddRegs(leftregs[0], rightregs[0], output[0]));
 						break;
 					case ArithmeticOperation.Multiplication:
-						if (Type.IsSigned()) builder.Add(new SMulRegs(leftregs[0], rightregs[0], regs[0]));
-						else builder.Add(new UMulRegs(leftregs[0], rightregs[0], regs[0]));
+						if (Type.IsSigned()) builder.Add(new SMulRegs(leftregs[0], rightregs[0], output[0]));
+						else builder.Add(new UMulRegs(leftregs[0], rightregs[0], output[0]));
 						break;
 					default:
 						break;
@@ -77,8 +79,8 @@ namespace DankleC.ASTObjects.Expressions
 				switch (Op)
 				{
 					case ArithmeticOperation.Addition:
-						builder.Add(new AddRegs(leftregs[1], rightregs[1], regs[1]));
-						builder.Add(new AdcRegs(leftregs[0], rightregs[0], regs[0]));
+						builder.Add(new AddRegs(leftregs[1], rightregs[1], output[1]));
+						builder.Add(new AdcRegs(leftregs[0], rightregs[0], output[0]));
 						break;
 					case ArithmeticOperation.Multiplication:
 						throw new NotImplementedException();
@@ -86,6 +88,14 @@ namespace DankleC.ASTObjects.Expressions
 						break;
 				}
 			}
+			else throw new NotImplementedException();
+		}
+
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		{
+			if (Left.Type.Size <= 2) Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
+			else if (Left.Type.Size <= 4) Compute(Left.GetOrWriteToRegisters([8, 9], builder), Right.GetOrWriteToRegisters([10, 11], builder), [8, 9], builder);
+			else throw new NotImplementedException();
 		}
 	}
 }

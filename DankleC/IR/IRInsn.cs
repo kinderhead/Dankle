@@ -11,6 +11,10 @@ namespace DankleC.IR
 {
 	public abstract class IRInsn
 	{
+#pragma warning disable CS8618
+		public IRScope Scope;
+#pragma warning restore CS8618
+
 		public abstract void Compile(CodeGen gen);
 	}
 
@@ -18,7 +22,7 @@ namespace DankleC.IR
 	{
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<Return>());
+			gen.Add(CGInsn.Build<Return>());
 		}
 	}
 
@@ -29,7 +33,18 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<Load>(new CodeGenRegister(Register), new CodeGenImmediate<ushort>(Val)));
+			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), new CGImmediate<ushort>(Val)));
+		}
+	}
+
+	public class LoadPtrToReg(int reg, IPointer pointer) : IRInsn
+	{
+		public readonly int Register = reg;
+		public readonly IPointer Pointer = pointer;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Get(Scope)));
 		}
 	}
 
@@ -40,7 +55,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<Move>(new CodeGenRegister(Dest), new CodeGenRegister(Src)));
+			gen.Add(CGInsn.Build<Move>(new CGRegister(Dest), new CGRegister(Src)));
 		}
 	}
 
@@ -50,7 +65,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<Push>(new CodeGenRegister(Register)));
+			gen.Add(CGInsn.Build<Push>(new CGRegister(Register)));
 		}
 	}
 
@@ -60,7 +75,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<Pop>(new CodeGenRegister(Register)));
+			gen.Add(CGInsn.Build<Pop>(new CGRegister(Register)));
 		}
 	}
 
@@ -70,7 +85,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<PushRegisters>(new CodeGenImmediate<ushort>(Registers)));
+			gen.Add(CGInsn.Build<PushRegisters>(new CGImmediate<ushort>(Registers)));
 		}
 	}
 
@@ -80,7 +95,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CodeGenInsn.Build<PopRegisters>(new CodeGenImmediate<ushort>(Registers)));
+			gen.Add(CGInsn.Build<PopRegisters>(new CGImmediate<ushort>(Registers)));
 		}
 	}
 
@@ -93,7 +108,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CodeGenInsn.Build<Add>(new CodeGenRegister(Arg1), new CodeGenRegister(Arg2), new CodeGenRegister(Dest)));
+			gen.Add(CGInsn.Build<Add>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
 		}
 	}
 
@@ -106,7 +121,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CodeGenInsn.Build<Adc>(new CodeGenRegister(Arg1), new CodeGenRegister(Arg2), new CodeGenRegister(Dest)));
+			gen.Add(CGInsn.Build<Adc>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
 		}
 	}
 
@@ -119,7 +134,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CodeGenInsn.Build<SignedMul>(new CodeGenRegister(Arg1), new CodeGenRegister(Arg2), new CodeGenRegister(Dest)));
+			gen.Add(CGInsn.Build<SignedMul>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
 		}
 	}
 
@@ -132,7 +147,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CodeGenInsn.Build<UnsignedMul>(new CodeGenRegister(Arg1), new CodeGenRegister(Arg2), new CodeGenRegister(Dest)));
+			gen.Add(CGInsn.Build<UnsignedMul>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
 		}
 	}
 }

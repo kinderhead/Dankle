@@ -38,4 +38,26 @@ namespace DankleC.IR
 			expr.WriteToRegisters(Registers, Scope.Builder);
 		}
 	}
+
+	public class StackVariable(string name, TypeSpecifier type, StackPointer pointer, IRScope scope) : Variable(name, type, scope)
+	{
+		public readonly StackPointer Pointer = pointer;
+
+		public override void Read(int[] regs)
+		{
+			if (regs.Length != IRBuilder.NumRegForBytes(Type.Size)) throw new InvalidOperationException("Mismatched register count");
+
+			for (int i = 0; i < Pointer.Size; i += 2)
+			{
+				if (i > Pointer.Size) Scope.Builder.Add(new LoadPtrToReg(regs[i / 2], Pointer.GetByte(i + 1)));
+				else Scope.Builder.Add(new LoadPtrToReg(regs[i / 2], Pointer.GetWord(i)));
+			}
+		}
+
+		public override void Write(ResolvedExpression expr)
+		{
+			if (expr.Type.Size != Type.Size) throw new InvalidOperationException();
+			throw new NotImplementedException();
+		}
+	}
 }

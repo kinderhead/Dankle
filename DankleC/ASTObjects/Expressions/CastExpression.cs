@@ -13,6 +13,17 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new CastExpression(Expr, type);
 
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		{
+			var expr = Expr.Resolve(builder, builder.CurrentFunction, builder.CurrentScope);
+
+			if (Type.Size <= expr.Type.Size)
+			{
+				expr.ChangeType(Type).WriteToPointer(pointer, builder);
+			}
+			else throw new NotImplementedException();
+		}
+
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
 		{
 			var expr = Expr.Resolve(builder, builder.CurrentFunction, builder.CurrentScope);

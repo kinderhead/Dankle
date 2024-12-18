@@ -24,11 +24,7 @@ namespace Dankle.Components
             if (skipFlags) return ret;
 
             Core.Zero = ret == T.AdditiveIdentity;
-            if (op != Operation.MOD)
-            {
-                
-            }
-            
+
             if (op == Operation.ADD)
             {
                 if (TypeInfo<T>.IsUnsigned)

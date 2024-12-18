@@ -96,7 +96,7 @@ namespace Dankle.Components.Arguments
 		{
 		}
 
-		public override Type[] AssignableFrom => [typeof(Immediate<uint>), typeof(Register), typeof(Pointer<uint>)];
+		public override Type[] AssignableFrom => [typeof(Immediate<uint>), typeof(DoubleRegister), typeof(Pointer<uint>)];
 
 		public override IArgument Create(Context ctx, int argnum) => new Any32(ctx, argnum);
 

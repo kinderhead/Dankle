@@ -47,7 +47,11 @@ namespace DankleC.IR
 			scope.End();
 		}
 
-		public void Add(IRInsn insn) => CurrentFunction.Insns.Add(insn);
+		public void Add(IRInsn insn)
+		{
+			insn.Scope = CurrentScope;
+			CurrentFunction.Insns.Add(insn);
+		}
 
 		public ResolvedExpression Cast(ResolvedExpression expr, TypeSpecifier type)
 		{
@@ -67,6 +71,8 @@ namespace DankleC.IR
 			var regs = NumRegForBytes(bytes);
 			if (regs == 1) return [8];
 			if (regs == 2) return [8, 9];
+			if (regs == 3) return [8, 9, 10];
+			if (regs == 4) return [8, 9, 10, 11];
 			throw new NotImplementedException();
 		}
 

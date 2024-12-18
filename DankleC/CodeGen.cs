@@ -38,7 +38,7 @@ namespace DankleC
 			return builder.ToString();
 		}
 
-		public void Add(CodeGenInsn insn)
+		public void Add(CGInsn insn)
 		{
 			CompiledSymbols[currentFunc] += $"\n\t{insn.Generate()}";
 		}

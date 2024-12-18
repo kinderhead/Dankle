@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Dankle.Components.CodeGen
 {
-	public class CodeGenInsn
+	public class CGInsn
 	{
 		public readonly Instruction Insn;
-		public readonly ICodeGenArg[] Args;
+		public readonly ICGArg[] Args;
 
-		private CodeGenInsn(Instruction insn, ICodeGenArg[] args)
+		private CGInsn(Instruction insn, ICGArg[] args)
 		{
 			Insn = insn;
 			Args = args;
@@ -34,7 +34,7 @@ namespace Dankle.Components.CodeGen
 			return builder.ToString();
 		}
 
-		public static CodeGenInsn Build<T>(params ICodeGenArg[] args) where T : Instruction, new()
+		public static CGInsn Build<T>(params ICGArg[] args) where T : Instruction, new()
 		{
 			var insn = new T();
 

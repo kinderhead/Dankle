@@ -39,5 +39,10 @@ namespace DankleC.ASTObjects.Expressions
 			}
 			throw new NotImplementedException();
 		}
+
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		{
+			
+		}
 	}
 }

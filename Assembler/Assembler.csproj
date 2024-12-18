@@ -13,6 +13,9 @@
 
   <ItemGroup>
     <None Update="bios.asm" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="prog.asm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 
