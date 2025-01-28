@@ -19,6 +19,7 @@ namespace DankleC.IR
 		public readonly List<Variable> Locals = [];
 
 		private readonly List<int> preservedRegs = [];
+		private int usedStack = 0;
 
 		private int varReg = regStart;
 
@@ -40,8 +41,10 @@ namespace DankleC.IR
 				Locals.Add(variable);
 				return variable;
 			}
-
-			throw new NotImplementedException();
+			else
+			{
+				//var variable = new StackVariable(name, type, new(usedStack,))
+			}
 		}
 
 		public Variable GetVariable(string name)

@@ -17,11 +17,13 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var expr = Expr.Resolve(builder, builder.CurrentFunction, builder.CurrentScope);
 
-			if (Type.Size <= expr.Type.Size)
-			{
-				expr.ChangeType(Type).WriteToPointer(pointer, builder);
-			}
-			else throw new NotImplementedException();
+			throw new NotImplementedException();
+			
+			// if (Type.Size <= expr.Type.Size)
+			// {
+			// 	expr.ChangeType(Type).WriteToPointer(pointer, builder);
+			// }
+			// else throw new NotImplementedException();
 		}
 
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)

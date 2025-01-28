@@ -42,7 +42,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
-			
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,14 +10,14 @@ namespace DankleC.IR
 {
 	public interface IPointer
 	{
-		public CGPointer Get(IRScope scope);
+		public CGPointer Get<T>(IRScope scope) where T : IBinaryInteger<T>;
 	}
 
 	public readonly struct Pointer(CGPointer pointer) : IPointer
 	{
 		public readonly CGPointer Ptr = pointer;
 
-		public CGPointer Get(IRScope scope) => Ptr;
+		public CGPointer Get<T>(IRScope scope) where T : IBinaryInteger<T> => Ptr;
 	}
 
 	public readonly struct StackPointer(int offset, int size) : IPointer
@@ -24,9 +25,10 @@ namespace DankleC.IR
 		public readonly int Offset = offset;
 		public readonly int Size = size;
 
-		public CGPointer Get(IRScope scope)
+		public CGPointer Get<T>(IRScope scope) where T : IBinaryInteger<T>
 		{
-			throw new NotImplementedException();
+			if (Offset == 0) return CGPointer<T>.Make(12, 13);
+			else return CGPointer<T>.Make(12, 13, (short)Offset);
 		}
 
 		public StackPointer GetByte(int offset) => new(Offset + offset, 1);

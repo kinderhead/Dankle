@@ -44,7 +44,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Get(Scope)));
+			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Get<ushort>(Scope)));
 		}
 	}
 

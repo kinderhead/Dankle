@@ -198,14 +198,14 @@ namespace Dankle
 					else if (cmd == "dump") MainCore.Dump();
 					else if (cmd == "read")
 					{
-						var addr = uint.Parse(args[1].Trim("0x"), System.Globalization.NumberStyles.HexNumber);
+						var addr = uint.Parse(args[1], System.Globalization.NumberStyles.HexNumber);
 						var val = ReadMem(addr);
 						Console.WriteLine($"0x{addr:X8}: {val} | 0x{val:X2} | {Encoding.UTF8.GetString([val])}");
 					}
 					else if (cmd == "go") break;
 					else if (cmd == "goto")
 					{
-						var addr = uint.Parse(args[1].Trim("0x"), System.Globalization.NumberStyles.HexNumber);
+						var addr = uint.Parse(args[1], System.Globalization.NumberStyles.HexNumber);
 						while (MainCore.ProgramCounter != addr) MainCore.Step();
 					}
 					else if (cmd == "dis")
