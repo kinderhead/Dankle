@@ -27,7 +27,12 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
-			throw new NotImplementedException();
+			var words = GetWords();
+			for (int i = 0; i < words.Length; i++)
+			{
+				builder.Add(new LoadImmToReg(8, words[i]));
+				builder.Add(new LoadRegToPtr(pointer.Get(i * 2), 8));
+			}
 		}
 
 		public ushort[] GetWords()

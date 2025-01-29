@@ -44,7 +44,18 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Get<ushort>(Scope)));
+			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Build<ushort>(Scope)));
+		}
+	}
+
+	public class LoadRegToPtr(IPointer pointer, int reg) : IRInsn
+	{
+		public readonly int Register = reg;
+		public readonly IPointer Pointer = pointer;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<Store>(Pointer.Build<ushort>(Scope), new CGRegister(Register)));
 		}
 	}
 
@@ -76,26 +87,6 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			gen.Add(CGInsn.Build<Pop>(new CGRegister(Register)));
-		}
-	}
-
-	public class PushRegs(ushort regs) : IRInsn
-	{
-		public readonly ushort Registers = regs;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<PushRegisters>(new CGImmediate<ushort>(Registers)));
-		}
-	}
-
-	public class PopRegs(ushort regs) : IRInsn
-	{
-		public readonly ushort Registers = regs;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<PopRegisters>(new CGImmediate<ushort>(Registers)));
 		}
 	}
 
@@ -148,6 +139,36 @@ namespace DankleC.IR
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
 			gen.Add(CGInsn.Build<UnsignedMul>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
+		}
+	}
+
+	public class InitFrame() : IRInsn
+	{
+		public override void Compile(CodeGen gen)
+		{
+			ushort regs = 0;
+			foreach (var i in Scope.PreservedRegs)
+			{
+				regs |= (ushort)(1 << 15 - i);
+			}
+
+			if (regs != 0) gen.Add(CGInsn.Build<PushRegisters>(new CGImmediate<ushort>(regs)));
+			if (Scope.StackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)-Scope.StackUsed)));
+		}
+	}
+
+	public class EndFrame() : IRInsn
+	{
+		public override void Compile(CodeGen gen)
+		{
+			ushort regs = 0;
+			foreach (var i in Scope.PreservedRegs)
+			{
+				regs |= (ushort)(1 << 15 - i);
+			}
+
+			if (Scope.StackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.StackUsed)));
+			if (regs != 0) gen.Add(CGInsn.Build<PopRegisters>(new CGImmediate<ushort>(regs)));
 		}
 	}
 }

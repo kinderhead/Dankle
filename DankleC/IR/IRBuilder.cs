@@ -40,6 +40,7 @@ namespace DankleC.IR
 		public void HandleScope(IRFunction func, IRScope scope)
 		{
 			CurrentScope = scope;
+			scope.Start();
 			foreach (var i in scope.Scope.Statements)
 			{
 				i.BuildIR(this, func, scope);

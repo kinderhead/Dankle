@@ -139,4 +139,18 @@ namespace Dankle.Components.Instructions
 			}
 		}
 	}
+
+	public class ModifyStack : Instruction
+	{
+		public override ushort Opcode => 55;
+
+		public override Type[] Arguments => [typeof(Any16)];
+		public override string Name => "MODSTK";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>().Read();
+			ctx.Core.StackPointer = (uint)(ctx.Core.StackPointer + (short)arg1);
+		}
+	}
 }

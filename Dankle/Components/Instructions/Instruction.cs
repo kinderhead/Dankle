@@ -122,6 +122,7 @@ namespace Dankle.Components.Instructions
 			Register<XCall>();
 			Register<PushRegisters>();
 			Register<PopRegisters>();
+			Register<ModifyStack>();
 		}
 	}
 

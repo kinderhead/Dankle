@@ -18,8 +18,8 @@ namespace DankleC.IR
 
 		public readonly List<Variable> Locals = [];
 
-		private readonly List<int> preservedRegs = [];
-		private int usedStack = 0;
+		public List<int> PreservedRegs { get; private set; } = [];
+		public short StackUsed { get; private set; } = 0;
 
 		private int varReg = regStart;
 
@@ -32,7 +32,7 @@ namespace DankleC.IR
 				for (var i = 0; i < Math.Ceiling(type.Size / 2.0); i++)
 				{
 					regs.Add(varReg + i);
-					preservedRegs.Add(varReg + i);
+					PreservedRegs.Add(varReg + i);
 				}
 
 				varReg += regs.Count;
@@ -43,7 +43,10 @@ namespace DankleC.IR
 			}
 			else
 			{
-				//var variable = new StackVariable(name, type, new(usedStack,))
+				var variable = new StackVariable(name, type, new(StackUsed, type.Size), this);
+				StackUsed += (short)type.Size;
+				Locals.Add(variable);
+				return variable;
 			}
 		}
 
@@ -57,15 +60,14 @@ namespace DankleC.IR
 			throw new Exception($"Could not find variable with name {name}");
 		}
 
+		public void Start()
+        {
+			Builder.Add(new InitFrame());
+        }
+
 		public void End()
 		{
-			ushort regs = 0;
-			foreach (var i in preservedRegs)
-			{
-				regs |= (ushort)(1 << 15 - i);
-			}
-			Builder.CurrentFunction.Insns.Insert(StartIndex, new PushRegs(regs));
-			Builder.CurrentFunction.Insns.Add(new PopRegs(regs));
+			Builder.Add(new EndFrame());
 		}
-	}
+    }
 }

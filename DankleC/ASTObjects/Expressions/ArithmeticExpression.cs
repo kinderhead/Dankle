@@ -93,8 +93,17 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
-			if (Left.Type.Size <= 2) Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
-			else if (Left.Type.Size <= 4) Compute(Left.GetOrWriteToRegisters([8, 9], builder), Right.GetOrWriteToRegisters([10, 11], builder), [8, 9], builder);
+			if (Left.Type.Size <= 2)
+			{
+				Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
+				builder.Add(new LoadRegToPtr(pointer, 10));
+			}
+			else if (Left.Type.Size <= 4)
+			{
+				Compute(Left.GetOrWriteToRegisters([8, 9], builder), Right.GetOrWriteToRegisters([10, 11], builder), [8, 9], builder);
+				builder.Add(new LoadRegToPtr(pointer, 8));
+				builder.Add(new LoadRegToPtr(pointer.Get(2), 9));
+			}
 			else throw new NotImplementedException();
 		}
 	}
