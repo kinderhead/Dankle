@@ -6,4 +6,9 @@ namespace DankleC.ASTObjects
     {
         
     }
+
+    public interface IStatementHolder : IASTObject
+    {
+        public List<T> FindAll<T>() where T : IStatement;
+    }
 }

@@ -45,7 +45,7 @@ namespace Assembler
                 i.GetBinary().CopyTo(data, i.StartAddr - startAddr);
 			}
 
-            if (addr - startAddr > 65536) throw new Exception("This may cause some issues");
+            // if (addr - startAddr > 65536) throw new Exception("This may cause some issues");
 
             return data;
 		}

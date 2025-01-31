@@ -1,7 +1,7 @@
-void main()
+int main()
 {
-    int a = 1;
-    int b = 2;
-    int c = a + b;
-    int d = c + 5;
+    int x = 70;
+    int y = -1;
+    int z = 0;
+    return x + y + z;
 }

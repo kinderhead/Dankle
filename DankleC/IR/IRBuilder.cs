@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 namespace DankleC.IR
 {
 #pragma warning disable CS8618
-	public class IRBuilder(ProgramNode ast)
+	public class IRBuilder(ProgramNode ast, bool debug = false)
 	{
 		public readonly ProgramNode AST = ast;
+		public readonly bool Debug = debug;
 
 		public readonly List<IRFunction> Functions = [];
 
@@ -43,6 +44,7 @@ namespace DankleC.IR
 			scope.Start();
 			foreach (var i in scope.Scope.Statements)
 			{
+				if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
 				i.BuildIR(this, func, scope);
 			}
 			scope.End();

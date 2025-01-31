@@ -1,4 +1,5 @@
-﻿using DankleC.IR;
+﻿using Antlr4.Runtime.Misc;
+using DankleC.IR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,19 @@ namespace DankleC.ASTObjects.Expressions
 			{
 				if (regs.Length == regvar.Registers.Length) return regvar.Registers;
 				throw new InvalidOperationException();
+			}
+			else if (Variable is StackVariable stkvar)
+			{
+				if (regs.Length == IRBuilder.NumRegForBytes(Type.Size))
+				{
+					if (Type.Size % 2 != 0) throw new NotImplementedException();
+
+					for (int i = 0; i < regs.Length; i++)
+					{
+						builder.Add(new LoadPtrToReg(regs[i], stkvar.Pointer.Get(i * 2)));
+					}
+				}
+				return regs;
 			}
 			throw new NotImplementedException();
 		}

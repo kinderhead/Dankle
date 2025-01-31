@@ -171,4 +171,65 @@ namespace DankleC.IR
 			if (regs != 0) gen.Add(CGInsn.Build<PopRegisters>(new CGImmediate<ushort>(regs)));
 		}
 	}
+
+	public class Memset(IPointer ptr, int size, byte b) : IRInsn
+	{
+		public readonly IPointer Ptr = ptr;
+		public readonly int Size = size;
+		public readonly byte Byte = b;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Size % 2 != 0) throw new NotImplementedException();
+
+			gen.Add(CGInsn.Build<Load>(new CGRegister(8), new CGImmediate<ushort>((ushort)(Byte & (Byte << 8)))));
+			for (int i = 0; i < Size / 2; i++)
+			{
+				gen.Add(CGInsn.Build<Store>(Ptr.Build<ushort>(Scope), new CGRegister(8)));
+			}
+		}
+	}
+
+	public class SignExtPtr(IPointer dest, IPointer src) : IRInsn
+	{
+		public readonly IPointer Dest = dest;
+		public readonly IPointer Src = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<SignExtend>(Dest.Build<ushort>(Scope), Src.Build<ushort>(Scope)));
+		}
+	}
+
+	public class SignExtReg(int dest, int src) : IRInsn
+	{
+		public readonly int Dest = dest;
+		public readonly int Src = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<SignExtend>(new CGRegister(Dest), new CGRegister(Src)));
+		}
+	}
+
+	public class SignExtReg8(int dest, int src) : IRInsn
+	{
+		public readonly int Dest = dest;
+		public readonly int Src = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<SignExtend8>(new CGRegister(Dest), new CGRegister(Src)));
+		}
+	}
+
+	public class IRLabel(string name) : IRInsn
+	{
+		public readonly string Name = name;
+
+        public override void Compile(CodeGen gen)
+        {
+			gen.AddLabel(Name);
+        }
+    }
 }

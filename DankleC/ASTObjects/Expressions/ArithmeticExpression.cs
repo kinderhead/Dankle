@@ -24,7 +24,7 @@ namespace DankleC.ASTObjects.Expressions
 			var left = Left.Resolve(builder, func, scope);
 			var right = Right.Resolve(builder, func, scope);
 			if (!left.Type.IsNumber() || !right.Type.IsNumber()) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
-
+			
 			var largest = left.Type.Size >= right.Type.Size ? left.Type : right.Type;
 			var smallest = left.Type.Size >= right.Type.Size ? right.Type : left.Type;
 
@@ -36,6 +36,18 @@ namespace DankleC.ASTObjects.Expressions
 			{
 				if (largest.IsSigned()) type = smallest;
 				else type = largest;
+			}
+
+			if (left is ConstantExpression l && right is ConstantExpression r)
+			{
+                dynamic res = Op switch
+                {
+                    ArithmeticOperation.Addition => (dynamic)l.Value + (dynamic)r.Value,
+                    ArithmeticOperation.Multiplication => (dynamic)l.Value * (dynamic)r.Value,
+                    _ => throw new NotImplementedException(),
+                };
+				
+                return new ConstantExpression(type, res);
 			}
 
 			return new ResolvedArithmeticExpression(builder.Cast(left, type), Op, builder.Cast(right, type), type);

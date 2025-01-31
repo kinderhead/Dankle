@@ -40,7 +40,12 @@ namespace DankleC
 
 		public void Add(CGInsn insn)
 		{
-			CompiledSymbols[currentFunc] += $"\n\t{insn.Generate()}";
+			CompiledSymbols[currentFunc] += $"\n    {insn.Generate()}";
+		}
+
+		public void AddLabel(string name)
+		{
+			CompiledSymbols[currentFunc] += $"\n{name}:";
 		}
 	}
 }

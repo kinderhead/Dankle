@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Assembler\Assembler.csproj" />
     <ProjectReference Include="..\Dankle\Dankle.csproj" />
+    <ProjectReference Include="..\DankleC\DankleC.csproj" />
   </ItemGroup>
 
   <ItemGroup>

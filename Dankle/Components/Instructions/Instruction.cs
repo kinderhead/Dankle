@@ -123,6 +123,8 @@ namespace Dankle.Components.Instructions
 			Register<PushRegisters>();
 			Register<PopRegisters>();
 			Register<ModifyStack>();
+			Register<SignExtend>();
+			Register<SignExtend8>();
 		}
 	}
 

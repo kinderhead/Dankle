@@ -52,9 +52,19 @@ namespace DankleC.ASTObjects.Expressions
 				words.Add((ushort)(val >>> 16));
 				words.Add((ushort)(val & 0xFFFF));
 			}
+			else if (t.Type == BuiltinType.UnsignedShort)
+			{
+				var val = Convert.ToUInt16(Value);
+				words.Add(val);
+			}
 			else if (t.Type == BuiltinType.SignedShort)
 			{
 				var val = Convert.ToInt16(Value);
+				words.Add((ushort)val);
+			}
+			else if (t.Type == BuiltinType.SignedChar)
+			{
+				var val = Convert.ToSByte(Value);
 				words.Add((ushort)val);
 			}
 			else throw new NotImplementedException();

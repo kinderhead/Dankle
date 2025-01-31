@@ -9,11 +9,16 @@ namespace DankleC.ASTObjects
 {
 	public interface IStatement : IASTObject
 	{
+		public int ID { get; }
+
 		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope);
+
+		public static readonly Random IDRandomizer = new();
 	}
 
 	public class ReturnStatement(IExpression expression) : IStatement
 	{
+		public int ID { get; } = IStatement.IDRandomizer.Next();
 		public readonly IExpression Expression = expression;
 
 		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope)
@@ -28,6 +33,7 @@ namespace DankleC.ASTObjects
 
 	public class InitAssignmentStatement(TypeSpecifier type, string name, IExpression expr) : IStatement
 	{
+		public int ID { get; } = IStatement.IDRandomizer.Next();
 		public readonly TypeSpecifier Type = type;
 		public readonly string Name = name;
 		public readonly IExpression Expression = expr;

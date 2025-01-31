@@ -17,13 +17,22 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var expr = Expr.Resolve(builder, builder.CurrentFunction, builder.CurrentScope);
 
-			throw new NotImplementedException();
-			
-			// if (Type.Size <= expr.Type.Size)
-			// {
-			// 	expr.ChangeType(Type).WriteToPointer(pointer, builder);
-			// }
-			// else throw new NotImplementedException();
+			if (Type.Size <= expr.Type.Size)
+			{
+				throw new NotImplementedException();
+			}
+			else
+			{
+				var padding = Type.Size - expr.Type.Size;
+				expr.WriteToPointer(pointer.Get(padding), builder);
+
+				if (expr.Type.IsSigned())
+				{
+					if (Type.Size == 4 && expr.Type.Size == 2) builder.Add(new SignExtPtr(pointer, pointer.Get(padding)));
+					else throw new NotImplementedException();
+				}
+				else builder.Add(new Memset(pointer, padding, 0));
+			}
 		}
 
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
@@ -34,7 +43,25 @@ namespace DankleC.ASTObjects.Expressions
 			{
 				expr.WriteToRegisters([.. Enumerable.Repeat(-1, IRBuilder.NumRegForBytes(expr.Type.Size) - IRBuilder.NumRegForBytes(Type.Size)), .. regs], builder);
 			}
-			else throw new NotImplementedException();
+			else
+			{
+				expr.WriteToRegisters(regs[(IRBuilder.NumRegForBytes(Type.Size) - IRBuilder.NumRegForBytes(expr.Type.Size))..], builder);
+
+				if (expr.Type.IsSigned())
+				{
+					if (Type.Size == 4 && expr.Type.Size == 2) builder.Add(new SignExtReg(regs[0], regs[1]));
+					else if (Type.Size == 4 && expr.Type.Size == 1)
+					{
+						builder.Add(new SignExtReg8(regs[1], regs[1]));
+						builder.Add(new SignExtReg(regs[0], regs[1]));
+					}
+					else throw new NotImplementedException();
+				}
+				else foreach (var i in regs[..(IRBuilder.NumRegForBytes(Type.Size) - IRBuilder.NumRegForBytes(expr.Type.Size))])
+				{
+					builder.Add(new LoadImmToReg(i, 0));
+				}
+			}
 		}
 	}
 }
