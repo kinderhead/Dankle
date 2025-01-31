@@ -36,7 +36,7 @@ namespace DankleC
 
 			foreach (var i in context.statement())
 			{
-				scope.Statements.Add((IStatement)Visit(i));
+				scope.Statements.Add((Statement)Visit(i));
 			}
 
 			return scope;

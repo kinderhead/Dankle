@@ -9,7 +9,8 @@ namespace DankleC
     public class Compiler
     {
         public ICharStream? Stream { get; private set; }
-        public ProgramNode? AST { get; private set; }
+        private ProgramNode? _AST;
+        public ProgramNode AST { get => _AST ?? throw new InvalidOperationException(); }
         public IRBuilder? IR { get; private set; }
 
         public Compiler ReadFile(string path)
@@ -30,13 +31,13 @@ namespace DankleC
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new CParser(tokenStream);
             var visitor = new DankleCVisitor();
-            AST = (ProgramNode)visitor.Visit(parser.root());
+            _AST = (ProgramNode)visitor.Visit(parser.root());
             return this;
         }
 
         public Compiler GenIR(bool debug = false)
         {
-            IR = new(AST ?? throw new InvalidOperationException(), debug);
+            IR = new(AST, debug);
             IR.Build();
             return this;
         }

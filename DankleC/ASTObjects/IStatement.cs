@@ -7,23 +7,26 @@ using System.Threading.Tasks;
 
 namespace DankleC.ASTObjects
 {
-	public interface IStatement : IASTObject
+	public abstract class Statement : IASTObject
 	{
-		public int ID { get; }
+		public int ID { get; } = IDRandomizer.Next();
 
-		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope);
+#pragma warning disable CS8618
+        public IRScope Scope { get; internal set; }
+#pragma warning restore CS8618
+
+        public abstract void BuildIR(IRBuilder builder, IRFunction func);
 
 		public static readonly Random IDRandomizer = new();
 	}
 
-	public class ReturnStatement(IExpression expression) : IStatement
+	public class ReturnStatement(IExpression expression) : Statement
 	{
-		public int ID { get; } = IStatement.IDRandomizer.Next();
 		public readonly IExpression Expression = expression;
 
-		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope)
+		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = builder.Cast(Expression.Resolve(builder, func, scope), func.ReturnType);
+			var expr = builder.Cast(Expression.Resolve(builder, func, Scope), func.ReturnType);
 
 			if (func.ReturnType.Size <= 2) expr.WriteToRegisters([0], builder);
 			else if (func.ReturnType.Size <= 4) expr.WriteToRegisters([0, 1], builder);
@@ -31,17 +34,16 @@ namespace DankleC.ASTObjects
 		}
 	}
 
-	public class InitAssignmentStatement(TypeSpecifier type, string name, IExpression expr) : IStatement
+	public class InitAssignmentStatement(TypeSpecifier type, string name, IExpression expr) : Statement
 	{
-		public int ID { get; } = IStatement.IDRandomizer.Next();
 		public readonly TypeSpecifier Type = type;
 		public readonly string Name = name;
 		public readonly IExpression Expression = expr;
 
-		public void BuildIR(IRBuilder builder, IRFunction func, IRScope scope)
+		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = builder.Cast(Expression.Resolve(builder, func, scope), Type);
-			var variable = scope.AllocLocal(Name, Type);
+			var expr = builder.Cast(Expression.Resolve(builder, func, Scope), Type);
+			var variable = Scope.AllocLocal(Name, Type);
 			variable.Write(expr);
 		}
 	}

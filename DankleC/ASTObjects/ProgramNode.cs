@@ -6,7 +6,7 @@ namespace DankleC.ASTObjects
     {
         public readonly List<FunctionNode> Functions = [];
 
-        public List<T> FindAll<T>() where T : IStatement
+        public List<T> FindAll<T>() where T : Statement
         {
             List<T> stmts = [];
 

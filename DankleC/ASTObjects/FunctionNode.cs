@@ -8,6 +8,6 @@ namespace DankleC.ASTObjects
         public readonly TypeSpecifier ReturnType = returnType;
         public readonly ScopeNode Scope = scope;
 
-        public List<T> FindAll<T>() where T : IStatement => Scope.FindAll<T>();
+        public List<T> FindAll<T>() where T : Statement => Scope.FindAll<T>();
     }
 }

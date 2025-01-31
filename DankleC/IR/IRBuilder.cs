@@ -45,7 +45,8 @@ namespace DankleC.IR
 			foreach (var i in scope.Scope.Statements)
 			{
 				if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
-				i.BuildIR(this, func, scope);
+				i.Scope = scope;
+				i.BuildIR(this, func);
 			}
 			scope.End();
 		}
