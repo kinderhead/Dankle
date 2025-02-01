@@ -11,7 +11,7 @@ namespace DankleC
         {
             var compiler = new Compiler();
             Console.WriteLine(compiler.ReadFile("../../../../CTest/test.c").GenAST().GenIR().GenAssembly());
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 }

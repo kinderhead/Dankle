@@ -5,7 +5,9 @@ using Dankle;
 using Dankle.Components;
 using DankleC;
 using DankleC.ASTObjects;
+using DankleC.ASTObjects.Expressions;
 using DankleC.IR;
+using Newtonsoft.Json.Linq;
 
 namespace DankleTest
 {
@@ -76,6 +78,83 @@ namespace DankleTest
 		{
             RunUntilDone();
 			GC.SuppressFinalize(this);
+		}
+
+		public static void TestMathAdd<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.CreateTruncating(1), T.MaxValue, stack, ArithmeticOperation.Addition);
+			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Addition);
+		}
+
+		public static void TestMath<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMathAdd<T>(stack);
+		}
+
+		public static void TestMath<T>(T x, T y, bool stack, ArithmeticOperation op) where T : IBinaryInteger<T>
+        {
+			var opchar = op switch
+			{
+				ArithmeticOperation.Addition => "+",
+				ArithmeticOperation.Multiplication => "*",
+				_ => throw new InvalidOperationException(),
+			};
+
+			var type = CUtils.NumberTypeToString<T>();
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
+    {type} x = {x};
+	{type} y = {y};
+	{type} z = x {opchar} y;
+    return 0;
+}}
+");
+			T z = op switch
+			{
+				ArithmeticOperation.Addition => x + y,
+				ArithmeticOperation.Multiplication => x * y,
+				_ => throw new InvalidOperationException(),
+			};
+
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+			Assert.AreEqual(y, c.GetVariable<T>("y"));
+			Assert.AreEqual(z, c.GetVariable<T>("z"));
+		}
+
+		public static void TestCast<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			T x = TypeInfo<T>.IsUnsigned ? T.MaxValue : T.MinValue;
+
+			TestCast<T, sbyte>(x, stack);
+			TestCast<T, byte>(x, stack);
+			TestCast<T, short>(x, stack);
+			TestCast<T, ushort>(x, stack);
+			TestCast<T, int>(x, stack);
+			TestCast<T, uint>(x, stack);
+		}
+
+		public static void TestCast<T, R>(T x, bool stack) where T : IBinaryInteger<T> where R : IBinaryInteger<R>
+		{
+			var type1 = CUtils.NumberTypeToString<T>();
+			var type2 = CUtils.NumberTypeToString<R>();
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
+    {type1} x = {x};
+	{type2} y = x;
+    return 0;
+}}
+");
+
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+			Assert.AreEqual(R.CreateTruncating(x), c.GetVariable<R>("y"));
 		}
 	}
 }

@@ -14,6 +14,7 @@ namespace DankleC.IR
 		public readonly IRScope Scope = scope;
 
 		public abstract void ReadTo(int[] regs);
+		public abstract void ReadTo(IPointer ptr);
 		public abstract void WriteFrom(ResolvedExpression expr);
 	}
 
@@ -32,6 +33,11 @@ namespace DankleC.IR
 			}
 		}
 
+		public override void ReadTo(IPointer ptr)
+		{
+			Scope.Builder.MovRegsToPtr(Registers, ptr);
+		}
+
 		public override void WriteFrom(ResolvedExpression expr)
 		{
 			if (expr.Type.Size != Type.Size) throw new InvalidOperationException();
@@ -45,13 +51,12 @@ namespace DankleC.IR
 
 		public override void ReadTo(int[] regs)
 		{
-			if (regs.Length != IRBuilder.NumRegForBytes(Type.Size)) throw new InvalidOperationException("Mismatched register count");
+			Scope.Builder.MovPtrToRegs(Pointer, regs);
+		}
 
-			for (int i = 0; i < Pointer.Size; i += 2)
-			{
-				if (i > Pointer.Size) Scope.Builder.Add(new LoadPtrToReg(regs[i / 2], Pointer.GetByte(i + 1)));
-				else Scope.Builder.Add(new LoadPtrToReg(regs[i / 2], Pointer.GetWord(i)));
-			}
+		public override void ReadTo(IPointer ptr)
+		{
+			Scope.Builder.MovePtrToPtr(Pointer, ptr);
 		}
 
 		public override void WriteFrom(ResolvedExpression expr)

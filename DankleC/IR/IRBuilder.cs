@@ -57,6 +57,55 @@ namespace DankleC.IR
 			CurrentFunction.Insns.Add(insn);
 		}
 
+		public void MovRegsToPtr(int[] regs, IPointer ptr)
+		{
+			if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
+			else if (ptr.Size == 1) Add(new LoadRegToPtr8(ptr, regs[0]));
+			else if (ptr.Size % 2 == 0)
+			{
+				for (var i = 0; i < ptr.Size; i += 2)
+				{
+					Add(new LoadRegToPtr(ptr.Get(i), regs[i / 2]));
+				}
+			}
+			else throw new InvalidOperationException();
+		}
+
+		public void MovPtrToRegs(IPointer ptr, int[] regs)
+		{
+			if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
+			else if (ptr.Size == 1) Add(new LoadPtrToReg8(regs[0], ptr));
+			else if (ptr.Size % 2 == 0)
+			{
+				for (var i = 0; i < ptr.Size; i += 2)
+				{
+					Add(new LoadPtrToReg(regs[i / 2], ptr.Get(i)));
+				}
+			}
+			else throw new InvalidOperationException();
+		}
+
+		public void MovePtrToPtr(IPointer src, IPointer dest)
+		{
+			if (src.Size > dest.Size) throw new InvalidOperationException();
+			else
+			{
+				for (var i = 0; i < NumRegForBytes(src.Size); i++)
+				{
+					if ((i + 1) * 2 > src.Size)
+					{
+						Add(new LoadPtrToReg8(8, src.Get(i * 2)));
+						Add(new LoadRegToPtr8(dest.Get(i * 2), 8));
+					}
+					else
+					{
+						Add(new LoadPtrToReg(8, src.Get(i * 2)));
+						Add(new LoadRegToPtr(dest.Get(i * 2), 8));
+					}
+				}
+			}
+		}
+
 		public static int[] FitTempRegs(int bytes)
 		{
 			var regs = NumRegForBytes(bytes);

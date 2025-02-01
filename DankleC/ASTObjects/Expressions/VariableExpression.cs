@@ -40,14 +40,7 @@ namespace DankleC.ASTObjects.Expressions
 			}
 			else if (Variable is StackVariable stkvar)
 			{
-				if (regs.Length == IRBuilder.NumRegForBytes(Type.Size))
-				{
-					for (int i = 0; i < regs.Length; i++)
-					{
-						if (Type.Size % 2 != 0 && i == regs.Length - 1) builder.Add(new LoadPtrToReg8(regs[i], stkvar.Pointer.Get(i * 2)));
-						else builder.Add(new LoadPtrToReg(regs[i], stkvar.Pointer.Get(i * 2)));
-					}
-				}
+				stkvar.ReadTo(regs);
 				return regs;
 			}
 			throw new NotImplementedException();
@@ -55,7 +48,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
-			throw new NotImplementedException();
+			Variable.ReadTo(pointer);
 		}
 	}
 }

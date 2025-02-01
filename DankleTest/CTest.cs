@@ -190,45 +190,47 @@ short main()
 		}
 		#endregion
 
-		#region Arithmetic
+		#region Math
 
-		[TestMethod]
-		[TestCategory("Math")]
-		[DataRow(false, ArithmeticOperation.Addition)]
-		[DataRow(true, ArithmeticOperation.Addition)]
-		public void TestCharMath(bool stack, ArithmeticOperation op)
-		{
-			var opchar = op switch
-			{
-				ArithmeticOperation.Addition => "+",
-				ArithmeticOperation.Multiplication => "*",
-				_ => throw new InvalidOperationException(),
-			};
+		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
+		public void TestCharMath(bool stack) => CTestHelper.TestMath<sbyte>(stack);
 
-			using var c = new CTestHelper(@$"
-short main()
-{{
-	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
-    signed char x = 5;
-	signed char y = 2;
-	signed char z = x {opchar} y;
-    return 0;
-}}
-");
-			sbyte x = 5;
-			sbyte y = 2;
-			sbyte z = op switch
-			{
-				ArithmeticOperation.Addition => (sbyte)(x + y),
-				ArithmeticOperation.Multiplication => (sbyte)(x * y),
-				_ => throw new InvalidOperationException(),
-			};
+		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
+		public void TestUCharMath(bool stack) => CTestHelper.TestMath<byte>(stack);
 
-			c.RunUntil<ReturnStatement>();
-			Assert.AreEqual(x, c.GetVariable<sbyte>("x"));
-			Assert.AreEqual(y, c.GetVariable<sbyte>("y"));
-			Assert.AreEqual(z, c.GetVariable<sbyte>("z"));
-		}
+		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
+		public void TestShortMath(bool stack) => CTestHelper.TestMath<short>(stack);
+
+		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
+		public void TestUShortMath(bool stack) => CTestHelper.TestMath<ushort>(stack);
+
+		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
+		public void TestIntMath(bool stack) => CTestHelper.TestMath<int>(stack);
+
+		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
+		public void TestUIntMath(bool stack) => CTestHelper.TestMath<uint>(stack);
+
+		#endregion
+
+		#region Casting
+
+		[TestMethod, TestCategory("Casting"), DataRow(false), DataRow(true)]
+		public void TestCharCast(bool stack) => CTestHelper.TestCast<sbyte>(stack);
+
+		[TestMethod, TestCategory("Casting"), DataRow(false), DataRow(true)]
+		public void TestUCharCast(bool stack) => CTestHelper.TestCast<byte>(stack);
+
+		[TestMethod, TestCategory("Casting"), DataRow(false), DataRow(true)]
+		public void TestShortCast(bool stack) => CTestHelper.TestCast<short>(stack);
+
+		[TestMethod, TestCategory("Casting"), DataRow(false), DataRow(true)]
+		public void TestUShortCast(bool stack) => CTestHelper.TestCast<ushort>(stack);
+
+		[TestMethod, TestCategory("Casting"), DataRow(false), DataRow(true)]
+		public void TestIntCast(bool stack) => CTestHelper.TestCast<int>(stack);
+
+		[TestMethod, TestCategory("Casting"), DataRow(false), DataRow(true)]
+		public void TestUIntCast(bool stack) => CTestHelper.TestCast<uint>(stack);
 
 		#endregion
 	}

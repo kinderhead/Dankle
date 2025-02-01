@@ -32,8 +32,8 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.GetNextArg<Any16>();
 			var src = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any16>();
 
 			if ((short)src.Read() < 0) dest.Write(0xFFFF);
 			else dest.Write(0);
@@ -49,11 +49,11 @@ namespace Dankle.Components.Instructions
 
 		protected override void Handle(Context ctx)
 		{
-			var dest = ctx.GetNextArg<Any16>();
 			var src = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any16>();
 
 			var s = src.Read();
-			if ((sbyte)s < 0) dest.Write((ushort)(s & 0xFF00));
+			if ((sbyte)s < 0) dest.Write((ushort)(s | 0xFF00));
 			else dest.Write(s);
 		}
 	}

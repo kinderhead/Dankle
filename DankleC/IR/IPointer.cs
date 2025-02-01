@@ -1,6 +1,7 @@
 ﻿using Dankle.Components.CodeGen;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -10,6 +11,8 @@ namespace DankleC.IR
 {
 	public interface IPointer
 	{
+		public int Size { get; }
+
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>;
 		public IPointer Get(int offset);
 	}
@@ -24,7 +27,7 @@ namespace DankleC.IR
 	public readonly struct StackPointer(int offset, int size) : IPointer
 	{
 		public readonly int Offset = offset;
-		public readonly int Size = size;
+		public int Size { get; } = size;
 
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
 		{

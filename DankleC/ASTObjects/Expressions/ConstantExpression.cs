@@ -27,6 +27,8 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
+			if (pointer.Size != Type.Size) throw new InvalidOperationException();
+
 			var words = GetWords();
 			for (int i = 0; i < words.Length; i++)
 			{

@@ -19,7 +19,9 @@ namespace DankleC.ASTObjects.Expressions
 
 			if (Type.Size <= expr.Type.Size)
 			{
-				throw new NotImplementedException();
+				var regs = IRBuilder.FitTempRegs(Type.Size);
+				expr.WriteToRegisters([.. Enumerable.Repeat(-1, IRBuilder.NumRegForBytes(expr.Type.Size) - IRBuilder.NumRegForBytes(Type.Size)), .. regs], builder);
+				builder.MovRegsToPtr(regs, pointer);
 			}
 			else
 			{
@@ -29,6 +31,12 @@ namespace DankleC.ASTObjects.Expressions
 				if (expr.Type.IsSigned())
 				{
 					if (Type.Size == 4 && expr.Type.Size == 2) builder.Add(new SignExtPtr(pointer, pointer.Get(padding)));
+					else if (Type.Size == 4 && expr.Type.Size == 1)
+					{
+						builder.Add(new SignExtPtr8(pointer.Get(2), pointer.Get(2)));
+						builder.Add(new SignExtPtr(pointer, pointer.Get(2)));
+					}
+					else if (Type.Size == 2 && expr.Type.Size == 1) builder.Add(new SignExtPtr8(pointer, pointer));
 					else throw new NotImplementedException();
 				}
 				else builder.Add(new Memset(pointer, padding, 0));
@@ -55,6 +63,7 @@ namespace DankleC.ASTObjects.Expressions
 						builder.Add(new SignExtReg8(regs[1], regs[1]));
 						builder.Add(new SignExtReg(regs[0], regs[1]));
 					}
+					else if (Type.Size == 2 && expr.Type.Size == 1) builder.Add(new SignExtReg8(regs[0], regs[0]));
 					else throw new NotImplementedException();
 				}
 				else foreach (var i in regs[..(IRBuilder.NumRegForBytes(Type.Size) - IRBuilder.NumRegForBytes(expr.Type.Size))])

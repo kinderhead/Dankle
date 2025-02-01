@@ -33,6 +33,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
+			if (Register == -1) return;
 			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), new CGImmediate<ushort>(Val)));
 		}
 	}
@@ -44,6 +45,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
+			if (Register == -1) return;
 			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Build<ushort>(Scope)));
 		}
 	}
@@ -55,6 +57,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
+			if (Register == -1) return;
 			gen.Add(CGInsn.Build<Load8>(new CGRegister(Register), Pointer.Build<byte>(Scope)));
 		}
 	}
@@ -66,6 +69,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
+			if (Register == -1) return;
 			gen.Add(CGInsn.Build<Store>(Pointer.Build<ushort>(Scope), new CGRegister(Register)));
 		}
 	}
@@ -77,6 +81,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
+			if (Register == -1) return;
 			gen.Add(CGInsn.Build<Store8>(Pointer.Build<byte>(Scope), new CGRegister(Register)));
 		}
 	}
@@ -202,12 +207,12 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Size % 2 != 0) throw new NotImplementedException();
-
 			gen.Add(CGInsn.Build<Load>(new CGRegister(8), new CGImmediate<ushort>((ushort)(Byte & (Byte << 8)))));
-			for (int i = 0; i < Size / 2; i++)
+
+			for (int i = 0; i < IRBuilder.NumRegForBytes(Size); i++)
 			{
-				gen.Add(CGInsn.Build<Store>(Ptr.Build<ushort>(Scope), new CGRegister(8)));
+				if ((i + 1) * 2 > Size) gen.Add(CGInsn.Build<Store8>(Ptr.Get(i * 2).Build<byte>(Scope), new CGRegister(8)));
+				else gen.Add(CGInsn.Build<Store>(Ptr.Get(i * 2).Build<ushort>(Scope), new CGRegister(8)));
 			}
 		}
 	}
@@ -219,7 +224,18 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<SignExtend>(Dest.Build<ushort>(Scope), Src.Build<ushort>(Scope)));
+			gen.Add(CGInsn.Build<SignExtend>(Src.Build<ushort>(Scope), Dest.Build<ushort>(Scope)));
+		}
+	}
+
+	public class SignExtPtr8(IPointer dest, IPointer src) : IRInsn
+	{
+		public readonly IPointer Dest = dest;
+		public readonly IPointer Src = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<SignExtend8>(Src.Build<ushort>(Scope), Dest.Build<ushort>(Scope)));
 		}
 	}
 
@@ -230,7 +246,8 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<SignExtend>(new CGRegister(Dest), new CGRegister(Src)));
+			if (Dest == -1 || Src == -1) return;
+			gen.Add(CGInsn.Build<SignExtend>(new CGRegister(Src), new CGRegister(Dest)));
 		}
 	}
 
@@ -241,7 +258,8 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<SignExtend8>(new CGRegister(Dest), new CGRegister(Src)));
+			if (Dest == -1 || Src == -1) return;
+			gen.Add(CGInsn.Build<SignExtend8>(new CGRegister(Src), new CGRegister(Dest)));
 		}
 	}
 
