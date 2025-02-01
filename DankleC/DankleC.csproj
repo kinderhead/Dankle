@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Dankle\Dankle.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="cmain.asm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

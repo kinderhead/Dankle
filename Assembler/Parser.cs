@@ -214,7 +214,7 @@ namespace Assembler
 			(byte type, byte[] data)? res;
 
 			var first = Tokens.Dequeue();
-			if (IsNum(first))
+			if (IsNum(first) && !(first.Text == "SP" || first.Text == "PC"))
 			{
 				var second = Tokens.Dequeue();
 				if (second.Symbol == Token.Type.CSquareBracket) return (0b0010, Utils.ToBytes(ParseNum<uint>(first)));
@@ -222,9 +222,9 @@ namespace Assembler
 				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [..Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
 				else throw new InvalidTokenException(second);
 			}
-			else if (first.Symbol == Token.Type.Register)
+			else if (first.Symbol == Token.Type.Register || (first.Text == "SP" || first.Text == "PC"))
 			{
-				if (first.Symbol == Token.Type.Label || Tokens.Peek().Symbol == Token.Type.Comma)
+				if (first.Symbol == Token.Type.Text || Tokens.Peek().Symbol == Token.Type.Comma)
 				{
 					var doubleReg = ParseDoubleRegister(first);
 					var next = Tokens.Dequeue();

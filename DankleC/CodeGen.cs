@@ -31,6 +31,11 @@ namespace DankleC
 
 			foreach (var sym in CompiledSymbols)
 			{
+				builder.AppendLine($"export {sym.Key}");
+			}
+
+			foreach (var sym in CompiledSymbols)
+			{
 				builder.Append($"{sym.Key}:");
 				builder.AppendLine(sym.Value);
 			}

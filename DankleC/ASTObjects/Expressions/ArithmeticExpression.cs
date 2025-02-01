@@ -50,7 +50,7 @@ namespace DankleC.ASTObjects.Expressions
                 return new ConstantExpression(type, res);
 			}
 
-			return new ResolvedArithmeticExpression(builder.Cast(left, type), Op, builder.Cast(right, type), type);
+			return new ResolvedArithmeticExpression(left.Cast(type), Op, right.Cast(type), type);
 		}
 	}
 
@@ -105,12 +105,17 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
-			if (Left.Type.Size <= 2)
+			if (Left.Type.Size == 1)
+			{
+				Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
+				builder.Add(new LoadRegToPtr8(pointer, 10));
+			}
+			else if (Left.Type.Size == 2)
 			{
 				Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
 				builder.Add(new LoadRegToPtr(pointer, 10));
 			}
-			else if (Left.Type.Size <= 4)
+			else if (Left.Type.Size == 4)
 			{
 				Compute(Left.GetOrWriteToRegisters([8, 9], builder), Right.GetOrWriteToRegisters([10, 11], builder), [8, 9], builder);
 				builder.Add(new LoadRegToPtr(pointer, 8));

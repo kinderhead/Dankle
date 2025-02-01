@@ -31,7 +31,20 @@ namespace DankleC.ASTObjects
 			return regs;
 		}
 
-		public virtual ResolvedExpression AsCasted(TypeSpecifier type) => new CastExpression(this, type);
+		public ResolvedExpression Cast(TypeSpecifier type)
+		{
+			if (Type == type) return this;
+			else if (Type.PointerType != PointerType.None || type.PointerType != PointerType.None) throw new NotImplementedException();
+			else if (Type is BuiltinTypeSpecifier actual && type is BuiltinTypeSpecifier expected)
+			{
+				if (actual.Size == expected.Size) return ChangeType(expected);
+				return AsCasted(expected);
+			}
+
+			throw new InvalidOperationException($"Cannot cast {Type} to {type}");
+		}
+
+		protected virtual ResolvedExpression AsCasted(TypeSpecifier type) => new CastExpression(this, type);
 	}
 
 	public abstract class UnresolvedExpression : IExpression

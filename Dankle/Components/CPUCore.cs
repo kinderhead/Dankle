@@ -81,7 +81,7 @@ namespace Dankle.Components
 			});
 		}
 
-		public void Step(Component? source = null) => Send<CPUStepMsg, bool>(new CPUStepMsg { Source = source });
+		public bool Step(Component? source = null) => Send<CPUStepMsg, bool>(new CPUStepMsg { Source = source });
 
 		protected override void Process()
 		{

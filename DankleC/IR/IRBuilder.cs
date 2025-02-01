@@ -57,19 +57,6 @@ namespace DankleC.IR
 			CurrentFunction.Insns.Add(insn);
 		}
 
-		public ResolvedExpression Cast(ResolvedExpression expr, TypeSpecifier type)
-		{
-			if (expr.Type == type) return expr;
-			else if (expr.Type.PointerType != PointerType.None || type.PointerType != PointerType.None) { }
-			else if (expr.Type is BuiltinTypeSpecifier actual && type is BuiltinTypeSpecifier expected)
-			{
-				if (actual.Size == expected.Size) return expr.ChangeType(expected);
-				return expr.AsCasted(expected);
-			}
-
-			throw new InvalidOperationException($"Cannot cast {expr.Type} to {type}");
-		}
-
 		public static int[] FitTempRegs(int bytes)
 		{
 			var regs = NumRegForBytes(bytes);

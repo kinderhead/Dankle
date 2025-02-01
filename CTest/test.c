@@ -1,7 +1,8 @@
-int main()
+short main()
 {
-    int x = 70;
-    int y = -1;
-    int z = 0;
-    return x + y + z;
+    int _1 = 0; int _2 = 0;
+    signed char x = 5;
+    signed char y = 2;
+    signed char z = x + y;
+    return 0;
 }

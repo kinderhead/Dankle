@@ -26,7 +26,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = builder.Cast(Expression.Resolve(builder, func, Scope), func.ReturnType);
+			var expr = Expression.Resolve(builder, func, Scope).Cast(func.ReturnType);
 
 			if (func.ReturnType.Size <= 2) expr.WriteToRegisters([0], builder);
 			else if (func.ReturnType.Size <= 4) expr.WriteToRegisters([0, 1], builder);
@@ -42,9 +42,9 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = builder.Cast(Expression.Resolve(builder, func, Scope), Type);
+			var expr = Expression.Resolve(builder, func, Scope).Cast(Type);
 			var variable = Scope.AllocLocal(Name, Type);
-			variable.Write(expr);
+			variable.WriteFrom(expr);
 		}
 	}
 }

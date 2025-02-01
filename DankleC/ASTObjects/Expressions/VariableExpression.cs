@@ -28,7 +28,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
 		{
-			Variable.Read(regs);
+			Variable.ReadTo(regs);
 		}
 
 		public override int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
@@ -42,11 +42,10 @@ namespace DankleC.ASTObjects.Expressions
 			{
 				if (regs.Length == IRBuilder.NumRegForBytes(Type.Size))
 				{
-					if (Type.Size % 2 != 0) throw new NotImplementedException();
-
 					for (int i = 0; i < regs.Length; i++)
 					{
-						builder.Add(new LoadPtrToReg(regs[i], stkvar.Pointer.Get(i * 2)));
+						if (Type.Size % 2 != 0 && i == regs.Length - 1) builder.Add(new LoadPtrToReg8(regs[i], stkvar.Pointer.Get(i * 2)));
+						else builder.Add(new LoadPtrToReg(regs[i], stkvar.Pointer.Get(i * 2)));
 					}
 				}
 				return regs;

@@ -12,7 +12,7 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly object Value = value;
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
-		public override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
+		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
 
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
 		{
@@ -31,7 +31,8 @@ namespace DankleC.ASTObjects.Expressions
 			for (int i = 0; i < words.Length; i++)
 			{
 				builder.Add(new LoadImmToReg(8, words[i]));
-				builder.Add(new LoadRegToPtr(pointer.Get(i * 2), 8));
+				if (Type.Size == 1) builder.Add(new LoadRegToPtr8(pointer.Get(i * 2), 8));
+				else builder.Add(new LoadRegToPtr(pointer.Get(i * 2), 8));
 			}
 		}
 
@@ -65,7 +66,12 @@ namespace DankleC.ASTObjects.Expressions
 			else if (t.Type == BuiltinType.SignedChar)
 			{
 				var val = Convert.ToSByte(Value);
-				words.Add((ushort)val);
+				words.Add((ushort)((ushort)val & 0xFF)); // Silly C# sign extension
+			}
+			else if (t.Type == BuiltinType.UnsignedChar)
+			{
+				var val = Convert.ToByte(Value);
+				words.Add(val);
 			}
 			else throw new NotImplementedException();
 

@@ -10,7 +10,8 @@ namespace DankleC
         static void Main(string[] _)
         {
             var compiler = new Compiler();
-            Console.WriteLine(compiler.ReadFile("../../../../CTest/test.c").Compile());
+            Console.WriteLine(compiler.ReadFile("../../../../CTest/test.c").GenAST().GenIR().GenAssembly());
+            Console.ReadKey();
         }
     }
 }

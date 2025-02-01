@@ -11,11 +11,10 @@ namespace Assembler
     {
         public readonly List<string> Programs = programs;
         public readonly Dictionary<string, uint> Symbols = [];
+        public readonly List<Parser> Parsers = [];
 
-        public byte[] AssembleAndLink(uint startAddr = 0, Computer? computer = null)
+		public byte[] AssembleAndLink(uint startAddr = 0, Computer? computer = null)
         {
-            var parsers = new List<Parser>();
-
             uint addr = startAddr;
             foreach (var i in Programs)
             {
@@ -28,14 +27,14 @@ namespace Assembler
                     Symbols[e] = parser.GetVariable<uint>(e);
 				}
 
-				parsers.Add(parser);
+				Parsers.Add(parser);
             }
 
 			var data = new byte[addr];
 
-			foreach (var i in parsers)
+			foreach (var i in Parsers)
 			{
-				foreach (var e in parsers)
+				foreach (var e in Parsers)
 				{
                     if (i == e) continue;
                     i.ApplySymbols(e);

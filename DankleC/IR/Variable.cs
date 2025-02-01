@@ -13,15 +13,15 @@ namespace DankleC.IR
 		public readonly TypeSpecifier Type = type;
 		public readonly IRScope Scope = scope;
 
-		public abstract void Read(int[] regs);
-		public abstract void Write(ResolvedExpression expr);
+		public abstract void ReadTo(int[] regs);
+		public abstract void WriteFrom(ResolvedExpression expr);
 	}
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope)
 	{
 		public readonly int[] Registers = reg;
 
-		public override void Read(int[] regs)
+		public override void ReadTo(int[] regs)
 		{
 			if (regs.Length != Registers.Length) throw new InvalidOperationException("Mismatched register count");
 
@@ -32,7 +32,7 @@ namespace DankleC.IR
 			}
 		}
 
-		public override void Write(ResolvedExpression expr)
+		public override void WriteFrom(ResolvedExpression expr)
 		{
 			if (expr.Type.Size != Type.Size) throw new InvalidOperationException();
 			expr.WriteToRegisters(Registers, Scope.Builder);
@@ -43,7 +43,7 @@ namespace DankleC.IR
 	{
 		public readonly StackPointer Pointer = pointer;
 
-		public override void Read(int[] regs)
+		public override void ReadTo(int[] regs)
 		{
 			if (regs.Length != IRBuilder.NumRegForBytes(Type.Size)) throw new InvalidOperationException("Mismatched register count");
 
@@ -54,7 +54,7 @@ namespace DankleC.IR
 			}
 		}
 
-		public override void Write(ResolvedExpression expr)
+		public override void WriteFrom(ResolvedExpression expr)
 		{
 			if (expr.Type.Size != Type.Size) throw new InvalidOperationException("Mismatched size");
 			expr.WriteToPointer(Pointer, Scope.Builder);

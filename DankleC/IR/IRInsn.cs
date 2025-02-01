@@ -48,6 +48,17 @@ namespace DankleC.IR
 		}
 	}
 
+	public class LoadPtrToReg8(int reg, IPointer pointer) : IRInsn
+	{
+		public readonly int Register = reg;
+		public readonly IPointer Pointer = pointer;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<Load8>(new CGRegister(Register), Pointer.Build<byte>(Scope)));
+		}
+	}
+
 	public class LoadRegToPtr(IPointer pointer, int reg) : IRInsn
 	{
 		public readonly int Register = reg;
@@ -56,6 +67,17 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			gen.Add(CGInsn.Build<Store>(Pointer.Build<ushort>(Scope), new CGRegister(Register)));
+		}
+	}
+
+	public class LoadRegToPtr8(IPointer pointer, int reg) : IRInsn
+	{
+		public readonly int Register = reg;
+		public readonly IPointer Pointer = pointer;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<Store8>(Pointer.Build<byte>(Scope), new CGRegister(Register)));
 		}
 	}
 

@@ -1,17 +1,13 @@
-main:
-    ld r13, 0xFFFF
-    ld r0, text#H
-    ld r1, text#L
-    call print
-    hlt
-print:
-    ldb r2, [r0,r1]
-write:
-    inc r1
-    stb [0xFFFFFFF0], r2
-    ldb r2, [r0,r1]
-    cmp r2, 0
-    jne write
+cmain:
+	ld r13, 0xFFFF
+	call _main
+	hlt
+
+_main:
+    pushr 3584
+    ld r4, 5
+    ld r5, 2
+    add r4, r4, r6
+    ld r0, 0
+    popr 3584
     ret
-text:
-    "Hello World"
