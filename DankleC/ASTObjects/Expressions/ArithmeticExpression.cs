@@ -86,7 +86,7 @@ namespace DankleC.ASTObjects.Expressions
 						break;
 				}
 			}
-			else if (Type.Size <= 4)
+			else if (Type.Size == 4)
 			{
 				switch (Op)
 				{
@@ -95,7 +95,9 @@ namespace DankleC.ASTObjects.Expressions
 						builder.Add(new AdcRegs(leftregs[0], rightregs[0], output[0]));
 						break;
 					case ArithmeticOperation.Multiplication:
-						throw new NotImplementedException();
+						if (Type.IsSigned()) builder.Add(new SMul32Regs(leftregs[0], leftregs[1], rightregs[0], rightregs[1], output[0], output[1]));
+						else builder.Add(new UMul32Regs(leftregs[0], leftregs[1], rightregs[0], rightregs[1], output[0], output[1]));
+						break;
 					default:
 						break;
 				}

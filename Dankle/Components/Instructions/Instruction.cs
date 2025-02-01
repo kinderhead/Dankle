@@ -125,6 +125,8 @@ namespace Dankle.Components.Instructions
 			Register<ModifyStack>();
 			Register<SignExtend>();
 			Register<SignExtend8>();
+			Register<SignedMul32>();
+			Register<UnsignedMul32>();
 		}
 	}
 

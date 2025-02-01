@@ -169,6 +169,38 @@ namespace DankleC.IR
 		}
 	}
 
+	public class SMul32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+		public readonly int DestHigh = desthigh;
+		public readonly int DestLow = destlow;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
+			gen.Add(CGInsn.Build<SignedMul32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
+		}
+	}
+
+	public class UMul32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+		public readonly int DestHigh = desthigh;
+		public readonly int DestLow = destlow;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
+			gen.Add(CGInsn.Build<UnsignedMul32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
+		}
+	}
+
 	public class InitFrame() : IRInsn
 	{
 		public override void Compile(CodeGen gen)

@@ -25,12 +25,24 @@ namespace Dankle.Components.CodeGen
 
 	public class CGRegister(int regnum) : CGArg<ushort>
 	{
-		public readonly int Regnum = regnum >= 16 ? throw new InvalidOperationException($"Invalid register {regnum}") : regnum;
+		public readonly int Regnum = regnum >= 16 || regnum < 0 ? throw new InvalidOperationException($"Invalid register {regnum}") : regnum;
 		public override Type ArgType => typeof(Register);
 
 		public override string Build()
 		{
 			return $"r{Regnum}";
+		}
+	}
+
+	public class CGDoubleRegister(int reg1, int reg2) : CGArg<ushort>
+	{
+		public readonly int Reg1 = reg1 >= 16 || reg1 < 0 ? throw new InvalidOperationException($"Invalid register {reg1}") : reg1;
+		public readonly int Reg2 = reg2 >= 16 || reg2 < 0 ? throw new InvalidOperationException($"Invalid register {reg2}") : reg2;
+		public override Type ArgType => typeof(DoubleRegister);
+
+		public override string Build()
+		{
+			return $"(r{Reg1}, r{Reg2})";
 		}
 	}
 

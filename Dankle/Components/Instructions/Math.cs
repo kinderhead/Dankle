@@ -100,23 +100,6 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
-	public class SignedDiv : Instruction
-	{
-		public override ushort Opcode => 10;
-
-		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
-		public override string Name => "SDIV";
-
-		protected override void Handle(Context ctx)
-		{
-			var arg1 = ctx.GetNextArg<Register>();
-			var arg2 = ctx.GetNextArg<Register>();
-			var dest = ctx.GetNextArg<Register>();
-
-			dest.Write((ushort)ctx.Core.ALU.Calculate((short)arg1.Read(), Operation.DIV, (short)arg2.Read()));
-		}
-	}
-
 	public class UnsignedMul : Instruction
 	{
 		public override ushort Opcode => 11;
@@ -131,6 +114,57 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Register>();
 
 			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MUL, arg2.Read()));
+		}
+	}
+
+	public class UnsignedMul32 : Instruction
+	{
+		public override ushort Opcode => 59;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32), typeof(Any32)];
+		public override string Name => "UMULL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MUL, arg2.Read()));
+		}
+	}
+
+	public class SignedMul32 : Instruction
+	{
+		public override ushort Opcode => 58;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32), typeof(Any32)];
+		public override string Name => "SMULL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write((uint)ctx.Core.ALU.Calculate((int)arg1.Read(), Operation.MUL, (int)arg2.Read()));
+		}
+	}
+
+	public class SignedDiv : Instruction
+	{
+		public override ushort Opcode => 10;
+
+		public override Type[] Arguments => [typeof(Register), typeof(Register), typeof(Register)];
+		public override string Name => "SDIV";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Register>();
+			var arg2 = ctx.GetNextArg<Register>();
+			var dest = ctx.GetNextArg<Register>();
+
+			dest.Write((ushort)ctx.Core.ALU.Calculate((short)arg1.Read(), Operation.DIV, (short)arg2.Read()));
 		}
 	}
 

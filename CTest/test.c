@@ -1,6 +1,7 @@
 short main()
 {
-    signed char x = -128;
-    int y = x;
+    int x = 69;
+    int y = 420;
+    int z = x * y;
     return 0;
 }

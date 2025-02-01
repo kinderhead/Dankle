@@ -86,9 +86,16 @@ namespace DankleTest
 			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Addition);
 		}
 
+		public static void TestMathMul<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.CreateTruncating(2), (T.MaxValue / T.CreateTruncating(2)) - T.CreateTruncating(1), stack, ArithmeticOperation.Multiplication);
+			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Multiplication);
+		}
+
 		public static void TestMath<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestMathAdd<T>(stack);
+			TestMathMul<T>(stack);
 		}
 
 		public static void TestMath<T>(T x, T y, bool stack, ArithmeticOperation op) where T : IBinaryInteger<T>
