@@ -40,8 +40,5 @@ namespace DankleC.IR
         	if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
 			return new StackPointer(Offset + offset, Size - offset);
         }
-
-        public StackPointer GetByte(int offset) => new(Offset + offset, 1);
-		public StackPointer GetWord(int offset) => new(Offset + offset, 2);
     }
 }

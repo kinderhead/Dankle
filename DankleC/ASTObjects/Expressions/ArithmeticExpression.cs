@@ -10,7 +10,9 @@ namespace DankleC.ASTObjects.Expressions
 	public enum ArithmeticOperation
 	{
 		Addition,
-		Multiplication
+		Subtraction,
+		Multiplication,
+		Division
 	}
 
 	public class ArithmeticExpression(IExpression left, ArithmeticOperation op, IExpression right) : UnresolvedExpression
@@ -43,8 +45,10 @@ namespace DankleC.ASTObjects.Expressions
                 dynamic res = Op switch
                 {
                     ArithmeticOperation.Addition => (dynamic)l.Value + (dynamic)r.Value,
-                    ArithmeticOperation.Multiplication => (dynamic)l.Value * (dynamic)r.Value,
-                    _ => throw new NotImplementedException(),
+                    ArithmeticOperation.Subtraction => (dynamic)l.Value - (dynamic)r.Value,
+					ArithmeticOperation.Multiplication => (dynamic)l.Value * (dynamic)r.Value,
+					ArithmeticOperation.Division => (dynamic)l.Value / (dynamic)r.Value,
+					_ => throw new NotImplementedException(),
                 };
 				
                 return new ConstantExpression(type, res);
@@ -78,9 +82,24 @@ namespace DankleC.ASTObjects.Expressions
 					case ArithmeticOperation.Addition:
 						builder.Add(new AddRegs(leftregs[0], rightregs[0], output[0]));
 						break;
+					case ArithmeticOperation.Subtraction:
+						builder.Add(new SubRegs(leftregs[0], rightregs[0], output[0]));
+						break;
 					case ArithmeticOperation.Multiplication:
 						if (Type.IsSigned()) builder.Add(new SMulRegs(leftregs[0], rightregs[0], output[0]));
 						else builder.Add(new UMulRegs(leftregs[0], rightregs[0], output[0]));
+						break;
+					case ArithmeticOperation.Division:
+						if (Type.IsSigned())
+						{
+							if (Type.Size == 1)
+							{
+								builder.Add(new SignExtReg8(leftregs[0], leftregs[0]));
+								builder.Add(new SignExtReg8(rightregs[0], rightregs[0]));
+							}
+							builder.Add(new SDivRegs(leftregs[0], rightregs[0], output[0]));
+						}
+						else builder.Add(new UDivRegs(leftregs[0], rightregs[0], output[0]));
 						break;
 					default:
 						break;
@@ -94,9 +113,17 @@ namespace DankleC.ASTObjects.Expressions
 						builder.Add(new AddRegs(leftregs[1], rightregs[1], output[1]));
 						builder.Add(new AdcRegs(leftregs[0], rightregs[0], output[0]));
 						break;
+					case ArithmeticOperation.Subtraction:
+						builder.Add(new SubRegs(leftregs[1], rightregs[1], output[1]));
+						builder.Add(new SbbRegs(leftregs[0], rightregs[0], output[0]));
+						break;
 					case ArithmeticOperation.Multiplication:
 						if (Type.IsSigned()) builder.Add(new SMul32Regs(leftregs[0], leftregs[1], rightregs[0], rightregs[1], output[0], output[1]));
 						else builder.Add(new UMul32Regs(leftregs[0], leftregs[1], rightregs[0], rightregs[1], output[0], output[1]));
+						break;
+					case ArithmeticOperation.Division:
+						if (Type.IsSigned()) builder.Add(new SDiv32Regs(leftregs[0], leftregs[1], rightregs[0], rightregs[1], output[0], output[1]));
+						else builder.Add(new UDiv32Regs(leftregs[0], leftregs[1], rightregs[0], rightregs[1], output[0], output[1]));
 						break;
 					default:
 						break;

@@ -65,6 +65,10 @@ returnStatement
 expression
     : assignmentExpression
     ;
+    
+castExpression
+    : unaryExpression
+    ;
 
 unaryExpression
     : postfixExpression
@@ -72,6 +76,7 @@ unaryExpression
 
 postfixExpression
     : primaryExpression
+    | (And) castExpression
     ;
 
 primaryExpression
@@ -86,11 +91,11 @@ constantExpression
     ;
 
 additiveExpression
-    : multiplicativeExpression (Plus additiveExpression)?
+    : multiplicativeExpression ((Plus | Minus) additiveExpression)?
     ;
 
 multiplicativeExpression
-    : unaryExpression (Star multiplicativeExpression)?
+    : castExpression ((Star | Div) multiplicativeExpression)?
     ;
 
 variableExpression

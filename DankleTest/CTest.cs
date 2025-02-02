@@ -233,5 +233,24 @@ short main()
 		public void TestUIntCast(bool stack) => CTestHelper.TestCast<uint>(stack);
 
 		#endregion
+
+//		#region Return
+
+//		[TestMethod]
+//		[TestCategory("Return")]
+//		public void TestReturnChar()
+//		{
+//			using var c = new CTestHelper(@"
+//char main()
+//{
+//    char x = 10;
+//    return x;
+//}
+//");
+//			c.RunUntilDone();
+//			Assert.AreEqual(10, c.Computer.MainCore.Registers[0]);
+//		}
+
+//		#endregion
 	}
 }

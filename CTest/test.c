@@ -1,7 +1,6 @@
 short main()
 {
-    int x = 69;
-    int y = 420;
-    int z = x * y;
+    char x = 10;
+    char* ptr = &x;
     return 0;
 }

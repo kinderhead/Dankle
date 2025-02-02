@@ -91,13 +91,15 @@ namespace DankleC
 		public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
 		{
 			if (context.additiveExpression() is null) return Visit(context.multiplicativeExpression());
-			return new ArithmeticExpression((IExpression)Visit(context.multiplicativeExpression()), ArithmeticOperation.Addition, (IExpression)Visit(context.additiveExpression()));
+			else if (context.Plus() is not null) return new ArithmeticExpression((IExpression)Visit(context.multiplicativeExpression()), ArithmeticOperation.Addition, (IExpression)Visit(context.additiveExpression()));
+			else return new ArithmeticExpression((IExpression)Visit(context.multiplicativeExpression()), ArithmeticOperation.Subtraction, (IExpression)Visit(context.additiveExpression()));
 		}
 
 		public override IASTObject VisitMultiplicativeExpression([NotNull] CParser.MultiplicativeExpressionContext context)
 		{
-			if (context.multiplicativeExpression() is null) return Visit(context.unaryExpression());
-			return new ArithmeticExpression((IExpression)Visit(context.unaryExpression()), ArithmeticOperation.Multiplication, (IExpression)Visit(context.multiplicativeExpression()));
+			if (context.multiplicativeExpression() is null) return Visit(context.castExpression());
+			else if (context.Star() is not null) return new ArithmeticExpression((IExpression)Visit(context.castExpression()), ArithmeticOperation.Multiplication, (IExpression)Visit(context.multiplicativeExpression()));
+			else return new ArithmeticExpression((IExpression)Visit(context.castExpression()), ArithmeticOperation.Division, (IExpression)Visit(context.multiplicativeExpression()));
 		}
 
 		#endregion

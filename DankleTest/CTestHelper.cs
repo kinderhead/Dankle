@@ -86,16 +86,30 @@ namespace DankleTest
 			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Addition);
 		}
 
+		public static void TestMathSub<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.MinValue, T.CreateTruncating(1), stack, ArithmeticOperation.Subtraction);
+			TestMath(T.MaxValue, T.MinValue, stack, ArithmeticOperation.Subtraction);
+		}
+
 		public static void TestMathMul<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestMath(T.CreateTruncating(2), (T.MaxValue / T.CreateTruncating(2)) - T.CreateTruncating(1), stack, ArithmeticOperation.Multiplication);
 			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Multiplication);
 		}
 
+		public static void TestMathDiv<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.MaxValue, T.CreateTruncating(2), stack, ArithmeticOperation.Division);
+			TestMath(T.MinValue, T.CreateTruncating(2), stack, ArithmeticOperation.Division);
+		}
+
 		public static void TestMath<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestMathAdd<T>(stack);
+			TestMathSub<T>(stack);
 			TestMathMul<T>(stack);
+			TestMathDiv<T>(stack);
 		}
 
 		public static void TestMath<T>(T x, T y, bool stack, ArithmeticOperation op) where T : IBinaryInteger<T>
@@ -103,7 +117,9 @@ namespace DankleTest
 			var opchar = op switch
 			{
 				ArithmeticOperation.Addition => "+",
+				ArithmeticOperation.Subtraction => "-",
 				ArithmeticOperation.Multiplication => "*",
+				ArithmeticOperation.Division => "/",
 				_ => throw new InvalidOperationException(),
 			};
 
@@ -122,7 +138,9 @@ short main()
 			T z = op switch
 			{
 				ArithmeticOperation.Addition => x + y,
+				ArithmeticOperation.Subtraction => x - y,
 				ArithmeticOperation.Multiplication => x * y,
+				ArithmeticOperation.Division => x / y,
 				_ => throw new InvalidOperationException(),
 			};
 

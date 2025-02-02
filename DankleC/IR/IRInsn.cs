@@ -130,6 +130,19 @@ namespace DankleC.IR
 		}
 	}
 
+	public class SubRegs(int arg1, int arg2, int dest) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+		public readonly int Dest = dest;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
+			gen.Add(CGInsn.Build<Subtract>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
+		}
+	}
+
 	public class AdcRegs(int arg1, int arg2, int dest) : IRInsn
 	{
 		public readonly int Arg1 = arg1;
@@ -140,6 +153,19 @@ namespace DankleC.IR
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
 			gen.Add(CGInsn.Build<Adc>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
+		}
+	}
+
+	public class SbbRegs(int arg1, int arg2, int dest) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+		public readonly int Dest = dest;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
+			gen.Add(CGInsn.Build<Sbb>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
 		}
 	}
 
@@ -166,6 +192,32 @@ namespace DankleC.IR
 		{
 			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
 			gen.Add(CGInsn.Build<UnsignedMul>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
+		}
+	}
+
+	public class SDivRegs(int arg1, int arg2, int dest) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+		public readonly int Dest = dest;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
+			gen.Add(CGInsn.Build<SignedDiv>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
+		}
+	}
+
+	public class UDivRegs(int arg1, int arg2, int dest) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+		public readonly int Dest = dest;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
+			gen.Add(CGInsn.Build<UnsignedDiv>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
 		}
 	}
 
@@ -198,6 +250,38 @@ namespace DankleC.IR
 		{
 			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
 			gen.Add(CGInsn.Build<UnsignedMul32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
+		}
+	}
+
+	public class SDiv32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+		public readonly int DestHigh = desthigh;
+		public readonly int DestLow = destlow;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
+			gen.Add(CGInsn.Build<SignedDiv32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
+		}
+	}
+
+	public class UDiv32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+		public readonly int DestHigh = desthigh;
+		public readonly int DestLow = destlow;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
+			gen.Add(CGInsn.Build<UnsignedDiv32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
 		}
 	}
 
