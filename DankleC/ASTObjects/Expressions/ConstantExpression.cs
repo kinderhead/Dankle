@@ -79,5 +79,7 @@ namespace DankleC.ASTObjects.Expressions
 
 			return [.. words];
 		}
+
+		public override void PrepScope(IRScope scope) { }
 	}
 }

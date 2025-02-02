@@ -15,6 +15,7 @@ namespace DankleC.ASTObjects
         public IRScope Scope { get; internal set; }
 #pragma warning restore CS8618
 
+		public abstract void PrepScope();
         public abstract void BuildIR(IRBuilder builder, IRFunction func);
 
 		public static readonly Random IDRandomizer = new();
@@ -32,6 +33,11 @@ namespace DankleC.ASTObjects
 			else if (func.ReturnType.Size <= 4) expr.WriteToRegisters([0, 1], builder);
 			else throw new NotImplementedException();
 		}
+
+		public override void PrepScope()
+		{
+			Expression.PrepScope(Scope);
+		}
 	}
 
 	public class InitAssignmentStatement(TypeSpecifier type, string name, IExpression expr) : Statement
@@ -45,6 +51,11 @@ namespace DankleC.ASTObjects
 			var expr = Expression.Resolve(builder, func, Scope).Cast(Type);
 			var variable = Scope.AllocLocal(Name, Type);
 			variable.WriteFrom(expr);
+		}
+
+		public override void PrepScope()
+		{
+			Expression.PrepScope(Scope);
 		}
 	}
 }

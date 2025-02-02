@@ -38,4 +38,20 @@ namespace Dankle.Components.Instructions
 			dest.Write(src.Read());
 		}
 	}
+
+	public class LoadEffectiveAddress : Instruction
+	{
+		public override ushort Opcode => 60;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Pointer<ushort>)];
+		public override string Name => "LEA";
+
+		protected override void Handle(Context ctx)
+		{
+			var dest = ctx.GetNextArg<Any32>();
+			var src = ctx.GetNextArg<Pointer<ushort>>();
+
+			dest.Write(src.GetAddress());
+		}
+	}
 }

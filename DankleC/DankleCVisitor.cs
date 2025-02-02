@@ -64,17 +64,24 @@ namespace DankleC
 			}
 			else
 			{
-				var text = context.StringLiteral().GetText().Trim('"');
-				var type = new BuiltinTypeSpecifier(BuiltinType.UnsignedChar)
-				{
-					IsConst = true,
-					PointerType = PointerType.Pointer
-				};
-				return new ConstantExpression(type, text);
+				throw new NotImplementedException();
+				//var text = context.StringLiteral().GetText().Trim('"');
+				//var type = new BuiltinTypeSpecifier(BuiltinType.UnsignedChar)
+				//{
+				//	IsConst = true,
+				//	PointerType = PointerType.Pointer
+				//};
+				//return new ConstantExpression(type, text);
 			}
 		}
 
 		public override IASTObject VisitVariableExpression([NotNull] CParser.VariableExpressionContext context) => new VariableExpression(context.Identifier().GetText());
+
+		public override IASTObject VisitUnaryExpression([NotNull] CParser.UnaryExpressionContext context)
+		{
+			if (context.postfixExpression() is CParser.PostfixExpressionContext pe) return Visit(pe);
+			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
+		}
 
 		public override IASTObject VisitPrimaryExpression([NotNull] CParser.PrimaryExpressionContext context)
 		{
@@ -122,8 +129,8 @@ namespace DankleC
 			else t = (TypeSpecifier)Visit(context.userType());
 
 			t.IsConst = context.@const is not null;
-			t.PointerType = context.Star() is not null ? PointerType.Pointer : PointerType.None;
-			if (context.pconst is not null && t.PointerType == PointerType.Pointer) t.PointerType = PointerType.ConstPointer;
+			if (context.Star() is not null) t = new PointerTypeSpecifier(t);
+			if (context.pconst is not null && t is PointerTypeSpecifier ptr) ptr.IsConst = true;
 			else if (context.pconst is not null) t.IsConst = true;
 
 			return t;

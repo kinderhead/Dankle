@@ -13,6 +13,11 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new CastExpression(Expr, type);
 
+		public override void PrepScope(IRScope scope)
+		{
+			Expr.PrepScope(scope);
+		}
+
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
 			var expr = Expr.Resolve(builder, builder.CurrentFunction, builder.CurrentScope);

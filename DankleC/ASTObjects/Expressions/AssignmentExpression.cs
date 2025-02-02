@@ -3,10 +3,15 @@ using DankleC.IR;
 
 namespace DankleC.ASTObjects.Expressions
 {
-    public class AssignmentExpression(string name, IExpression expr) : UnresolvedExpression
+	public class AssignmentExpression(string name, IExpression expr) : UnresolvedExpression
 	{
 		public readonly string Name = name;
 		public readonly IExpression Expression = expr;
+
+		public override void PrepScope(IRScope scope)
+		{
+			Expression.PrepScope(scope);
+		}
 
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
 		{

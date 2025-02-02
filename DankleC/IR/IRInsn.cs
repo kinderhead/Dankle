@@ -379,6 +379,30 @@ namespace DankleC.IR
 		}
 	}
 
+	public class LeaReg(int dest1, int dest2, IPointer src) : IRInsn
+	{
+		public readonly int Dest1 = dest1;
+		public readonly int Dest2 = dest2;
+		public readonly IPointer Source = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Dest1 == -1 || Dest2 == -1) return;
+			gen.Add(CGInsn.Build<LoadEffectiveAddress>(new CGDoubleRegister(Dest1, Dest2), Source.Build<ushort>(Scope)));
+		}
+	}
+
+	public class LeaPtr(IPointer dest, IPointer src) : IRInsn
+	{
+		public readonly IPointer Dest = dest;
+		public readonly IPointer Source = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			gen.Add(CGInsn.Build<LoadEffectiveAddress>(Dest.Build<uint>(Scope), Source.Build<ushort>(Scope)));
+		}
+	}
+
 	public class IRLabel(string name) : IRInsn
 	{
 		public readonly string Name = name;

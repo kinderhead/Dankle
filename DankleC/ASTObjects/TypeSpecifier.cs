@@ -3,48 +3,34 @@ using System.Text;
 
 namespace DankleC.ASTObjects
 {
-    public enum PointerType
-    {
-        None,
-        Pointer,
-        ConstPointer
-    }
-
     public abstract class TypeSpecifier : IASTObject
     {
-        public PointerType PointerType = PointerType.None;
         public bool IsConst = false;
 
-        public int Size
-        {
-            get
-            {
-				if (PointerType == PointerType.None) return GetTypeSize();
-				return 4;
-			}
-        }
+        public int Size { get => GetTypeSize(); }
 
         public abstract bool AreEqual(TypeSpecifier a);
         public abstract string GetName();
         public abstract bool IsNumber();
         public abstract bool IsSigned();
+        public PointerTypeSpecifier AsPointer() => new(this);
 
         public static bool operator==(TypeSpecifier a, TypeSpecifier b) => a.Equals(b);
         public static bool operator!=(TypeSpecifier a, TypeSpecifier b) => !a.Equals(b);
         protected abstract int GetTypeSize();
 
-		public override string ToString()
-		{
-            var builder = new StringBuilder();
+		//public override string ToString()
+		//{
+  //          var builder = new StringBuilder();
 
-            if (IsConst) builder.Append("const ");
-            builder.Append(GetName());
+  //          if (IsConst) builder.Append("const ");
+  //          builder.Append(GetName());
 
-            if (PointerType == PointerType.Pointer) builder.Append(" *");
-            else if (PointerType == PointerType.ConstPointer) builder.Append("const");
+  //          if (PointerType == PointerType.Pointer) builder.Append("* ");
+  //          else if (PointerType == PointerType.ConstPointer) builder.Append("* const");
 
-            return builder.ToString();
-		}
+  //          return builder.ToString();
+		//}
 
 		public override bool Equals(object? obj)
 		{
@@ -52,7 +38,7 @@ namespace DankleC.ASTObjects
             if (obj is null) return false;
 			if (obj is TypeSpecifier type)
             {
-                if (type.PointerType != PointerType || type.IsConst != IsConst) return false;
+                if (type.IsConst != IsConst) return false;
                 return AreEqual(type);
             }
 
@@ -99,7 +85,7 @@ namespace DankleC.ASTObjects
             return Type == type.Type;
 		}
 
-        public override string GetName() => Enum.GetName(Type) ?? "<err>";
+		public override string GetName() => Enum.GetName(Type) ?? "<err>";
 
         public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool && Type != BuiltinType.String;
 
@@ -137,7 +123,7 @@ namespace DankleC.ASTObjects
 			return Type == type.Type;
 		}
 
-        public override string GetName() => Type;
+		public override string GetName() => Type;
 
         public override bool IsNumber() => false;
         public override bool IsSigned() => false;
@@ -146,5 +132,18 @@ namespace DankleC.ASTObjects
 		{
 			throw new NotImplementedException();
 		}
+	}
+
+	public class PointerTypeSpecifier(TypeSpecifier inner) : BuiltinTypeSpecifier(BuiltinType.UnsignedInt)
+	{
+		public readonly TypeSpecifier Inner = inner;
+
+		public override bool AreEqual(TypeSpecifier a)
+		{
+			if (a is not PointerTypeSpecifier type) return false;
+			return Inner == type.Inner;
+		}
+
+		public override string GetName() => Inner.GetName() + "*";
 	}
 }

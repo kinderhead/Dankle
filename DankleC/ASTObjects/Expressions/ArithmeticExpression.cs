@@ -21,6 +21,12 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly ArithmeticOperation Op = op;
 		public readonly IExpression Right = right;
 
+		public override void PrepScope(IRScope scope)
+		{
+			Left.PrepScope(scope);
+			Right.PrepScope(scope);
+		}
+
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
 		{
 			var left = Left.Resolve(builder, func, scope);
@@ -151,6 +157,12 @@ namespace DankleC.ASTObjects.Expressions
 				builder.Add(new LoadRegToPtr(pointer.Get(2), 9));
 			}
 			else throw new NotImplementedException();
+		}
+
+		public override void PrepScope(IRScope scope)
+		{
+			Left.PrepScope(scope);
+			Right.PrepScope(scope);
 		}
 	}
 }

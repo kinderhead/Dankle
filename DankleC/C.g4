@@ -72,11 +72,11 @@ castExpression
 
 unaryExpression
     : postfixExpression
+    | (And | Star) castExpression
     ;
 
 postfixExpression
     : primaryExpression
-    | (And) castExpression
     ;
 
 primaryExpression

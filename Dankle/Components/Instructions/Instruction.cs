@@ -127,6 +127,7 @@ namespace Dankle.Components.Instructions
 			Register<SignExtend8>();
 			Register<SignedMul32>();
 			Register<UnsignedMul32>();
+			Register<LoadEffectiveAddress>();
 		}
 	}
 

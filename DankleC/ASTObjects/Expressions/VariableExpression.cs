@@ -8,9 +8,16 @@ using System.Threading.Tasks;
 
 namespace DankleC.ASTObjects.Expressions
 {
-	public class VariableExpression(string name) : UnresolvedExpression
+	public class VariableExpression(string name) : UnresolvedLValue
 	{
 		public readonly string Name = name;
+
+		public override void MarkReferenceable(IRScope scope)
+		{
+			scope.RequireStackAlloc(Name);
+		}
+
+		public override void PrepScope(IRScope scope) { }
 
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
 		{
@@ -20,7 +27,7 @@ namespace DankleC.ASTObjects.Expressions
 		}
 	}
 
-	public class ResolvedVariableExpression(Variable variable, TypeSpecifier type) : ResolvedExpression(type)
+	public class ResolvedVariableExpression(Variable variable, TypeSpecifier type) : LValue(type)
 	{
 		public readonly Variable Variable = variable;
 
@@ -49,6 +56,14 @@ namespace DankleC.ASTObjects.Expressions
 		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
 			Variable.ReadTo(pointer);
+		}
+
+		public override void PrepScope(IRScope scope) { }
+
+		public override IPointer GetRef()
+		{
+			if (Variable is not StackVariable var) throw new InvalidOperationException();
+			return var.Pointer;
 		}
 	}
 }

@@ -23,9 +23,11 @@ namespace DankleC.IR
 
 		private int varReg = regStart;
 
+		private readonly List<string> RequiredStackAllocVariables = [];
+
 		public Variable AllocLocal(string name, TypeSpecifier type)
 		{
-			if (((END_VAR_REG - varReg + 1) * 2) - type.Size >= 0)
+			if (!RequiredStackAllocVariables.Contains(name) && ((END_VAR_REG - varReg + 1) * 2) - type.Size >= 0)
 			{
 				var regs = new List<int>();
 
@@ -41,14 +43,18 @@ namespace DankleC.IR
 				Locals.Add(variable);
 				return variable;
 			}
-			else
-			{
-				var variable = new StackVariable(name, type, new(StackUsed, type.Size), this);
-				StackUsed += (short)type.Size;
-				Locals.Add(variable);
-				return variable;
-			}
+			else return AllocStackLocal(name, type);
 		}
+
+		public Variable AllocStackLocal(string name, TypeSpecifier type)
+		{
+			var variable = new StackVariable(name, type, new(StackUsed, type.Size), this);
+			StackUsed += (short)type.Size;
+			Locals.Add(variable);
+			return variable;
+		}
+
+		public void RequireStackAlloc(string name) => RequiredStackAllocVariables.Add(name);
 
 		public Variable GetVariable(string name)
 		{

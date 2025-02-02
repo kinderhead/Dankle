@@ -10,7 +10,7 @@ namespace DankleC.ASTObjects
 {
 	public interface IExpression : IASTObject
 	{
-		public TypeSpecifier? GetTypeSpecifier();
+		public void PrepScope(IRScope scope);
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
 	}
 
@@ -18,12 +18,12 @@ namespace DankleC.ASTObjects
 	{
 		public readonly TypeSpecifier Type = type;
 
-		public TypeSpecifier? GetTypeSpecifier() => Type;
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
 
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
 		public abstract void WriteToRegisters(int[] regs, IRBuilder builder);
 		public abstract void WriteToPointer(IPointer pointer, IRBuilder builder);
+		public abstract void PrepScope(IRScope scope);
 
 		public virtual int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
 		{
@@ -34,7 +34,7 @@ namespace DankleC.ASTObjects
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
 			if (Type == type) return this;
-			else if (Type.PointerType != PointerType.None || type.PointerType != PointerType.None) throw new NotImplementedException();
+			else if (Type is PointerTypeSpecifier || type is PointerTypeSpecifier) throw new NotImplementedException();
 			else if (Type is BuiltinTypeSpecifier actual && type is BuiltinTypeSpecifier expected)
 			{
 				if (actual.Size == expected.Size) return ChangeType(expected);
@@ -49,7 +49,8 @@ namespace DankleC.ASTObjects
 
 	public abstract class UnresolvedExpression : IExpression
 	{
-		public TypeSpecifier? GetTypeSpecifier() => null;
+		public T Resolve<T>(IRBuilder builder, IRFunction func, IRScope scope) where T : ResolvedExpression => (T)Resolve(builder, func, scope);
 		public abstract ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
+		public abstract void PrepScope(IRScope scope);
 	}
 }
