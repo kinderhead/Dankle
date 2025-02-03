@@ -80,6 +80,7 @@ namespace DankleC
 		public override IASTObject VisitUnaryExpression([NotNull] CParser.UnaryExpressionContext context)
 		{
 			if (context.postfixExpression() is CParser.PostfixExpressionContext pe) return Visit(pe);
+			else if (context.Star() is not null) return new DerefExpression((IExpression)Visit(context.castExpression()));
 			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 		}
 

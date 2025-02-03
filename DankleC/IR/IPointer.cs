@@ -41,4 +41,39 @@ namespace DankleC.IR
 			return new StackPointer(Offset + offset, Size - offset);
         }
     }
+
+	public readonly struct TempStackPointer(int offset, int size) : IPointer
+	{
+		public readonly int Offset = offset;
+		public int Size { get; } = size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
+		{
+			var effectiveOffset = Offset + scope.StackUsed;
+
+			if (effectiveOffset == 0) return CGPointer<T>.Make(12, 13);
+			else return CGPointer<T>.Make(12, 13, (short)effectiveOffset);
+		}
+
+		public IPointer Get(int offset)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
+			return new TempStackPointer(Offset + offset, Size - offset);
+		}
+	}
+
+	public readonly struct RegisterPointer(int r1, int r2, int size) : IPointer
+	{
+		public readonly int Reg1 = r1;
+		public readonly int Reg2 = r2;
+		public int Size { get; } = size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T> => CGPointer<T>.Make(Reg1, Reg2);
+
+		public IPointer Get(int offset)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
+			return new RegisterPointer(Reg1, Reg2, Size - offset);
+		}
+	}
 }

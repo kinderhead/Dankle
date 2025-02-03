@@ -35,7 +35,7 @@ namespace DankleC.IR
 
 		public override void ReadTo(IPointer ptr)
 		{
-			Scope.Builder.MovRegsToPtr(Registers, ptr);
+			Scope.Builder.MoveRegsToPtr(Registers, ptr);
 		}
 
 		public override void WriteFrom(ResolvedExpression expr)
@@ -45,13 +45,13 @@ namespace DankleC.IR
 		}
 	}
 
-	public class StackVariable(string name, TypeSpecifier type, StackPointer pointer, IRScope scope) : Variable(name, type, scope)
+	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope)
 	{
-		public readonly StackPointer Pointer = pointer;
+		public readonly IPointer Pointer = pointer;
 
 		public override void ReadTo(int[] regs)
 		{
-			Scope.Builder.MovPtrToRegs(Pointer, regs);
+			Scope.Builder.MovePtrToRegs(Pointer, regs);
 		}
 
 		public override void ReadTo(IPointer ptr)
@@ -63,6 +63,15 @@ namespace DankleC.IR
 		{
 			if (expr.Type.Size != Type.Size) throw new InvalidOperationException("Mismatched size");
 			expr.WriteToPointer(Pointer, Scope.Builder);
+		}
+	}
+
+	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : StackVariable(name, type, pointer, scope), IDisposable
+	{
+		public void Dispose()
+		{
+			Scope.FreeTemp(this);
+			GC.SuppressFinalize(this);
 		}
 	}
 }

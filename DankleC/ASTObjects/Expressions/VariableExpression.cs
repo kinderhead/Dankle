@@ -45,7 +45,7 @@ namespace DankleC.ASTObjects.Expressions
 				if (regs.Length == regvar.Registers.Length) return regvar.Registers;
 				throw new InvalidOperationException();
 			}
-			else if (Variable is StackVariable stkvar)
+			else if (Variable is StackVariable stkvar) 
 			{
 				stkvar.ReadTo(regs);
 				return regs;

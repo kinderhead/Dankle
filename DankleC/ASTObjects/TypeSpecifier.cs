@@ -51,6 +51,14 @@ namespace DankleC.ASTObjects
 		}
 
         public static TypeSpecifier GetBigger(TypeSpecifier a, TypeSpecifier b) => a.Size >= b.Size ? a : b;
+
+		public static BuiltinTypeSpecifier GetGenericForSize(int size) => size switch
+		{
+			1 => new BuiltinTypeSpecifier(BuiltinType.UnsignedChar),
+			2 => new BuiltinTypeSpecifier(BuiltinType.UnsignedShort),
+			4 => new BuiltinTypeSpecifier(BuiltinType.UnsignedInt),
+			_ => throw new InvalidOperationException(),
+		};
 	}
 
     public enum BuiltinType

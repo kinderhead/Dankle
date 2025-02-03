@@ -61,7 +61,7 @@ namespace DankleC.IR
 			CurrentFunction.Insns.Add(insn);
 		}
 
-		public void MovRegsToPtr(int[] regs, IPointer ptr)
+		public void MoveRegsToPtr(int[] regs, IPointer ptr)
 		{
 			if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
 			else if (ptr.Size == 1) Add(new LoadRegToPtr8(ptr, regs[0]));
@@ -75,7 +75,7 @@ namespace DankleC.IR
 			else throw new InvalidOperationException();
 		}
 
-		public void MovPtrToRegs(IPointer ptr, int[] regs)
+		public void MovePtrToRegs(IPointer ptr, int[] regs)
 		{
 			if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
 			else if (ptr.Size == 1) Add(new LoadPtrToReg8(regs[0], ptr));
@@ -117,7 +117,7 @@ namespace DankleC.IR
 			if (regs == 2) return [8, 9];
 			if (regs == 3) return [8, 9, 10];
 			if (regs == 4) return [8, 9, 10, 11];
-			throw new NotImplementedException();
+			throw new InvalidOperationException();
 		}
 
 		public static int NumRegForBytes(int bytes) => (int)Math.Ceiling(bytes / 2.0);

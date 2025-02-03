@@ -210,6 +210,31 @@ short main()
 		[TestMethod, TestCategory("Math"), DataRow(false), DataRow(true)]
 		public void TestUIntMath(bool stack) => CTestHelper.TestMath<uint>(stack);
 
+		[TestMethod]
+		[TestCategory("Math")]
+		public void TestBigIntMath()
+		{
+			using var computer = new CTestHelper(@"
+short main()
+{
+    int a = 2355;
+	int b = 48973;
+	int c = -1248;
+	int d = -9;
+
+	int x = (a + b) * c / d * (c * c * c + 32) - 400;
+
+    return 0;
+}
+");
+			int a = 2355;
+			int b = 48973;
+			int c = -1248;
+			int d = -9;
+			computer.RunUntil<ReturnStatement>();
+			Assert.AreEqual((a + b) * c / d * (c * c * c + 32) - 400, computer.GetVariable<int>("x"));
+		}
+
 		#endregion
 
 		#region Casting

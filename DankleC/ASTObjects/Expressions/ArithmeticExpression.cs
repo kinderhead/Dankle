@@ -75,7 +75,9 @@ namespace DankleC.ASTObjects.Expressions
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
 		{
 			var leftregs = Left.GetOrWriteToRegisters(regs, builder);
-			var rightregs = Right.GetOrWriteToRegisters(IRBuilder.FitTempRegs(Type.Size), builder);
+
+			using var tmp = builder.CurrentScope.AllocTempRegs(Type.Size);
+			var rightregs = Right.GetOrWriteToRegisters(tmp.Registers, builder);
 			Compute(leftregs, rightregs, regs, builder);
 		}
 
@@ -142,19 +144,22 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (Left.Type.Size == 1)
 			{
-				Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
-				builder.Add(new LoadRegToPtr8(pointer, 10));
+				using var tmp = builder.CurrentScope.AllocTempRegs(4);
+				Compute(Left.GetOrWriteToRegisters([tmp.Registers[0]], builder), Right.GetOrWriteToRegisters([tmp.Registers[1]], builder), [tmp.Registers[0]], builder);
+				builder.Add(new LoadRegToPtr8(pointer, tmp.Registers[0]));
 			}
 			else if (Left.Type.Size == 2)
 			{
-				Compute(Left.GetOrWriteToRegisters([8], builder), Right.GetOrWriteToRegisters([9], builder), [10], builder);
-				builder.Add(new LoadRegToPtr(pointer, 10));
+				using var tmp = builder.CurrentScope.AllocTempRegs(4);
+				Compute(Left.GetOrWriteToRegisters([tmp.Registers[0]], builder), Right.GetOrWriteToRegisters([tmp.Registers[1]], builder), [tmp.Registers[0]], builder);
+				builder.Add(new LoadRegToPtr(pointer, tmp.Registers[0]));
 			}
 			else if (Left.Type.Size == 4)
 			{
-				Compute(Left.GetOrWriteToRegisters([8, 9], builder), Right.GetOrWriteToRegisters([10, 11], builder), [8, 9], builder);
-				builder.Add(new LoadRegToPtr(pointer, 8));
-				builder.Add(new LoadRegToPtr(pointer.Get(2), 9));
+				using var tmp = builder.CurrentScope.AllocTempRegs(8);
+				Compute(Left.GetOrWriteToRegisters([tmp.Registers[0], tmp.Registers[1]], builder), Right.GetOrWriteToRegisters([tmp.Registers[2], tmp.Registers[3]], builder), [tmp.Registers[0], tmp.Registers[1]], builder);
+				builder.Add(new LoadRegToPtr(pointer, tmp.Registers[0]));
+				builder.Add(new LoadRegToPtr(pointer.Get(2), tmp.Registers[1]));
 			}
 			else throw new NotImplementedException();
 		}

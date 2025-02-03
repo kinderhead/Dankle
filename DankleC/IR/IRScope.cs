@@ -19,9 +19,13 @@ namespace DankleC.IR
 		public readonly List<Variable> Locals = [];
 
 		public List<int> PreservedRegs { get; private set; } = [];
+		public short EffectiveStackUsed { get => (short)(StackUsed + MaxTempStackUsed); }
 		public short StackUsed { get; private set; } = 0;
+		public short MaxTempStackUsed { get; private set; } = 0;
 
 		private int varReg = regStart;
+		private short tempStackUsed = 0;
+		private readonly List<int> tempRegsUsed = [];
 
 		private readonly List<string> RequiredStackAllocVariables = [];
 
@@ -46,12 +50,61 @@ namespace DankleC.IR
 			else return AllocStackLocal(name, type);
 		}
 
-		public Variable AllocStackLocal(string name, TypeSpecifier type)
+		public StackVariable AllocStackLocal(string name, TypeSpecifier type)
 		{
-			var variable = new StackVariable(name, type, new(StackUsed, type.Size), this);
-			StackUsed += (short)type.Size;
+			var variable = new StackVariable(name, type, new StackPointer(StackUsed, type.Size), this);
+			StackUsed = checked((short)(StackUsed + type.Size));
 			Locals.Add(variable);
 			return variable;
+		}
+
+		public TempStackVariable AllocTemp(TypeSpecifier type)
+		{
+			var temp = new TempStackVariable($"_{NameGen.Next()}", type, new TempStackPointer(tempStackUsed, type.Size), this);
+			tempStackUsed = checked((short)(tempStackUsed + type.Size));
+			MaxTempStackUsed = Math.Max(tempStackUsed, MaxTempStackUsed);
+			return temp;
+		}
+
+		public TempRegHolder AllocTempRegs(int bytes)
+		{
+			var count = IRBuilder.NumRegForBytes(bytes);
+
+			var freeRegs = new List<int>();
+			var usedRegs = new List<int>();
+			for (int i = 0; i < count; i++)
+			{
+				var found = false;
+				for (var reg = 8; reg < 12; reg++)
+				{
+					if (!tempRegsUsed.Contains(reg) && !freeRegs.Contains(reg))
+					{
+						freeRegs.Add(reg);
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					for (var reg = 8; reg < 12; reg++)
+					{
+						if (tempRegsUsed.Contains(reg) && !usedRegs.Contains(reg))
+						{
+							usedRegs.Add(reg);
+							break;
+						}
+					}
+				}
+			}
+
+			if (freeRegs.Count + usedRegs.Count != count) throw new InvalidOperationException();
+			return new(Builder, this, [.. freeRegs], [.. usedRegs]);
+		}
+
+		public void FreeTemp(TempStackVariable temp)
+		{
+			tempStackUsed = checked((short)(tempStackUsed - temp.Type.Size));
 		}
 
 		public void RequireStackAlloc(string name) => RequiredStackAllocVariables.Add(name);
@@ -75,5 +128,46 @@ namespace DankleC.IR
 		{
 			Builder.Add(new EndFrame());
 		}
-    }
+
+		private static readonly Random NameGen = new();
+
+		public class TempRegHolder : IDisposable
+		{
+			public readonly IRBuilder Builder;
+			public readonly IRScope Scope;
+			public readonly int[] FreeRegs;
+			public readonly int[] UsedRegs;
+			public readonly TempStackVariable? Storage;
+
+			public TempRegHolder(IRBuilder builder, IRScope scope, int[] freeRegs, int[] usedRegs)
+			{
+				Builder = builder;
+				Scope = scope;
+				FreeRegs = freeRegs;
+				UsedRegs = usedRegs;
+
+				scope.tempRegsUsed.AddRange(freeRegs);
+
+				if (usedRegs.Length > 0)
+				{
+					Storage = scope.AllocTemp(TypeSpecifier.GetGenericForSize(usedRegs.Length * 2));
+					builder.MoveRegsToPtr(usedRegs, Storage.Pointer);
+				}
+			}
+
+			public int[] Registers { get => [.. FreeRegs, .. UsedRegs]; }
+
+			public void Dispose()
+			{
+				Scope.tempRegsUsed.RemoveAll(i => FreeRegs.Contains(i));
+
+				if (Storage is not null)
+				{
+					Builder.MovePtrToRegs(Storage.Pointer, UsedRegs);
+					Storage.Dispose();
+				}
+				GC.SuppressFinalize(this);
+			}
+		}
+	}
 }

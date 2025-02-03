@@ -296,7 +296,7 @@ namespace DankleC.IR
 			}
 
 			if (regs != 0) gen.Add(CGInsn.Build<PushRegisters>(new CGImmediate<ushort>(regs)));
-			if (Scope.StackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)-Scope.StackUsed)));
+			if (Scope.EffectiveStackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)-Scope.EffectiveStackUsed)));
 		}
 	}
 
@@ -310,7 +310,7 @@ namespace DankleC.IR
 				regs |= (ushort)(1 << 15 - i);
 			}
 
-			if (Scope.StackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.StackUsed)));
+			if (Scope.EffectiveStackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.EffectiveStackUsed)));
 			if (regs != 0) gen.Add(CGInsn.Build<PopRegisters>(new CGImmediate<ushort>(regs)));
 		}
 	}
