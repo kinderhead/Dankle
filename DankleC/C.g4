@@ -52,7 +52,7 @@ semiStatement
     ;
 
 initAssignmentStatement
-    : type Identifier Assign expression
+    : type Identifier ((LeftBracket Constant RightBracket) | (Assign expression))
     ;
 
 assignmentStatement
@@ -60,12 +60,16 @@ assignmentStatement
     ;
 
 declareStatement
-    : type Identifier (LeftBracket IntegerConstant RightBracket)?
+    : type Identifier
     ;
 
 assignmentExpression
     : additiveExpression
     | Identifier Assign assignmentExpression
+    ;
+
+indexExpression
+    : lvalue LeftBracket expression RightBracket
     ;
 
 returnStatement
@@ -617,7 +621,7 @@ Constant
     | CharacterConstant
     ;
 
-IntegerConstant
+fragment IntegerConstant
     : DecimalConstant IntegerSuffix?
     | OctalConstant IntegerSuffix?
     | HexadecimalConstant IntegerSuffix?

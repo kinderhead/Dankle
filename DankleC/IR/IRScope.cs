@@ -31,7 +31,7 @@ namespace DankleC.IR
 
 		public Variable AllocLocal(string name, TypeSpecifier type)
 		{
-			if (!RequiredStackAllocVariables.Contains(name) && ((END_VAR_REG - varReg + 1) * 2) - type.Size >= 0)
+			if (!RequiredStackAllocVariables.Contains(name) && ((END_VAR_REG - varReg + 1) * 2) - type.Size >= 0 && type is not ArrayTypeSpecifier)
 			{
 				var regs = new List<int>();
 

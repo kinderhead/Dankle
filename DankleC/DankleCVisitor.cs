@@ -122,6 +122,11 @@ namespace DankleC
 			return expr;
 		}
 
+		public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context)
+		{
+			return base.VisitIndexExpression(context);
+		}
+
 		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 
         #endregion
@@ -129,11 +134,20 @@ namespace DankleC
         #region Statements
 
         public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(Visit(context.expression()));
-		public override IASTObject VisitInitAssignmentStatement([NotNull] CParser.InitAssignmentStatementContext context) => new InitAssignmentStatement(Visit(context.type()), context.Identifier().GetText(), Visit(context.expression()));
-		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
-        public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), context.Identifier().GetText());
+		public override IASTObject VisitInitAssignmentStatement([NotNull] CParser.InitAssignmentStatementContext context)
+		{
+			var type = Visit(context.type());
 
-        public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
+			// Doesn't like being in the declare statement
+			if (context.Constant() is not null) return new DeclareStatement(new ArrayTypeSpecifier(type, int.Parse(context.Constant().GetText())), context.Identifier().GetText());
+
+			return new InitAssignmentStatement(type, context.Identifier().GetText(), Visit(context.expression()));
+		}
+
+		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
+		public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), context.Identifier().GetText());
+
+		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
 
 		#endregion
 
