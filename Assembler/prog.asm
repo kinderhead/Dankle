@@ -4,8 +4,13 @@ cmain:
 	hlt
 
 _main:
-    pushr 2048
-    ld r4, 10
-    mov r0, r4
-    popr 2048
+    pushr 3584
+    modstk 65534
+    ld r8, 69
+    st [SP], r8
+    lea (r4, r5), [SP]
+    ld r6, [r4, r5]
+    ld r0, 0
+    modstk 2
+    popr 3584
     ret

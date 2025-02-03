@@ -45,11 +45,17 @@ namespace DankleC.ASTObjects.Expressions
 			var ptrRegs = new int[2];
 			ptrRegs[0] = regs[0];
 
-			if (regs.Length == 1) throw new NotImplementedException();
+			IRScope.TempRegHolder? tmp = null;
+			if (regs.Length == 1)
+			{
+				tmp = builder.CurrentScope.AllocTempRegs(2);
+				ptrRegs[1] = tmp.Registers[0];
+			}
 			else ptrRegs[1] = regs[1];
 
-			Expr.WriteToRegisters(ptrRegs, builder);
+			ptrRegs = Expr.GetOrWriteToRegisters(ptrRegs, builder);
 			builder.MovePtrToRegs(new RegisterPointer(ptrRegs[0], ptrRegs[1], Type.Size), regs);
+			tmp?.Dispose(ptrRegs[1] == tmp.Registers[0]);
 		}
 	}
 }

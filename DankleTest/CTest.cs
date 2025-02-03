@@ -259,6 +259,28 @@ short main()
 
 		#endregion
 
+		#region Pointers
+
+		[TestMethod]
+		[TestCategory("Pointers")]
+		public void TestShortPtrGet()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short x = 69;
+	short* ptr = &x;
+	short y = *ptr;
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(69, c.GetVariable<short>("x"));
+			Assert.AreEqual(69, c.GetVariable<short>("y"));
+		}
+
+		#endregion
+
 //		#region Return
 
 //		[TestMethod]

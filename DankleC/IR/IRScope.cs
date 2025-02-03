@@ -158,16 +158,21 @@ namespace DankleC.IR
 
 			public int[] Registers { get => [.. FreeRegs, .. UsedRegs]; }
 
-			public void Dispose()
+            public void Dispose()
+            {
+                Dispose(true);
+				GC.SuppressFinalize(this);
+            }
+
+            public void Dispose(bool restore)
 			{
 				Scope.tempRegsUsed.RemoveAll(i => FreeRegs.Contains(i));
 
-				if (Storage is not null)
+				if (Storage is not null && restore)
 				{
 					Builder.MovePtrToRegs(Storage.Pointer, UsedRegs);
 					Storage.Dispose();
 				}
-				GC.SuppressFinalize(this);
 			}
 		}
 	}

@@ -46,11 +46,21 @@ statement
 
 semiStatement
     : returnStatement
+    | initAssignmentStatement
     | assignmentStatement
+    | declareStatement
+    ;
+
+initAssignmentStatement
+    : type Identifier Assign expression
     ;
 
 assignmentStatement
-    : type Identifier Assign expression
+    : Identifier Assign expression
+    ;
+
+declareStatement
+    : type Identifier
     ;
 
 assignmentExpression

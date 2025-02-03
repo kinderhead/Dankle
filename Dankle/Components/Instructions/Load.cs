@@ -43,15 +43,15 @@ namespace Dankle.Components.Instructions
 	{
 		public override ushort Opcode => 60;
 
-		public override Type[] Arguments => [typeof(Any32), typeof(Pointer<ushort>)];
+		public override Type[] Arguments => [typeof(Pointer<ushort>), typeof(Any32)];
 		public override string Name => "LEA";
 
 		protected override void Handle(Context ctx)
 		{
+			var ptr = ctx.GetNextArg<Pointer<ushort>>();
 			var dest = ctx.GetNextArg<Any32>();
-			var src = ctx.GetNextArg<Pointer<ushort>>();
 
-			dest.Write(src.GetAddress());
+			dest.Write(ptr.GetAddress());
 		}
 	}
 }

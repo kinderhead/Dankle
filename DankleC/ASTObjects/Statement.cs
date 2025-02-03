@@ -58,4 +58,38 @@ namespace DankleC.ASTObjects
 			Expression.PrepScope(Scope);
 		}
 	}
+
+	public class AssignmentStatement(string name, IExpression expr) : Statement
+	{
+		public readonly string Name = name;
+		public readonly IExpression Expression = expr;
+
+		public override void BuildIR(IRBuilder builder, IRFunction func)
+		{
+			var variable = Scope.GetVariable(Name);
+			var expr = Expression.Resolve(builder, func, Scope).Cast(variable.Type);
+			variable.WriteFrom(expr);
+		}
+
+		public override void PrepScope()
+		{
+			Expression.PrepScope(Scope);
+		}
+	}
+
+	public class DeclareStatement(TypeSpecifier type, string name) : Statement
+	{
+		public readonly TypeSpecifier Type = type;
+		public readonly string Name = name;
+
+		public override void BuildIR(IRBuilder builder, IRFunction func)
+		{
+			var variable = Scope.AllocLocal(Name, Type);
+		}
+
+		public override void PrepScope()
+		{
+			
+		}
+	}
 }

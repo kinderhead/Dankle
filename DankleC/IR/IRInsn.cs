@@ -388,7 +388,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			if (Dest1 == -1 || Dest2 == -1) return;
-			gen.Add(CGInsn.Build<LoadEffectiveAddress>(new CGDoubleRegister(Dest1, Dest2), Source.Build<ushort>(Scope)));
+			gen.Add(CGInsn.Build<LoadEffectiveAddress>(Source.Build<ushort>(Scope), new CGDoubleRegister(Dest1, Dest2)));
 		}
 	}
 
@@ -399,7 +399,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<LoadEffectiveAddress>(Dest.Build<uint>(Scope), Source.Build<ushort>(Scope)));
+			gen.Add(CGInsn.Build<LoadEffectiveAddress>(Source.Build<ushort>(Scope), Dest.Build<uint>(Scope)));
 		}
 	}
 
