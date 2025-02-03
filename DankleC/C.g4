@@ -60,7 +60,7 @@ assignmentStatement
     ;
 
 declareStatement
-    : type Identifier
+    : type Identifier (LeftBracket IntegerConstant RightBracket)?
     ;
 
 assignmentExpression
@@ -617,7 +617,7 @@ Constant
     | CharacterConstant
     ;
 
-fragment IntegerConstant
+IntegerConstant
     : DecimalConstant IntegerSuffix?
     | OctalConstant IntegerSuffix?
     | HexadecimalConstant IntegerSuffix?

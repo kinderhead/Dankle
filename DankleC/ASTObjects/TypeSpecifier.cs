@@ -154,4 +154,22 @@ namespace DankleC.ASTObjects
 
 		public override string GetName() => Inner.GetName() + "*";
 	}
+
+	public class ArrayTypeSpecifier(TypeSpecifier inner, int size) : TypeSpecifier()
+	{
+		public readonly TypeSpecifier Inner = inner;
+		public readonly int ArraySize = size;
+
+		public override bool AreEqual(TypeSpecifier a)
+		{
+			if (a is not ArrayTypeSpecifier type) return false;
+			return Inner == type.Inner;
+		}
+
+		public override string GetName() => $"{Inner.GetName()}[{ArraySize}]";
+
+		public override bool IsNumber() => false;
+		public override bool IsSigned() => false;
+		protected override int GetTypeSize() => ArraySize * Inner.Size;
+	}
 }

@@ -1,7 +1,5 @@
 short main()
 {
-    int x = 5;
-    int* ptr = &x;
-    int ptr2 = *(ptr + 5);
+    int x[10];
     return 0;
 }
