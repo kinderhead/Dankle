@@ -76,7 +76,7 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var leftregs = Left.GetOrWriteToRegisters(regs, builder);
 
-			using var tmp = builder.CurrentScope.AllocTempRegs(Type.Size);
+			using var tmp = builder.CurrentScope.AllocTempRegs(Type.Size, leftregs);
 			var rightregs = Right.GetOrWriteToRegisters(tmp.Registers, builder);
 			Compute(leftregs, rightregs, regs, builder);
 		}
@@ -156,10 +156,15 @@ namespace DankleC.ASTObjects.Expressions
 			}
 			else if (Left.Type.Size == 4)
 			{
-				using var tmp = builder.CurrentScope.AllocTempRegs(8);
-				Compute(Left.GetOrWriteToRegisters([tmp.Registers[0], tmp.Registers[1]], builder), Right.GetOrWriteToRegisters([tmp.Registers[2], tmp.Registers[3]], builder), [tmp.Registers[0], tmp.Registers[1]], builder);
-				builder.Add(new LoadRegToPtr(pointer, tmp.Registers[0]));
-				builder.Add(new LoadRegToPtr(pointer.Get(2), tmp.Registers[1]));
+				var tmp1 = builder.CurrentScope.AllocTempRegs(4);
+				var regs1 = Left.GetOrWriteToRegisters([tmp1.Registers[0], tmp1.Registers[1]], builder);
+				var tmp2 = builder.CurrentScope.AllocTempRegs(4, tmp1.Registers);
+				var regs2 = Right.GetOrWriteToRegisters([tmp2.Registers[0], tmp2.Registers[1]], builder);
+				Compute(regs1, regs2, [tmp1.Registers[0], tmp1.Registers[1]], builder);
+				builder.Add(new LoadRegToPtr(pointer, tmp1.Registers[0]));
+				builder.Add(new LoadRegToPtr(pointer.Get(2), tmp1.Registers[1]));
+				tmp2.Dispose();
+				tmp1.Dispose();
 			}
 			else throw new NotImplementedException();
 		}

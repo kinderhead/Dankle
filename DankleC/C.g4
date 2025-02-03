@@ -91,11 +91,11 @@ constantExpression
     ;
 
 additiveExpression
-    : multiplicativeExpression ((Plus | Minus) additiveExpression)?
+    : multiplicativeExpression ((Plus | Minus) multiplicativeExpression)*
     ;
 
 multiplicativeExpression
-    : castExpression ((Star | Div) multiplicativeExpression)?
+    : castExpression ((Star | Div) castExpression)*
     ;
 
 variableExpression

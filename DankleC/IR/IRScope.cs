@@ -66,7 +66,8 @@ namespace DankleC.IR
 			return temp;
 		}
 
-		public TempRegHolder AllocTempRegs(int bytes)
+		public TempRegHolder AllocTempRegs(int bytes) => AllocTempRegs(bytes, []);
+		public TempRegHolder AllocTempRegs(int bytes, int[] exclude)
 		{
 			var count = IRBuilder.NumRegForBytes(bytes);
 
@@ -77,7 +78,7 @@ namespace DankleC.IR
 				var found = false;
 				for (var reg = 8; reg < 12; reg++)
 				{
-					if (!tempRegsUsed.Contains(reg) && !freeRegs.Contains(reg))
+					if (!tempRegsUsed.Contains(reg) && !freeRegs.Contains(reg) && !exclude.Contains(reg))
 					{
 						freeRegs.Add(reg);
 						found = true;
@@ -89,7 +90,7 @@ namespace DankleC.IR
 				{
 					for (var reg = 8; reg < 12; reg++)
 					{
-						if (tempRegsUsed.Contains(reg) && !usedRegs.Contains(reg))
+						if (tempRegsUsed.Contains(reg) && !usedRegs.Contains(reg) && !exclude.Contains(reg))
 						{
 							usedRegs.Add(reg);
 							break;

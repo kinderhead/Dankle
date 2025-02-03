@@ -98,16 +98,28 @@ namespace DankleC
 
 		public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
 		{
-			if (context.additiveExpression() is null) return Visit(context.multiplicativeExpression());
-			else if (context.Plus() is not null) return new ArithmeticExpression((IExpression)Visit(context.multiplicativeExpression()), ArithmeticOperation.Addition, (IExpression)Visit(context.additiveExpression()));
-			else return new ArithmeticExpression((IExpression)Visit(context.multiplicativeExpression()), ArithmeticOperation.Subtraction, (IExpression)Visit(context.additiveExpression()));
+			IExpression expr = (IExpression)Visit(context.multiplicativeExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+
+				var op = context.children[i].GetText() == "+" ? ArithmeticOperation.Addition : ArithmeticOperation.Subtraction;
+				expr = new ArithmeticExpression(expr, op, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
 		}
 
 		public override IASTObject VisitMultiplicativeExpression([NotNull] CParser.MultiplicativeExpressionContext context)
 		{
-			if (context.multiplicativeExpression() is null) return Visit(context.castExpression());
-			else if (context.Star() is not null) return new ArithmeticExpression((IExpression)Visit(context.castExpression()), ArithmeticOperation.Multiplication, (IExpression)Visit(context.multiplicativeExpression()));
-			else return new ArithmeticExpression((IExpression)Visit(context.castExpression()), ArithmeticOperation.Division, (IExpression)Visit(context.multiplicativeExpression()));
+			IExpression expr = (IExpression)Visit(context.castExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+
+				var op = context.children[i].GetText() == "*" ? ArithmeticOperation.Multiplication : ArithmeticOperation.Division;
+				expr = new ArithmeticExpression(expr, op, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
 		}
 
 		#endregion
