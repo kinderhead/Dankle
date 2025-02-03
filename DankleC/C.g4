@@ -56,7 +56,7 @@ initAssignmentStatement
     ;
 
 assignmentStatement
-    : Identifier Assign expression
+    : lvalue Assign expression
     ;
 
 declareStatement
@@ -70,6 +70,10 @@ assignmentExpression
 
 returnStatement
     : Return expression
+    ;
+
+lvalue
+    : expression
     ;
 
 expression

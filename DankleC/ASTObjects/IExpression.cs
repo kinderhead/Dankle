@@ -34,7 +34,7 @@ namespace DankleC.ASTObjects
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
 			if (Type == type) return this;
-			else if (Type is PointerTypeSpecifier || type is PointerTypeSpecifier) throw new NotImplementedException();
+			//else if (Type is PointerTypeSpecifier || type is PointerTypeSpecifier) throw new NotImplementedException();
 			else if (Type is BuiltinTypeSpecifier actual && type is BuiltinTypeSpecifier expected)
 			{
 				if (actual.Size == expected.Size) return ChangeType(expected);

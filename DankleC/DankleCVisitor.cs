@@ -122,13 +122,15 @@ namespace DankleC
 			return expr;
 		}
 
-		#endregion
+		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 
-		#region Statements
+        #endregion
 
-		public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(Visit(context.expression()));
+        #region Statements
+
+        public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(Visit(context.expression()));
 		public override IASTObject VisitInitAssignmentStatement([NotNull] CParser.InitAssignmentStatementContext context) => new InitAssignmentStatement(Visit(context.type()), context.Identifier().GetText(), Visit(context.expression()));
-		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(context.Identifier().GetText(), Visit(context.expression()));
+		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
         public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), context.Identifier().GetText());
 
         public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
@@ -184,6 +186,7 @@ namespace DankleC
 		public TypeSpecifier Visit(CParser.TypeContext context) => (TypeSpecifier)Visit((IParseTree)context);
 		public ScopeNode Visit(CParser.ScopeContext context) => (ScopeNode)Visit((IParseTree)context);
 		public IExpression Visit(CParser.ExpressionContext context) => (IExpression)Visit((IParseTree)context);
+		public UnresolvedLValue Visit(CParser.LvalueContext context) => (UnresolvedLValue)Visit((IParseTree)context);
 
 		#endregion
 	}

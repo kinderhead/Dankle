@@ -93,6 +93,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitReturnStatement([NotNull] CParser.ReturnStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.lvalue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLvalue([NotNull] CParser.LvalueContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

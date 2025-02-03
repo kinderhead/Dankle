@@ -59,16 +59,16 @@ namespace DankleC.ASTObjects
 		}
 	}
 
-	public class AssignmentStatement(string name, IExpression expr) : Statement
+	public class AssignmentStatement(UnresolvedLValue dest, IExpression expr) : Statement
 	{
-		public readonly string Name = name;
+		public readonly UnresolvedLValue Dest = dest;
 		public readonly IExpression Expression = expr;
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var variable = Scope.GetVariable(Name);
+			var variable = Dest.Resolve<LValue>(builder, func, Scope);
 			var expr = Expression.Resolve(builder, func, Scope).Cast(variable.Type);
-			variable.WriteFrom(expr);
+			variable.WriteFrom(expr, builder);
 		}
 
 		public override void PrepScope()

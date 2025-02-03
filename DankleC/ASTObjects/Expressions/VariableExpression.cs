@@ -65,5 +65,10 @@ namespace DankleC.ASTObjects.Expressions
 			if (Variable is not StackVariable var) throw new InvalidOperationException();
 			return var.Pointer;
 		}
-	}
+
+        public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+        {
+			Variable.WriteFrom(expr);
+        }
+    }
 }

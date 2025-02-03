@@ -279,6 +279,23 @@ short main()
 			Assert.AreEqual(69, c.GetVariable<short>("y"));
 		}
 
+		[TestMethod]
+		[TestCategory("Pointers")]
+		public void TestIntPtrSet()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    int x = 5;
+    int* ptr = &x;
+    *ptr = 69;
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(69, c.GetVariable<int>("x"));
+		}
+
 		#endregion
 
 //		#region Return

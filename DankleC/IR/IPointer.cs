@@ -62,18 +62,23 @@ namespace DankleC.IR
 		}
 	}
 
-	public readonly struct RegisterPointer(int r1, int r2, int size) : IPointer
+	public readonly struct RegisterPointer(int r1, int r2, int offset, int size) : IPointer
 	{
 		public readonly int Reg1 = r1;
 		public readonly int Reg2 = r2;
+		public readonly int Offset = offset;
 		public int Size { get; } = size;
 
-		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T> => CGPointer<T>.Make(Reg1, Reg2);
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
+		{
+			if (Offset == 0) return CGPointer<T>.Make(Reg1, Reg2);
+			else return CGPointer<T>.Make(Reg1, Reg2, (short)Offset);
+		}
 
 		public IPointer Get(int offset)
 		{
 			if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
-			return new RegisterPointer(Reg1, Reg2, Size - offset);
+			return new RegisterPointer(Reg1, Reg2, Offset + offset, Size - offset);
 		}
 	}
 }

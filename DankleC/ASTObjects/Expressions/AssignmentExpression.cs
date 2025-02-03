@@ -15,10 +15,11 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
 		{
-			var variable = scope.GetVariable(Name);
-			var expr = Expression.Resolve(builder, func, scope).Cast(variable.Type);
-			variable.WriteFrom(expr);
-			return new ResolvedVariableExpression(variable, variable.Type);
+			throw new NotImplementedException();
+			// var variable = scope.GetVariable(Name);
+			// var expr = Expression.Resolve(builder, func, scope).Cast(variable.Type);
+			// variable.WriteFrom(expr);
+			// return new ResolvedVariableExpression(variable, variable.Type);
 		}
 	}
 }

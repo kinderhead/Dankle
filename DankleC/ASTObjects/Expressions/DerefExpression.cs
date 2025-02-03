@@ -7,11 +7,16 @@ using System.Threading.Tasks;
 
 namespace DankleC.ASTObjects.Expressions
 {
-	public class DerefExpression(IExpression expr) : UnresolvedExpression
+	public class DerefExpression(IExpression expr) : UnresolvedLValue
 	{
 		public readonly IExpression Expr = expr;
 
-		public override void PrepScope(IRScope scope)
+        public override void MarkReferenceable(IRScope scope)
+        {
+			throw new InvalidOperationException();
+        }
+
+        public override void PrepScope(IRScope scope)
 		{
 			Expr.PrepScope(scope);
 		}
@@ -19,7 +24,7 @@ namespace DankleC.ASTObjects.Expressions
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => new ResolvedDerefExpression(Expr.Resolve(builder, func, scope));
 	}
 
-	public class ResolvedDerefExpression(ResolvedExpression expr) : ResolvedExpression(((PointerTypeSpecifier)expr.Type).Inner)
+	public class ResolvedDerefExpression(ResolvedExpression expr) : LValue(((PointerTypeSpecifier)expr.Type).Inner)
 	{
 		public readonly ResolvedExpression Expr = expr;
 
@@ -28,12 +33,25 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-		public override void PrepScope(IRScope scope)
+        public override IPointer GetRef()
+        {
+            throw new InvalidOperationException();
+        }
+
+        public override void PrepScope(IRScope scope)
 		{
 			Expr.PrepScope(scope);
 		}
 
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+        public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+        {
+            var tmp = builder.CurrentScope.AllocTempRegs(4);
+			var regs = Expr.GetOrWriteToRegisters(tmp.Registers, builder);
+			expr.Cast(Type).WriteToPointer(new RegisterPointer(regs[0], regs[1], 0, Type.Size), builder);
+			tmp.Dispose(regs[0] == tmp.Registers[0]);
+        }
+
+        public override void WriteToPointer(IPointer pointer, IRBuilder builder)
 		{
 			throw new NotImplementedException();
 		}
@@ -54,7 +72,7 @@ namespace DankleC.ASTObjects.Expressions
 			else ptrRegs[1] = regs[1];
 
 			ptrRegs = Expr.GetOrWriteToRegisters(ptrRegs, builder);
-			builder.MovePtrToRegs(new RegisterPointer(ptrRegs[0], ptrRegs[1], Type.Size), regs);
+			builder.MovePtrToRegs(new RegisterPointer(ptrRegs[0], ptrRegs[1], 0, Type.Size), regs);
 			tmp?.Dispose(ptrRegs[1] == tmp.Registers[0]);
 		}
 	}
