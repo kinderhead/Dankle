@@ -54,4 +54,19 @@ namespace Dankle.Components.Instructions
 			dest.Write(ptr.GetAddress());
 		}
 	}
+
+	public class GetCompare : Instruction
+	{
+		public override ushort Opcode => 61;
+
+		public override Type[] Arguments => [typeof(Register)];
+		public override string Name => "GETC";
+
+		protected override void Handle(Context ctx)
+		{
+			var reg = ctx.GetNextArg<Register>();
+
+			reg.Write((ushort)(ctx.Core.Compare ? 1 : 0));
+		}
+	}
 }

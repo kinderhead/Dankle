@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c:/Users/Daniel/source/repos/Dankle/DankleC/C.g4 by ANTLR 4.13.1
+// Generated from /home/daniel/Documents/CSharp/Dankle/DankleC/C.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -86,6 +86,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.equalityExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.indexExpression"/>.
 	/// </summary>

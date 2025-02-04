@@ -32,9 +32,6 @@ namespace DankleC.ASTObjects.Expressions
 			var left = Left.Resolve(builder, func, scope);
 			var right = Right.Resolve(builder, func, scope);
 			if (!left.Type.IsNumber() || !right.Type.IsNumber() || (left.Type is PointerTypeSpecifier && right.Type is PointerTypeSpecifier)) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
-			
-			var largest = left.Type.Size >= right.Type.Size ? left.Type : right.Type;
-			var smallest = left.Type.Size >= right.Type.Size ? right.Type : left.Type;
 
 			TypeSpecifier type;
 			if (left.Type is PointerTypeSpecifier lptr)
@@ -47,14 +44,7 @@ namespace DankleC.ASTObjects.Expressions
 				if (Op != ArithmeticOperation.Addition) throw new InvalidOperationException("Invalid operation with pointer");
 				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size)).Resolve(builder, func, scope), Op, right, rptr);
 			}
-			else if (left.Type == right.Type) type = left.Type;
-			else if (largest.IsSigned() == smallest.IsSigned()) type = largest;
-			else if (largest.Size > smallest.Size) type = largest;
-			else
-			{
-				if (largest.IsSigned()) type = smallest;
-				else type = largest;
-			}
+			else type = TypeSpecifier.GetOperationType(left.Type, right.Type);
 
 			if (left is ConstantExpression l && right is ConstantExpression r)
 			{

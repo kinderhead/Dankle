@@ -64,8 +64,12 @@ declareStatement
     ;
 
 assignmentExpression
-    : additiveExpression
+    : equalityExpression
     | Identifier Assign assignmentExpression
+    ;
+
+equalityExpression
+    : additiveExpression ((Equal || NotEqual) additiveExpression)*
     ;
 
 indexExpression

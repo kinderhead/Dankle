@@ -128,6 +128,7 @@ namespace Dankle.Components.Instructions
 			Register<SignedMul32>();
 			Register<UnsignedMul32>();
 			Register<LoadEffectiveAddress>();
+			Register<GetCompare>();
 		}
 	}
 

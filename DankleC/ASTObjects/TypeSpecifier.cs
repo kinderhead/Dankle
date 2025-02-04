@@ -59,6 +59,21 @@ namespace DankleC.ASTObjects
 			4 => new BuiltinTypeSpecifier(BuiltinType.UnsignedInt),
 			_ => throw new InvalidOperationException(),
 		};
+
+		public static TypeSpecifier GetOperationType(TypeSpecifier left, TypeSpecifier right)
+		{
+			var largest = left.Size >= right.Size ? left : right;
+			var smallest = left.Size >= right.Size ? right : left;
+
+			if (left == right) return left;
+			else if (largest.IsSigned() == smallest.IsSigned()) return largest;
+			else if (largest.Size > smallest.Size) return largest;
+			else
+			{
+				if (largest.IsSigned()) return smallest;
+				else return largest;
+			}
+		}
 	}
 
     public enum BuiltinType
