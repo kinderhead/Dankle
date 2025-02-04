@@ -33,7 +33,7 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-        public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs)
+        public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs, int[] regsInUse)
 		{
             throw new InvalidOperationException();
         }

@@ -23,7 +23,11 @@ namespace DankleC.ASTObjects.Expressions
 			Expr.PrepScope(scope);
 		}
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => new ResolvedIndexExpression(Source.Resolve<LValue>(builder, func, scope), Expr.Resolve(builder, func, scope));
+		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+		{
+			var val = Source.Resolve<LValue>(builder, func, scope);
+			return new ResolvedIndexExpression(val, Expr.Resolve(builder, func, scope), ((ArrayTypeSpecifier)val.Type).Inner);
+		}
 	}
 
 	public class ResolvedIndexExpression(LValue source, ResolvedExpression expr, TypeSpecifier type) : LValue(type)
@@ -33,27 +37,27 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedIndexExpression(Source, Expr, type);
 
-		public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs)
+		public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs, int[] regsInUse)
 		{
-			var expr = new ArithmeticExpression(Expr, ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), ((ArrayTypeSpecifier)Type).Inner.Size)).Resolve(builder, builder.CurrentFunction, builder.CurrentScope).Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt));
+			var expr = new ArithmeticExpression(Expr, ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), Type.Size)).Resolve(builder, builder.CurrentFunction, builder.CurrentScope).Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt));
 
 			if (expr is ConstantExpression c)
 			{
 				var offset = (int)c.Value;
 				if (offset > short.MaxValue || offset < short.MinValue) throw new NotImplementedException();
-				return Source.GetRef(builder, out regs).Get(offset);
+				return Source.GetRef(builder, out regs, regsInUse).Get(offset, Type.Size);
 			}
 
-			regs = builder.CurrentScope.AllocTempRegs(4);
-			builder.Add(new LeaReg(regs.Registers[0], regs.Registers[1], Source.GetRef(builder, out var tmp)));
+			regs = builder.CurrentScope.AllocTempRegs(4, regsInUse);
+			builder.Add(new LeaReg(regs.Registers[0], regs.Registers[1], Source.GetRef(builder, out var tmp, [.. regsInUse, .. regs.Registers])));
 			if (tmp is not null) throw new NotImplementedException();
 			
-			var regs2 = builder.CurrentScope.AllocTempRegs(4, regs.Registers);
+			var regs2 = builder.CurrentScope.AllocTempRegs(4, [.. regsInUse, .. regs.Registers]);
 			var actualRegs2 = expr.GetOrWriteToRegisters(regs2.Registers, builder);
 			builder.Add(new AddRegs(regs.Registers[0], actualRegs2[0], regs.Registers[0]));
 			builder.Add(new AdcRegs(regs.Registers[1], actualRegs2[1], regs.Registers[1]));
 			regs2.Dispose(regs2.Registers[0] == actualRegs2[0]);
-			return new RegisterPointer(actualRegs2[0], actualRegs2[1], 0, ((ArrayTypeSpecifier)Type).Inner.Size);
+			return new RegisterPointer(regs.Registers[0], regs.Registers[1], 0, Type.Size);
 		}
 
 		public override void PrepScope(IRScope scope)
@@ -64,8 +68,8 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
 		{
-			var ptr = GetRef(builder, out var regs);
-			expr.WriteToPointer(ptr, builder, regs?.Registers ?? []);
+			var ptr = GetRef(builder, out var regs, []);
+			expr.Cast(Type).WriteToPointer(ptr, builder, regs?.Registers ?? []);
 			regs?.Dispose();
 		}
 
@@ -76,7 +80,10 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteToRegisters(int[] regs, IRBuilder builder)
 		{
-			throw new NotImplementedException();
+			if (regs.Length != IRBuilder.NumRegForBytes(Type.Size)) throw new InvalidOperationException();
+			var ptr = GetRef(builder, out var tmp, regs);
+			builder.MovePtrToRegs(ptr, regs);
+			tmp?.Dispose();
 		}
 	}
 }

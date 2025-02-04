@@ -29,12 +29,14 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (pointer.Size != Type.Size) throw new InvalidOperationException();
 
+			using var regs = builder.CurrentScope.AllocTempRegs(2, usedRegs);
+
 			var words = GetWords();
 			for (int i = 0; i < words.Length; i++)
 			{
-				builder.Add(new LoadImmToReg(8, words[i]));
-				if (Type.Size == 1) builder.Add(new LoadRegToPtr8(pointer.Get(i * 2), 8));
-				else builder.Add(new LoadRegToPtr(pointer.Get(i * 2), 8));
+				builder.Add(new LoadImmToReg(regs.Registers[0], words[i]));
+				if (Type.Size == 1) builder.Add(new LoadRegToPtr8(pointer.Get(i * 2), regs.Registers[0]));
+				else builder.Add(new LoadRegToPtr(pointer.Get(i * 2), regs.Registers[0]));
 			}
 		}
 

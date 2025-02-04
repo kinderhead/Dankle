@@ -74,6 +74,21 @@ namespace DankleTest
             else throw new NotImplementedException();
         }
 
+		public T IndexArray<T>(string name, int index) where T : IBinaryInteger<T>
+		{
+			if (CurrentStatement is null) throw new InvalidOperationException("Call RunUntil before GetVariable");
+            var v = CurrentStatement.Scope.GetVariable(name);
+			var type = ((ArrayTypeSpecifier)v.Type).Inner;
+
+            if (type.Size != TypeInfo<T>.Size) throw new InvalidOperationException("Wrong type");
+
+			if (v is StackVariable stackvar)
+            {
+                return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + ((StackPointer)stackvar.Pointer).Offset + (index * type.Size)));
+            }
+            else throw new NotImplementedException();
+		}
+
 		public void Dispose()
 		{
             RunUntilDone();

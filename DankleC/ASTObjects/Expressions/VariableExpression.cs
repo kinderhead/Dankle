@@ -60,7 +60,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void PrepScope(IRScope scope) { }
 
-		public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs)
+		public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs, int[] regsInUse)
 		{
 			if (Variable is not StackVariable var) throw new InvalidOperationException();
 			regs = null;

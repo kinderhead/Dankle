@@ -15,6 +15,7 @@ namespace DankleC.IR
 
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>;
 		public IPointer Get(int offset);
+		public IPointer Get(int offset, int size);
 	}
 
 	// public readonly struct Pointer(CGPointer pointer) : IPointer
@@ -35,10 +36,11 @@ namespace DankleC.IR
 			else return CGPointer<T>.Make(12, 13, (short)Offset);
 		}
 
-        public IPointer Get(int offset)
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+        public IPointer Get(int offset, int size)
         {
         	if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
-			return new StackPointer(Offset + offset, Size - offset);
+			return new StackPointer(Offset + offset, size);
         }
     }
 
@@ -55,9 +57,10 @@ namespace DankleC.IR
 			else return CGPointer<T>.Make(12, 13, (short)effectiveOffset);
 		}
 
-		public IPointer Get(int offset)
-		{
-			if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+        public IPointer Get(int offset, int size)
+        {
+        	if (Size - offset <= 0) throw new InvalidOperationException("TempStackPointer goes out of bounds");
 			return new TempStackPointer(Offset + offset, Size - offset);
 		}
 	}
@@ -75,9 +78,10 @@ namespace DankleC.IR
 			else return CGPointer<T>.Make(Reg1, Reg2, (short)Offset);
 		}
 
-		public IPointer Get(int offset)
-		{
-			if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+        public IPointer Get(int offset, int size)
+        {
+        	if (Size - offset <= 0) throw new InvalidOperationException("RegisterPointer goes out of bounds");
 			return new RegisterPointer(Reg1, Reg2, Offset + offset, Size - offset);
 		}
 	}

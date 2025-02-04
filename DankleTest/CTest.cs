@@ -296,6 +296,50 @@ short main()
 			Assert.AreEqual(69, c.GetVariable<int>("x"));
 		}
 
+		[TestMethod]
+		[TestCategory("Pointers")]
+		public void TestIntArrSet()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short i = 4;
+    int x[10];
+    x[i * 2] = 19;
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(4, c.GetVariable<short>("i"));
+			Assert.AreEqual(19, c.IndexArray<int>("x", 8));
+		}
+
+		[TestMethod]
+		[TestCategory("Pointers")]
+		public void TestShortArrSetGetMath()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short x[4];
+    x[0] = 10;
+    x[1] = 340;
+    x[2] = 891;
+    x[3] = 50;
+
+    short y = x[0] / x[1] + x[2] * x[3];
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(10, c.IndexArray<short>("x", 0));
+			Assert.AreEqual(340, c.IndexArray<short>("x", 1));
+			Assert.AreEqual(891, c.IndexArray<short>("x", 2));
+			Assert.AreEqual(50, c.IndexArray<short>("x", 3));
+			Assert.AreEqual(unchecked((short)(10 / 340 + 891 * 50)), c.GetVariable<short>("y"));
+		}
+
 		#endregion
 
 //		#region Return
