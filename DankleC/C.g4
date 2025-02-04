@@ -69,7 +69,7 @@ assignmentExpression
     ;
 
 indexExpression
-    : lvalue LeftBracket expression RightBracket
+    : primaryExpression LeftBracket expression RightBracket
     ;
 
 returnStatement
@@ -95,6 +95,7 @@ unaryExpression
 
 postfixExpression
     : primaryExpression
+    | indexExpression
     ;
 
 primaryExpression

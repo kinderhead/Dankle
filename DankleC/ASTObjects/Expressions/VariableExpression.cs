@@ -53,16 +53,17 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
 		{
 			Variable.ReadTo(pointer);
 		}
 
 		public override void PrepScope(IRScope scope) { }
 
-		public override IPointer GetRef()
+		public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs)
 		{
 			if (Variable is not StackVariable var) throw new InvalidOperationException();
+			regs = null;
 			return var.Pointer;
 		}
 

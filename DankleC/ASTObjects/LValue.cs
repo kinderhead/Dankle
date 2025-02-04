@@ -14,7 +14,7 @@ namespace DankleC.ASTObjects
 
 	public abstract class LValue(TypeSpecifier type) : ResolvedExpression(type)
 	{
-		public abstract IPointer GetRef();
+		public abstract IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs);
 		public abstract void WriteFrom(ResolvedExpression expr, IRBuilder builder);
 	}
 }

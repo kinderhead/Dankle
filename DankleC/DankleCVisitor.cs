@@ -84,6 +84,11 @@ namespace DankleC
 			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 		}
 
+		public override IASTObject VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context)
+		{
+			return Visit(context.children[0]);
+		}
+
 		public override IASTObject VisitPrimaryExpression([NotNull] CParser.PrimaryExpressionContext context)
 		{
 			if (context.expression() is CParser.ExpressionContext ex) return Visit(ex);
@@ -122,10 +127,7 @@ namespace DankleC
 			return expr;
 		}
 
-		public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context)
-		{
-			return base.VisitIndexExpression(context);
-		}
+		public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
 
 		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 

@@ -33,8 +33,8 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-        public override IPointer GetRef()
-        {
+        public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs)
+		{
             throw new InvalidOperationException();
         }
 
@@ -47,11 +47,11 @@ namespace DankleC.ASTObjects.Expressions
         {
             var tmp = builder.CurrentScope.AllocTempRegs(4);
 			var regs = Expr.GetOrWriteToRegisters(tmp.Registers, builder);
-			expr.Cast(Type).WriteToPointer(new RegisterPointer(regs[0], regs[1], 0, Type.Size), builder);
+			expr.Cast(Type).WriteToPointer(new RegisterPointer(regs[0], regs[1], 0, Type.Size), builder, regs);
 			tmp.Dispose(regs[0] == tmp.Registers[0]);
         }
 
-        public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+        public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
 		{
 			throw new NotImplementedException();
 		}

@@ -25,7 +25,7 @@ namespace DankleC.ASTObjects.Expressions
 			}
 		}
 
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
 		{
 			if (pointer.Size != Type.Size) throw new InvalidOperationException();
 

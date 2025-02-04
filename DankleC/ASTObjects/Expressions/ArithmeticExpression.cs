@@ -40,12 +40,12 @@ namespace DankleC.ASTObjects.Expressions
 			if (left.Type is PointerTypeSpecifier lptr)
 			{
 				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction)) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)lptr.Inner.Size)).Resolve(builder, func, scope), lptr);
+				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size)).Resolve(builder, func, scope), lptr);
 			}
 			else if (right.Type is PointerTypeSpecifier rptr)
 			{
 				if (Op != ArithmeticOperation.Addition) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)rptr.Inner.Size)).Resolve(builder, func, scope), Op, right, rptr);
+				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size)).Resolve(builder, func, scope), Op, right, rptr);
 			}
 			else if (left.Type == right.Type) type = left.Type;
 			else if (largest.IsSigned() == smallest.IsSigned()) type = largest;
@@ -150,25 +150,25 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new NotImplementedException();
 		}
 
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
 		{
 			if (Left.Type.Size == 1)
 			{
-				using var tmp = builder.CurrentScope.AllocTempRegs(4);
+				using var tmp = builder.CurrentScope.AllocTempRegs(4, usedRegs);
 				Compute(Left.GetOrWriteToRegisters([tmp.Registers[0]], builder), Right.GetOrWriteToRegisters([tmp.Registers[1]], builder), [tmp.Registers[0]], builder);
 				builder.Add(new LoadRegToPtr8(pointer, tmp.Registers[0]));
 			}
 			else if (Left.Type.Size == 2)
 			{
-				using var tmp = builder.CurrentScope.AllocTempRegs(4);
+				using var tmp = builder.CurrentScope.AllocTempRegs(4, usedRegs);
 				Compute(Left.GetOrWriteToRegisters([tmp.Registers[0]], builder), Right.GetOrWriteToRegisters([tmp.Registers[1]], builder), [tmp.Registers[0]], builder);
 				builder.Add(new LoadRegToPtr(pointer, tmp.Registers[0]));
 			}
 			else if (Left.Type.Size == 4)
 			{
-				var tmp1 = builder.CurrentScope.AllocTempRegs(4);
+				var tmp1 = builder.CurrentScope.AllocTempRegs(4, usedRegs);
 				var regs1 = Left.GetOrWriteToRegisters([tmp1.Registers[0], tmp1.Registers[1]], builder);
-				var tmp2 = builder.CurrentScope.AllocTempRegs(4, tmp1.Registers);
+				var tmp2 = builder.CurrentScope.AllocTempRegs(4, [..tmp1.Registers, ..usedRegs]);
 				var regs2 = Right.GetOrWriteToRegisters([tmp2.Registers[0], tmp2.Registers[1]], builder);
 				Compute(regs1, regs2, [tmp1.Registers[0], tmp1.Registers[1]], builder);
 				builder.Add(new LoadRegToPtr(pointer, tmp1.Registers[0]));

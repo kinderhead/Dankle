@@ -22,7 +22,7 @@ namespace DankleC.ASTObjects
 
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
 		public abstract void WriteToRegisters(int[] regs, IRBuilder builder);
-		public abstract void WriteToPointer(IPointer pointer, IRBuilder builder);
+		public abstract void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs);
 		public abstract void PrepScope(IRScope scope);
 
 		public virtual int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)

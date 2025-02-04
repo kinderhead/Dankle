@@ -18,7 +18,7 @@ namespace DankleC.ASTObjects.Expressions
 			Expr.PrepScope(scope);
 		}
 
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder)
+		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
 		{
 			var expr = Expr.Resolve(builder, builder.CurrentFunction, builder.CurrentScope);
 
@@ -31,7 +31,7 @@ namespace DankleC.ASTObjects.Expressions
 			else
 			{
 				var padding = Type.Size - expr.Type.Size;
-				expr.WriteToPointer(pointer.Get(padding), builder);
+				expr.WriteToPointer(pointer.Get(padding), builder, usedRegs);
 
 				if (expr.Type.IsSigned())
 				{

@@ -62,7 +62,7 @@ namespace DankleC.IR
 		public override void WriteFrom(ResolvedExpression expr)
 		{
 			if (expr.Type.Size != Type.Size) throw new InvalidOperationException("Mismatched size");
-			expr.WriteToPointer(Pointer, Scope.Builder);
+			expr.WriteToPointer(Pointer, Scope.Builder, []);
 		}
 	}
 
