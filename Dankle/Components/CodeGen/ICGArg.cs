@@ -56,4 +56,15 @@ namespace Dankle.Components.CodeGen
 			return $"{Value}";
 		}
 	}
+
+	public class CGLabel<T>(string name) : CGArg<T> where T : IBinaryInteger<T>
+	{
+		public readonly string Name = name;
+		public override Type ArgType => typeof(Immediate<T>);
+
+		public override string Build()
+		{
+			return $"{Name}";
+		}
+	}
 }

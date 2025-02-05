@@ -196,5 +196,48 @@ short main()
 			Assert.AreEqual(x, c.GetVariable<T>("x"));
 			Assert.AreEqual(R.CreateTruncating(x), c.GetVariable<R>("y"));
 		}
+
+		public static void TestComparaison<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var x = T.MaxValue - T.CreateTruncating(1);
+			var y = T.MinValue + T.CreateTruncating(1);
+
+			TestComparaison(x, y, stack, EqualityOperation.Equals);
+			//TestComparaison(x, y, stack, EqualityOperation.NotEquals);
+		}
+
+		public static void TestComparaison<T>(T x, T y, bool stack, EqualityOperation op) where T : IBinaryInteger<T>
+        {
+			var opchar = op switch
+			{
+				EqualityOperation.Equals => "==",
+				EqualityOperation.NotEquals => "!=",
+				_ => throw new InvalidOperationException(),
+			};
+
+			var type = CUtils.NumberTypeToString<T>();
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
+    {type} x = {x};
+	{type} y = {y};
+	char z = x {opchar} y;
+    return 0;
+}}
+");
+			bool z = op switch
+			{
+				EqualityOperation.Equals => x == y,
+				EqualityOperation.NotEquals => x != y,
+				_ => throw new InvalidOperationException(),
+			};
+
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+			Assert.AreEqual(y, c.GetVariable<T>("y"));
+			Assert.AreEqual(z ? 1 : 0, c.GetVariable<byte>("z"));
+		}
 	}
 }

@@ -101,7 +101,20 @@ namespace DankleC
 			return new AssignmentExpression(context.Identifier().GetText(), (IExpression)Visit(context.assignmentExpression()));
 		}
 
-		public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
+        public override IASTObject VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+
+				var op = context.children[i].GetText() == "==" ? EqualityOperation.Equals : EqualityOperation.NotEquals;
+				expr = new EqualityExpression(expr, op, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
+
+        public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
 		{
 			IExpression expr = (IExpression)Visit(context.multiplicativeExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)

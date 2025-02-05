@@ -342,6 +342,28 @@ short main()
 
 		#endregion
 
+		#region Comparison
+
+		[TestMethod, TestCategory("Comparison"), DataRow(false), DataRow(true)]
+		public void TestCharCompare(bool stack) => CTestHelper.TestComparaison<sbyte>(stack);
+
+		[TestMethod, TestCategory("Comparison"), DataRow(false), DataRow(true)]
+		public void TestUCharCompare(bool stack) => CTestHelper.TestComparaison<byte>(stack);
+
+		[TestMethod, TestCategory("Comparison"), DataRow(false), DataRow(true)]
+		public void TestShortCompare(bool stack) => CTestHelper.TestComparaison<short>(stack);
+
+		[TestMethod, TestCategory("Comparison"), DataRow(false), DataRow(true)]
+		public void TestUShortCompare(bool stack) => CTestHelper.TestComparaison<ushort>(stack);
+
+		[TestMethod, TestCategory("Comparison"), DataRow(false), DataRow(true)]
+		public void TestIntCompare(bool stack) => CTestHelper.TestComparaison<int>(stack);
+
+		[TestMethod, TestCategory("Comparison"), DataRow(false), DataRow(true)]
+		public void TestUIntCompare(bool stack) => CTestHelper.TestComparaison<uint>(stack);
+
+		#endregion
+
 //		#region Return
 
 //		[TestMethod]
