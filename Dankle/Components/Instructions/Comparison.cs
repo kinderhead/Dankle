@@ -88,6 +88,70 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class UnsignedLessThan : Instruction
+	{
+		public override ushort Opcode => 63;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "ULT";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>();
+			var arg2 = ctx.GetNextArg<Any16>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LT, arg2.Read());
+		}
+	}
+
+	public class UnsignedLessThanOrEq : Instruction
+	{
+		public override ushort Opcode => 64;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "ULTE";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>();
+			var arg2 = ctx.GetNextArg<Any16>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LTE, arg2.Read());
+		}
+	}
+
+	public class UnsignedGreaterThan : Instruction
+	{
+		public override ushort Opcode => 65;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "UGT";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>();
+			var arg2 = ctx.GetNextArg<Any16>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.GT, arg2.Read());
+		}
+	}
+
+	public class UnsignedGreaterThanOrEq : Instruction
+	{
+		public override ushort Opcode => 66;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "UGTE";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>();
+			var arg2 = ctx.GetNextArg<Any16>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.GTE, arg2.Read());
+		}
+	}
+
 	public class CompareFlags : Instruction
 	{
 		public override ushort Opcode => 42;

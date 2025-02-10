@@ -68,8 +68,12 @@ assignmentExpression
     | Identifier Assign assignmentExpression
     ;
 
+relationalExpression
+    : additiveExpression ((Less) additiveExpression)*
+    ;
+
 equalityExpression
-    : additiveExpression ((Equal || NotEqual) additiveExpression)*
+    : relationalExpression ((Equal || NotEqual) relationalExpression)*
     ;
 
 indexExpression

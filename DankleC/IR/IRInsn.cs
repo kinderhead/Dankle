@@ -415,6 +415,30 @@ namespace DankleC.IR
 		}
 	}
 
+	public class LTRegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<LessThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
+	public class ULTRegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<UnsignedLessThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
 	public class GetC(int arg) : IRInsn
 	{
 		public readonly int Arg = arg;
@@ -423,6 +447,17 @@ namespace DankleC.IR
 		{
 			if (Arg == -1) return;
 			gen.Add(CGInsn.Build<GetCompare>(new CGRegister(Arg)));
+		}
+	}
+
+	public class GetNC(int arg) : IRInsn
+	{
+		public readonly int Arg = arg;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg == -1) return;
+			gen.Add(CGInsn.Build<GetNotCompare>(new CGRegister(Arg)));
 		}
 	}
 

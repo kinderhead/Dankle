@@ -129,6 +129,11 @@ namespace Dankle.Components.Instructions
 			Register<UnsignedMul32>();
 			Register<LoadEffectiveAddress>();
 			Register<GetCompare>();
+			Register<GetNotCompare>();
+			Register<UnsignedLessThan>();
+			Register<UnsignedLessThanOrEq>();
+			Register<UnsignedGreaterThan>();
+			Register<UnsignedGreaterThanOrEq>();
 		}
 	}
 

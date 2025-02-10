@@ -87,6 +87,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.relationalExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRelationalExpression([NotNull] CParser.RelationalExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.equalityExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

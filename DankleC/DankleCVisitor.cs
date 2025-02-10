@@ -103,12 +103,29 @@ namespace DankleC
 
         public override IASTObject VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context)
         {
-            IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
+            IExpression expr = (IExpression)Visit(context.relationalExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
 
 				var op = context.children[i].GetText() == "==" ? EqualityOperation.Equals : EqualityOperation.NotEquals;
+				expr = new EqualityExpression(expr, op, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
+
+        public override IASTObject VisitRelationalExpression([NotNull] CParser.RelationalExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+
+				var op = context.children[i].GetText() switch
+				{
+					"<" => EqualityOperation.LessThan,
+					_ => throw new NotImplementedException()
+				};
 				expr = new EqualityExpression(expr, op, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;

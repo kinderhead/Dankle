@@ -69,4 +69,19 @@ namespace Dankle.Components.Instructions
 			reg.Write((ushort)(ctx.Core.Compare ? 1 : 0));
 		}
 	}
+
+	public class GetNotCompare : Instruction
+	{
+		public override ushort Opcode => 62;
+
+		public override Type[] Arguments => [typeof(Register)];
+		public override string Name => "GETNC";
+
+		protected override void Handle(Context ctx)
+		{
+			var reg = ctx.GetNextArg<Register>();
+
+			reg.Write((ushort)(ctx.Core.Compare ? 0 : 1));
+		}
+	}
 }

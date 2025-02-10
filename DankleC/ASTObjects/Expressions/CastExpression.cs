@@ -24,9 +24,9 @@ namespace DankleC.ASTObjects.Expressions
 
 			if (Type.Size <= expr.Type.Size)
 			{
-				var regs = IRBuilder.FitTempRegs(Type.Size);
-				expr.WriteToRegisters([.. Enumerable.Repeat(-1, IRBuilder.NumRegForBytes(expr.Type.Size) - IRBuilder.NumRegForBytes(Type.Size)), .. regs], builder);
-				builder.MoveRegsToPtr(regs, pointer);
+				using var regs = builder.CurrentScope.AllocTempRegs(Type.Size, usedRegs);
+				expr.WriteToRegisters([.. Enumerable.Repeat(-1, IRBuilder.NumRegForBytes(expr.Type.Size) - IRBuilder.NumRegForBytes(Type.Size)), .. regs.Registers], builder);
+				builder.MoveRegsToPtr(regs.Registers, pointer);
 			}
 			else
 			{
