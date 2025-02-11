@@ -1,8 +1,8 @@
 short main()
 {
-    int x = 5;
-    int y = 4;
-    short z = x < y;
+    short x = 5;
+    short y = 3;
+    short z = x && y;
 
     return 0;
 }

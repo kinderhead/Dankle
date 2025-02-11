@@ -81,12 +81,6 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CParser.assignmentExpression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.relationalExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -98,6 +92,24 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.logicalAndExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLogicalAndExpression([NotNull] CParser.LogicalAndExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.logicalOrExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLogicalOrExpression([NotNull] CParser.LogicalOrExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.assignmentExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.indexExpression"/>.
 	/// </summary>

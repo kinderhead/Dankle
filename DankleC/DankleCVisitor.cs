@@ -97,7 +97,7 @@ namespace DankleC
 
 		public override IASTObject VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context)
 		{
-			if (context.equalityExpression() is CParser.EqualityExpressionContext add) return Visit(add);
+			if (context.logicalOrExpression() is CParser.LogicalOrExpressionContext add) return Visit(add);
 			return new AssignmentExpression(context.Identifier().GetText(), (IExpression)Visit(context.assignmentExpression()));
 		}
 

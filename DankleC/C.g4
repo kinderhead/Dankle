@@ -63,17 +63,25 @@ declareStatement
     : type Identifier
     ;
 
-assignmentExpression
-    : equalityExpression
-    | Identifier Assign assignmentExpression
-    ;
-
 relationalExpression
     : additiveExpression ((Less || LessEqual || Greater || GreaterEqual) additiveExpression)*
     ;
 
 equalityExpression
     : relationalExpression ((Equal || NotEqual) relationalExpression)*
+    ;
+
+logicalAndExpression
+    : equalityExpression (AndAnd equalityExpression)*
+    ;
+
+logicalOrExpression
+    : logicalAndExpression (OrOr logicalAndExpression)*
+    ;
+
+assignmentExpression
+    : logicalOrExpression
+    | Identifier Assign assignmentExpression
     ;
 
 indexExpression
