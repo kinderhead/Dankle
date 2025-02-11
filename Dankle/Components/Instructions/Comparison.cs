@@ -152,6 +152,70 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class LessThan32 : Instruction
+	{
+		public override ushort Opcode => 70;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
+		public override string Name => "LTL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+
+			ctx.Core.ALU.CompareAndSetFlag((int)arg1.Read(), Comparison.LT, (int)arg2.Read());
+		}
+	}
+
+	public class LessThanOrEq32 : Instruction
+	{
+		public override ushort Opcode => 71;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
+		public override string Name => "LTEL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+
+			ctx.Core.ALU.CompareAndSetFlag((int)arg1.Read(), Comparison.LTE, (int)arg2.Read());
+		}
+	}
+
+	public class GreaterThan32 : Instruction
+	{
+		public override ushort Opcode => 72;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
+		public override string Name => "GTL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+
+			ctx.Core.ALU.CompareAndSetFlag((int)arg1.Read(), Comparison.GT, (int)arg2.Read());
+		}
+	}
+
+	public class GreaterThanOrEq32 : Instruction
+	{
+		public override ushort Opcode => 73;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
+		public override string Name => "GTEL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any32>();
+
+			ctx.Core.ALU.CompareAndSetFlag((int)arg1.Read(), Comparison.GTE, (int)arg2.Read());
+		}
+	}
+
 	public class CompareFlags : Instruction
 	{
 		public override ushort Opcode => 42;

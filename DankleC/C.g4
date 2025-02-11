@@ -69,7 +69,7 @@ assignmentExpression
     ;
 
 relationalExpression
-    : additiveExpression ((Less) additiveExpression)*
+    : additiveExpression ((Less || LessEqual || Greater || GreaterEqual) additiveExpression)*
     ;
 
 equalityExpression

@@ -7,7 +7,10 @@ namespace DankleC.ASTObjects.Expressions
     {
         Equals,
         NotEquals,
-        LessThan
+        LessThan,
+        LessThanOrEqual,
+        GreaterThan,
+        GreaterThanOrEqual
     }
 
     public class EqualityExpression(IExpression left, EqualityOperation op, IExpression right) : UnresolvedExpression
@@ -37,6 +40,9 @@ namespace DankleC.ASTObjects.Expressions
                     EqualityOperation.Equals => (dynamic)l.Value == (dynamic)r.Value,
                     EqualityOperation.NotEquals => (dynamic)l.Value == (dynamic)r.Value,
                     EqualityOperation.LessThan => (dynamic)l.Value < (dynamic)r.Value,
+                    EqualityOperation.LessThanOrEqual => (dynamic)l.Value <= (dynamic)r.Value,
+                    EqualityOperation.GreaterThan => (dynamic)l.Value > (dynamic)r.Value,
+                    EqualityOperation.GreaterThanOrEqual => (dynamic)l.Value >= (dynamic)r.Value,
 					_ => throw new NotImplementedException(),
                 };
 
@@ -86,6 +92,21 @@ namespace DankleC.ASTObjects.Expressions
                         else builder.Add(new ULTRegs(leftregs[0], rightregs[0]));
                         builder.Add(new GetC(output));
                         break;
+                    case EqualityOperation.LessThanOrEqual:
+                        if (SourceType.IsSigned()) builder.Add(new LTERegs(leftregs[0], rightregs[0]));
+                        else builder.Add(new ULTERegs(leftregs[0], rightregs[0]));
+                        builder.Add(new GetC(output));
+                        break;
+                    case EqualityOperation.GreaterThan:
+                        if (SourceType.IsSigned()) builder.Add(new GTRegs(leftregs[0], rightregs[0]));
+                        else builder.Add(new UGTRegs(leftregs[0], rightregs[0]));
+                        builder.Add(new GetC(output));
+                        break;
+                    case EqualityOperation.GreaterThanOrEqual:
+                        if (SourceType.IsSigned()) builder.Add(new GTERegs(leftregs[0], rightregs[0]));
+                        else builder.Add(new UGTERegs(leftregs[0], rightregs[0]));
+                        builder.Add(new GetC(output));
+                        break;
                     default:
                         throw new InvalidOperationException();
                 }
@@ -119,18 +140,58 @@ namespace DankleC.ASTObjects.Expressions
                         builder.Add(oneLabel);
                         break;
                     case EqualityOperation.LessThan:
-                        IRInsn cmp1 = SourceType.IsSigned() ? new LTRegs(leftregs[0], rightregs[0]) : new ULTRegs(leftregs[0], rightregs[0]);
-                        IRInsn cmp2 = SourceType.IsSigned() ? new LTRegs(leftregs[1], rightregs[1]) : new ULTRegs(leftregs[1], rightregs[1]);
+                    case EqualityOperation.LessThanOrEqual:
+                    case EqualityOperation.GreaterThan:
+                    case EqualityOperation.GreaterThanOrEqual:
+                        if (SourceType.IsSigned())
+                        {
+                            builder.Add(Op switch
+                            {
+                                EqualityOperation.LessThan => new LT32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
+                                EqualityOperation.LessThanOrEqual => new LTE32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
+                                EqualityOperation.GreaterThan => new GT32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
+                                EqualityOperation.GreaterThanOrEqual => new GTE32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
+                                _ => throw new InvalidOperationException()
+                            });
+                            builder.Add(new GetC(output));
+                        }
+                        else
+                        {
+                            IRInsn cmp1;
+                            IRInsn cmp2;
 
-                        builder.Add(cmp1);
-                        builder.Add(new JumpIfNotTrue(zeroLabel.Name));
-                        builder.Add(cmp2);
-                        builder.Add(new JumpIfNotTrue(zeroLabel.Name));
-                        builder.Add(new LoadImmToReg(output, 1));
-                        builder.Add(new JumpTo(oneLabel.Name));
-                        builder.Add(zeroLabel);
-                        builder.Add(new LoadImmToReg(output, 0));
-                        builder.Add(oneLabel);
+                            if (Op == EqualityOperation.LessThan)
+                            {
+                                cmp1 = new ULTRegs(leftregs[0], rightregs[0]);
+                                cmp2 = new ULTRegs(leftregs[1], rightregs[1]);
+                            }
+                            else if (Op == EqualityOperation.LessThanOrEqual)
+                            {
+                                cmp1 = new ULTERegs(leftregs[0], rightregs[0]);
+                                cmp2 = new ULTERegs(leftregs[1], rightregs[1]);
+                            }
+                            else if (Op == EqualityOperation.GreaterThan)
+                            {
+                                cmp1 = new UGTRegs(leftregs[0], rightregs[0]);
+                                cmp2 = new UGTRegs(leftregs[1], rightregs[1]);
+                            }
+                            else if (Op == EqualityOperation.GreaterThanOrEqual)
+                            {
+                                cmp1 = new UGTERegs(leftregs[0], rightregs[0]);
+                                cmp2 = new UGTERegs(leftregs[1], rightregs[1]);
+                            }
+                            else throw new InvalidOperationException();
+
+                            builder.Add(cmp1);
+                            builder.Add(new JumpIfNotTrue(zeroLabel.Name));
+                            builder.Add(cmp2);
+                            builder.Add(new JumpIfNotTrue(zeroLabel.Name));
+                            builder.Add(new LoadImmToReg(output, 1));
+                            builder.Add(new JumpTo(oneLabel.Name));
+                            builder.Add(zeroLabel);
+                            builder.Add(new LoadImmToReg(output, 0));
+                            builder.Add(oneLabel);
+                        }
                         break;
                     default:
                         throw new InvalidOperationException();

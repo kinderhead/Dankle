@@ -46,6 +46,7 @@ namespace Dankle.Components.Instructions
 		public static void Register<T>() where T : Instruction, new()
 		{
 			var insn = new T();
+			if (Instructions.ContainsKey(insn.Opcode)) throw new InvalidOperationException();
 			Instructions[insn.Opcode] = insn;
 		}
 
@@ -134,6 +135,10 @@ namespace Dankle.Components.Instructions
 			Register<UnsignedLessThanOrEq>();
 			Register<UnsignedGreaterThan>();
 			Register<UnsignedGreaterThanOrEq>();
+			Register<LessThan32>();
+			Register<LessThanOrEq32>();
+			Register<GreaterThan32>();
+			Register<GreaterThanOrEq32>();
 		}
 	}
 

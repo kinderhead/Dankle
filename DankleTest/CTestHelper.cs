@@ -204,9 +204,20 @@ short main()
 
 			TestComparaison(x, y, stack, EqualityOperation.Equals);
 			TestComparaison(x, y, stack, EqualityOperation.NotEquals);
-			
+
 			TestComparaison(x, y, stack, EqualityOperation.LessThan);
 			TestComparaison(y, x, stack, EqualityOperation.LessThan);
+			TestComparaison(x, x, stack, EqualityOperation.LessThanOrEqual);
+			TestComparaison(y, y, stack, EqualityOperation.LessThanOrEqual);
+			TestComparaison(x, y, stack, EqualityOperation.LessThanOrEqual);
+			TestComparaison(y, x, stack, EqualityOperation.LessThanOrEqual);
+
+			TestComparaison(x, y, stack, EqualityOperation.GreaterThan);
+			TestComparaison(y, x, stack, EqualityOperation.GreaterThan);
+			TestComparaison(x, x, stack, EqualityOperation.GreaterThanOrEqual);
+			TestComparaison(y, y, stack, EqualityOperation.GreaterThanOrEqual);
+			TestComparaison(x, y, stack, EqualityOperation.GreaterThanOrEqual);
+			TestComparaison(y, x, stack, EqualityOperation.GreaterThanOrEqual);
 		}
 
 		public static void TestComparaison<T>(T x, T y, bool stack, EqualityOperation op) where T : IBinaryInteger<T>
@@ -216,6 +227,9 @@ short main()
 				EqualityOperation.Equals => "==",
 				EqualityOperation.NotEquals => "!=",
 				EqualityOperation.LessThan => "<",
+				EqualityOperation.LessThanOrEqual => "<=",
+				EqualityOperation.GreaterThan => ">",
+				EqualityOperation.GreaterThanOrEqual => ">=",
 				_ => throw new InvalidOperationException(),
 			};
 
@@ -236,6 +250,9 @@ short main()
 				EqualityOperation.Equals => x == y,
 				EqualityOperation.NotEquals => x != y,
 				EqualityOperation.LessThan => x < y,
+				EqualityOperation.LessThanOrEqual => x <= y,
+				EqualityOperation.GreaterThan => x > y,
+				EqualityOperation.GreaterThanOrEqual => x >= y,
 				_ => throw new InvalidOperationException(),
 			};
 

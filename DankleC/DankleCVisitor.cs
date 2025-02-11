@@ -124,6 +124,9 @@ namespace DankleC
 				var op = context.children[i].GetText() switch
 				{
 					"<" => EqualityOperation.LessThan,
+					"<=" => EqualityOperation.LessThanOrEqual,
+					">" => EqualityOperation.GreaterThan,
+					">=" => EqualityOperation.GreaterThanOrEqual,
 					_ => throw new NotImplementedException()
 				};
 				expr = new EqualityExpression(expr, op, (IExpression)Visit(context.children[++i]));

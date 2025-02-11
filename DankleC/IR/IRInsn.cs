@@ -439,6 +439,78 @@ namespace DankleC.IR
 		}
 	}
 
+	public class LTERegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<LessThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
+	public class ULTERegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<UnsignedLessThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
+	public class GTRegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<GreaterThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
+	public class UGTRegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<UnsignedGreaterThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
+	public class GTERegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<GreaterThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
+	public class UGTERegs(int arg1, int arg2) : IRInsn
+	{
+		public readonly int Arg1 = arg1;
+		public readonly int Arg2 = arg2;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1 == -1 || Arg2 == -1) return;
+			gen.Add(CGInsn.Build<UnsignedGreaterThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
+		}
+	}
+
 	public class GetC(int arg) : IRInsn
 	{
 		public readonly int Arg = arg;
@@ -490,14 +562,70 @@ namespace DankleC.IR
 			gen.Add(CGInsn.Build<Jump>(new CGLabel<uint>(Label)));
 		}
 	}
+	
+	public class LT32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
+			gen.Add(CGInsn.Build<LessThan32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
+		}
+	}
+
+	public class LTE32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
+			gen.Add(CGInsn.Build<LessThanOrEq32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
+		}
+	}
+
+	public class GT32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
+			gen.Add(CGInsn.Build<GreaterThan32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
+		}
+	}
+
+	public class GTE32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
+	{
+		public readonly int Arg1High = arg1high;
+		public readonly int Arg1Low = arg1low;
+		public readonly int Arg2High = arg2high;
+		public readonly int Arg2Low = arg2low;
+
+		public override void Compile(CodeGen gen)
+		{
+			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
+			gen.Add(CGInsn.Build<GreaterThanOrEq32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
+		}
+	}
 
 	public class IRLabel(string name) : IRInsn
 	{
 		public readonly string Name = name;
 
-        public override void Compile(CodeGen gen)
-        {
+		public override void Compile(CodeGen gen)
+		{
 			gen.AddLabel(Name);
-        }
-    }
+		}
+	}
 }
