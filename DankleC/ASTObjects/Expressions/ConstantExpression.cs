@@ -21,37 +21,32 @@ namespace DankleC.ASTObjects.Expressions
 			if (t.Type == BuiltinType.UnsignedInt)
 			{
 				var val = Convert.ToUInt32(Value);
-				throw new NotImplementedException();
-				// words.Add((ushort)(val >>> 16));
-				// words.Add((ushort)(val & 0xFFFF));
+				return new Immediate32(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedInt)
 			{
 				var val = Convert.ToInt32(Value);
-				throw new NotImplementedException();
-				// words.Add((ushort)(val >>> 16));
-				// words.Add((ushort)(val & 0xFFFF));
+				return new Immediate32((uint)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.UnsignedShort)
 			{
 				var val = Convert.ToUInt16(Value);
-				return new Immediate(val);
+				return new Immediate(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedShort)
 			{
 				var val = Convert.ToInt16(Value);
-				return new Immediate((ushort)val);
+				return new Immediate((ushort)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedChar)
 			{
 				var val = Convert.ToSByte(Value);
-				return new Immediate((ushort)val);
-				//words.Add((ushort)((ushort)val & 0xFF)); // Silly C# sign extension
+				return new Immediate((ushort)((ushort)val & 0xFF), t.Type); // Silly C# sign extension
 			}
 			else if (t.Type == BuiltinType.UnsignedChar)
 			{
 				var val = Convert.ToByte(Value);
-				return new Immediate(val);
+				return new Immediate(val, t.Type);
 			}
 			else throw new NotImplementedException();
 		}

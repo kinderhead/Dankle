@@ -26,7 +26,12 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			//throw new NotImplementedException();
+			var expr = Expression.Resolve(builder, func, Scope);
+			var value = expr.Execute();
+
+			builder.Add(new IRSetReturn(value));
+			builder.Add(new EndFrame());
+			builder.Add(new IRReturnFunc());
 		}
 	}
 

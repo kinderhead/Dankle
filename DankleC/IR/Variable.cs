@@ -12,7 +12,7 @@ namespace DankleC.IR
 	public abstract class Variable(string name, TypeSpecifier type, IRScope scope) : IValue
 	{
 		public readonly string Name = name;
-		public readonly TypeSpecifier Type = type;
+		public TypeSpecifier Type => type;
 		public readonly IRScope Scope = scope;
 
 		public abstract Type CGType { get; }
@@ -20,7 +20,8 @@ namespace DankleC.IR
 		public abstract ICGArg MakeArg();
         public abstract void Store(IRBuilder builder, IValue value);
 		public abstract void WriteTo(IRInsn insn, IPointer ptr);
-    }
+		public abstract void WriteTo(IRInsn insn, int[] regs);
+	}
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
 	{
@@ -44,7 +45,12 @@ namespace DankleC.IR
         {
 			insn.MoveRegsToPtr(Registers, ptr);
         }
-    }
+
+		public override void WriteTo(IRInsn insn, int[] regs)
+		{
+			insn.MoveRegsToRegs(Registers, regs);
+		}
+	}
 
 	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope), IPointerValue
 	{
@@ -73,7 +79,12 @@ namespace DankleC.IR
         {
 			insn.MovePtrToPtr(Pointer, ptr);
         }
-    }
+
+		public override void WriteTo(IRInsn insn, int[] regs)
+		{
+			insn.MovePtrToRegs(Pointer, regs);
+		}
+	}
 
 	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : StackVariable(name, type, pointer, scope), IDisposable
 	{

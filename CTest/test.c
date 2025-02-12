@@ -1,6 +1,6 @@
 short main()
 {
-    short x = 5;
-    
+    int x = 1;
+    int y = 2;
     return 0;
 }

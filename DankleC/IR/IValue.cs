@@ -6,11 +6,13 @@ namespace DankleC.IR
 {
     public interface IValue
     {
+        public TypeSpecifier Type { get; }
         public Type CGType { get; }
 
         public ICGArg MakeArg();
         public void WriteTo(IRInsn insn, IPointer ptr);
-    }
+        public void WriteTo(IRInsn insn, int[] regs);
+	}
 
     public interface IImmediateValue : IValue
     {

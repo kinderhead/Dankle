@@ -69,10 +69,10 @@ namespace DankleC.IR
 			Builder.Add(new InitFrame());
         }
 
-		public void End()
-		{
-			Builder.Add(new EndFrame());
-		}
+		//public void End()
+		//{
+			
+		//}
 
 		private static readonly Random NameGen = new();
 	}

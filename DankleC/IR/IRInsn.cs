@@ -29,6 +29,20 @@ namespace DankleC.IR
 			return reg;
 		}
 
+		public int[] Alloc(int bytes)
+		{
+			List<int> ret = [];
+
+			for (int i = 0; i < IRBuilder.NumRegForBytes(bytes); i++)
+			{
+				var reg = OneTimeAlloc();
+				usedRegs.Add(reg);
+				ret.Add(reg);
+			}
+			
+			return [.. ret];
+		}
+
 		public int OneTimeAlloc()
 		{
 			for (int i = 8; i < 12; i++)
@@ -43,6 +57,15 @@ namespace DankleC.IR
 		}
 
 		public void Free(int reg) => usedRegs.Remove(reg);
+
+		public void Free(int[] regs)
+		{
+			foreach (var i in regs)
+			{
+				Free(i);
+			}
+		}
+
 		public void Add(CGInsn insn) => Insns.Add(insn);
 
 		public void MoveRegsToPtr(int[] regs, IPointer ptr)
@@ -81,6 +104,46 @@ namespace DankleC.IR
 				}
 			}
 		}
+
+		public void MovePtrToRegs(IPointer ptr, int[] regs)
+		{
+			if (regs.Length != IRBuilder.NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
+			else if (ptr.Size == 1) Add(CGInsn.Build<Load8>(new CGRegister(regs[0]), ptr.Build<byte>(Scope)));
+			else if (ptr.Size % 2 == 0)
+			{
+				for (var i = 0; i < ptr.Size; i += 2)
+				{
+					Add(CGInsn.Build<Load>(new CGRegister(regs[i / 2]), ptr.Get(i).Build<ushort>(Scope)));
+				}
+			}
+			else throw new InvalidOperationException();
+		}
+
+		public void MoveRegsToRegs(int[] src, int[] dest)
+		{
+			if (src.Length != dest.Length) throw new InvalidOperationException();
+
+			for (int i = 0; i < src.Length; i++)
+			{
+				Add(CGInsn.Build<Move>(new CGRegister(dest[i]), new CGRegister(src[i])));
+			}
+		}
+
+		protected void Return(IValue value)
+		{
+			var regs = FitRetRegs(value.Type.Size);
+			value.WriteTo(this, regs);
+		}
+
+		public static int[] FitRetRegs(int bytes)
+		{
+			var regs = IRBuilder.NumRegForBytes(bytes);
+			if (regs == 1) return [4];
+			if (regs == 2) return [4, 5];
+			if (regs == 3) return [4, 5, 6];
+			if (regs == 4) return [4, 5, 6, 7];
+			throw new InvalidOperationException();
+		}
 	}
 
     public class IRStore(IPointer ptr, IValue value) : IRInsn
@@ -94,7 +157,25 @@ namespace DankleC.IR
 		}
     }
 
-    public class InitFrame() : IRInsn
+	public class IRSetReturn(IValue value) : IRInsn
+	{
+		public readonly IValue Value = value;
+
+		public override void Compile(CodeGen gen)
+		{
+			Return(Value);
+		}
+	}
+
+	public class IRReturnFunc : IRInsn
+	{
+		public override void Compile(CodeGen gen)
+		{
+			Add(CGInsn.Build<Return>());
+		}
+	}
+
+	public class InitFrame() : IRInsn
 	{
 		public override void Compile(CodeGen gen) { }
 
@@ -111,6 +192,21 @@ namespace DankleC.IR
 		public override void PostCompile(CodeGen gen)
 		{
 			if (Scope.EffectiveStackUsed != 0) Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.EffectiveStackUsed)));
+		}
+	}
+
+	public class IRLabel(string name) : IRInsn
+	{
+		public readonly string Name = name;
+
+		public override void Compile(CodeGen gen)
+		{
+			
+		}
+
+		public override void PostCompile(CodeGen gen)
+		{
+			gen.CompiledSymbols[gen.CurrentFunc] += $"\n{Name}:";
 		}
 	}
 }

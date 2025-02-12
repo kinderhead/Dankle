@@ -13,14 +13,14 @@ namespace DankleC
 		public readonly IRBuilder IR = ir;
 		public readonly Dictionary<string, string> CompiledSymbols = [];
 
-		private string currentFunc = "";
+		public string CurrentFunc { get; private set; } = "";
 
 		public string Compile()
 		{
 			foreach (var func in IR.Functions)
 			{
 				CompiledSymbols[func.SymbolName] = "";
-				currentFunc = func.SymbolName;
+				CurrentFunc = func.SymbolName;
 				foreach (var insn in func.Insns)
 				{
 					insn.Compile(this);
@@ -30,9 +30,9 @@ namespace DankleC
 				{
 					insn.PostCompile(this);
 
-					foreach (var cg in insn.Insns)
+					for (var i = 0; i < insn.Insns.Count; i++)
 					{
-						CompiledSymbols[currentFunc] += $"\n    {cg.Generate()}";
+						CompiledSymbols[CurrentFunc] += $"\n    {insn.Insns[i].Generate()}";
 					}
 				}
 			}

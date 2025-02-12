@@ -95,39 +95,39 @@ namespace DankleTest
 			GC.SuppressFinalize(this);
 		}
 
-		public static void TestMathAdd<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestMathAdd<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
-			TestMath(T.CreateTruncating(1), T.MaxValue, stack, ArithmeticOperation.Addition);
-			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Addition);
+			TestMath(T.CreateTruncating(1), T.MaxValue, ArithmeticOperation.Addition);
+			TestMath(T.MinValue, T.MaxValue, ArithmeticOperation.Addition);
 		}
 
-		public static void TestMathSub<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestMathSub<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
-			TestMath(T.MinValue, T.CreateTruncating(1), stack, ArithmeticOperation.Subtraction);
-			TestMath(T.MaxValue, T.MinValue, stack, ArithmeticOperation.Subtraction);
+			TestMath(T.MinValue, T.CreateTruncating(1), ArithmeticOperation.Subtraction);
+			TestMath(T.MaxValue, T.MinValue, ArithmeticOperation.Subtraction);
 		}
 
-		public static void TestMathMul<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestMathMul<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
-			TestMath(T.CreateTruncating(2), (T.MaxValue / T.CreateTruncating(2)) - T.CreateTruncating(1), stack, ArithmeticOperation.Multiplication);
-			TestMath(T.MinValue, T.MaxValue, stack, ArithmeticOperation.Multiplication);
+			TestMath(T.CreateTruncating(2), (T.MaxValue / T.CreateTruncating(2)) - T.CreateTruncating(1), ArithmeticOperation.Multiplication);
+			TestMath(T.MinValue, T.MaxValue, ArithmeticOperation.Multiplication);
 		}
 
-		public static void TestMathDiv<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestMathDiv<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
-			TestMath(T.MaxValue, T.CreateTruncating(2), stack, ArithmeticOperation.Division);
-			TestMath(T.MinValue, T.CreateTruncating(2), stack, ArithmeticOperation.Division);
+			TestMath(T.MaxValue, T.CreateTruncating(2), ArithmeticOperation.Division);
+			TestMath(T.MinValue, T.CreateTruncating(2), ArithmeticOperation.Division);
 		}
 
-		public static void TestMath<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestMath<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
-			TestMathAdd<T>(stack);
-			TestMathSub<T>(stack);
-			TestMathMul<T>(stack);
-			TestMathDiv<T>(stack);
+			TestMathAdd<T>();
+			TestMathSub<T>();
+			TestMathMul<T>();
+			TestMathDiv<T>();
 		}
 
-		public static void TestMath<T>(T x, T y, bool stack, ArithmeticOperation op) where T : IBinaryInteger<T>
+		public static void TestMath<T>(T x, T y, ArithmeticOperation op) where T : IBinaryInteger<T>
         {
 			var opchar = op switch
 			{
@@ -143,7 +143,6 @@ namespace DankleTest
 			using var c = new CTestHelper(@$"
 short main()
 {{
-	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
     {type} x = {x};
 	{type} y = {y};
 	{type} z = x {opchar} y;
@@ -165,19 +164,19 @@ short main()
 			Assert.AreEqual(z, c.GetVariable<T>("z"));
 		}
 
-		public static void TestCast<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestCast<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			T x = TypeInfo<T>.IsUnsigned ? T.MaxValue : T.MinValue;
 
-			TestCast<T, sbyte>(x, stack);
-			TestCast<T, byte>(x, stack);
-			TestCast<T, short>(x, stack);
-			TestCast<T, ushort>(x, stack);
-			TestCast<T, int>(x, stack);
-			TestCast<T, uint>(x, stack);
+			TestCast<T, sbyte>(x);
+			TestCast<T, byte>(x);
+			TestCast<T, short>(x);
+			TestCast<T, ushort>(x);
+			TestCast<T, int>(x);
+			TestCast<T, uint>(x);
 		}
 
-		public static void TestCast<T, R>(T x, bool stack) where T : IBinaryInteger<T> where R : IBinaryInteger<R>
+		public static void TestCast<T, R>(T x) where T : IBinaryInteger<T> where R : IBinaryInteger<R>
 		{
 			var type1 = CUtils.NumberTypeToString<T>();
 			var type2 = CUtils.NumberTypeToString<R>();
@@ -185,7 +184,6 @@ short main()
 			using var c = new CTestHelper(@$"
 short main()
 {{
-	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
     {type1} x = {x};
 	{type2} y = x;
     return 0;
@@ -197,30 +195,30 @@ short main()
 			Assert.AreEqual(R.CreateTruncating(x), c.GetVariable<R>("y"));
 		}
 
-		public static void TestComparaison<T>(bool stack) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		public static void TestComparison<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			var x = T.MaxValue - T.CreateTruncating(1);
 			var y = T.MinValue + T.CreateTruncating(1);
 
-			TestComparaison(x, y, stack, EqualityOperation.Equals);
-			TestComparaison(x, y, stack, EqualityOperation.NotEquals);
+			TestComparison(x, y, EqualityOperation.Equals);
+			TestComparison(x, y, EqualityOperation.NotEquals);
 
-			TestComparaison(x, y, stack, EqualityOperation.LessThan);
-			TestComparaison(y, x, stack, EqualityOperation.LessThan);
-			TestComparaison(x, x, stack, EqualityOperation.LessThanOrEqual);
-			TestComparaison(y, y, stack, EqualityOperation.LessThanOrEqual);
-			TestComparaison(x, y, stack, EqualityOperation.LessThanOrEqual);
-			TestComparaison(y, x, stack, EqualityOperation.LessThanOrEqual);
+			TestComparison(x, y, EqualityOperation.LessThan);
+			TestComparison(y, x, EqualityOperation.LessThan);
+			TestComparison(x, x, EqualityOperation.LessThanOrEqual);
+			TestComparison(y, y, EqualityOperation.LessThanOrEqual);
+			TestComparison(x, y, EqualityOperation.LessThanOrEqual);
+			TestComparison(y, x, EqualityOperation.LessThanOrEqual);
 
-			TestComparaison(x, y, stack, EqualityOperation.GreaterThan);
-			TestComparaison(y, x, stack, EqualityOperation.GreaterThan);
-			TestComparaison(x, x, stack, EqualityOperation.GreaterThanOrEqual);
-			TestComparaison(y, y, stack, EqualityOperation.GreaterThanOrEqual);
-			TestComparaison(x, y, stack, EqualityOperation.GreaterThanOrEqual);
-			TestComparaison(y, x, stack, EqualityOperation.GreaterThanOrEqual);
+			TestComparison(x, y, EqualityOperation.GreaterThan);
+			TestComparison(y, x, EqualityOperation.GreaterThan);
+			TestComparison(x, x, EqualityOperation.GreaterThanOrEqual);
+			TestComparison(y, y, EqualityOperation.GreaterThanOrEqual);
+			TestComparison(x, y, EqualityOperation.GreaterThanOrEqual);
+			TestComparison(y, x, EqualityOperation.GreaterThanOrEqual);
 		}
 
-		public static void TestComparaison<T>(T x, T y, bool stack, EqualityOperation op) where T : IBinaryInteger<T>
+		public static void TestComparison<T>(T x, T y, EqualityOperation op) where T : IBinaryInteger<T>
         {
 			var opchar = op switch
 			{
@@ -238,7 +236,6 @@ short main()
 			using var c = new CTestHelper(@$"
 short main()
 {{
-	{(stack ? "int _1 = 0; int _2 = 0;" : "")}
     {type} x = {x};
 	{type} y = {y};
 	char z = x {opchar} y;

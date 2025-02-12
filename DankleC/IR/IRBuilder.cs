@@ -18,7 +18,7 @@ namespace DankleC.IR
 		public IRFunction CurrentFunction { get; private set; }
 		public IRScope CurrentScope { get; private set; }
 
-		//private int logicLabelCounter = 0;
+		private int logicLabelCounter = 0;
 
 		public void Build()
 		{
@@ -47,10 +47,10 @@ namespace DankleC.IR
 			foreach (var i in scope.Scope.Statements)
 			{
 				i.Scope = scope;
-				// if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
+				if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
 				i.BuildIR(this, func);
 			}
-			scope.End();
+			// scope.End();
 		}
 
 		public void Add(IRInsn insn)
@@ -59,34 +59,10 @@ namespace DankleC.IR
 			CurrentFunction.Insns.Add(insn);
 		}
 
-		// public IRLabel GetLogicLabel()
-		// {
-		// 	var name = $"L${logicLabelCounter++}";
-		// 	return new IRLabel(name);
-		// }
-
-		// public void MovePtrToRegs(IPointer ptr, int[] regs)
-		// {
-		// 	if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
-		// 	else if (ptr.Size == 1) Add(new LoadPtrToReg8(regs[0], ptr));
-		// 	else if (ptr.Size % 2 == 0)
-		// 	{
-		// 		for (var i = 0; i < ptr.Size; i += 2)
-		// 		{
-		// 			Add(new LoadPtrToReg(regs[i / 2], ptr.Get(i)));
-		// 		}
-		// 	}
-		// 	else throw new InvalidOperationException();
-		// }
-
-		public static int[] FitTempRegs(int bytes)
+		public IRLabel GetLogicLabel()
 		{
-			var regs = NumRegForBytes(bytes);
-			if (regs == 1) return [8];
-			if (regs == 2) return [8, 9];
-			if (regs == 3) return [8, 9, 10];
-			if (regs == 4) return [8, 9, 10, 11];
-			throw new InvalidOperationException();
+			var name = $"L${logicLabelCounter++}";
+			return new IRLabel(name);
 		}
 
 		public static int NumRegForBytes(int bytes) => (int)Math.Ceiling(bytes / 2.0);
