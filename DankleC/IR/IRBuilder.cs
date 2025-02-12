@@ -65,6 +65,8 @@ namespace DankleC.IR
 			return new IRLabel(name);
 		}
 
+		public RegisterVariable GetReturned(TypeSpecifier type) => new("ret", type, IRInsn.FitRetRegs(type.Size), CurrentScope);
+
 		public static int NumRegForBytes(int bytes) => (int)Math.Ceiling(bytes / 2.0);
 	}
 #pragma warning restore CS8618

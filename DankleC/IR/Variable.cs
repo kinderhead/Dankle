@@ -18,10 +18,11 @@ namespace DankleC.IR
 		public abstract Type CGType { get; }
 
 		public abstract ICGArg MakeArg();
-        public abstract void Store(IRBuilder builder, IValue value);
+		public abstract void Store(IRBuilder builder, IValue value);
 		public abstract void WriteTo(IRInsn insn, IPointer ptr);
 		public abstract void WriteTo(IRInsn insn, int[] regs);
-	}
+		public abstract int[] ToRegisters(IRInsn insn);
+    }
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
 	{
@@ -40,6 +41,8 @@ namespace DankleC.IR
 		{
 			throw new NotImplementedException();
 		}
+
+		public override int[] ToRegisters(IRInsn insn) => Registers;
 
         public override void WriteTo(IRInsn insn, IPointer ptr)
         {
@@ -73,6 +76,13 @@ namespace DankleC.IR
         public override void Store(IRBuilder builder, IValue value)
         {
 			builder.Add(new IRStore(Pointer, value));
+        }
+
+        public override int[] ToRegisters(IRInsn insn)
+        {
+            var regs = insn.Alloc(Type.Size);
+            WriteTo(insn, regs);
+            return regs;
         }
 
         public override void WriteTo(IRInsn insn, IPointer ptr)
