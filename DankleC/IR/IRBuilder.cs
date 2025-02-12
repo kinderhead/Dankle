@@ -18,7 +18,7 @@ namespace DankleC.IR
 		public IRFunction CurrentFunction { get; private set; }
 		public IRScope CurrentScope { get; private set; }
 
-		private int logicLabelCounter = 0;
+		//private int logicLabelCounter = 0;
 
 		public void Build()
 		{
@@ -35,7 +35,7 @@ namespace DankleC.IR
 			CurrentFunction = func;
 
 			HandleScope(func, new(node.Scope, this, 0));
-			func.Insns.Add(new ReturnInsn());
+			// func.Insns.Add(new ReturnInsn());
 
 			Functions.Add(func);
 		}
@@ -47,11 +47,7 @@ namespace DankleC.IR
 			foreach (var i in scope.Scope.Statements)
 			{
 				i.Scope = scope;
-				i.PrepScope();
-			}
-			foreach (var i in scope.Scope.Statements)
-			{
-				if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
+				// if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
 				i.BuildIR(this, func);
 			}
 			scope.End();
@@ -63,60 +59,25 @@ namespace DankleC.IR
 			CurrentFunction.Insns.Add(insn);
 		}
 
-		public IRLabel GetLogicLabel()
-		{
-			var name = $"L${logicLabelCounter++}";
-			return new IRLabel(name);
-		}
+		// public IRLabel GetLogicLabel()
+		// {
+		// 	var name = $"L${logicLabelCounter++}";
+		// 	return new IRLabel(name);
+		// }
 
-		public void MoveRegsToPtr(int[] regs, IPointer ptr)
-		{
-			if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
-			else if (ptr.Size == 1) Add(new LoadRegToPtr8(ptr, regs[0]));
-			else if (ptr.Size % 2 == 0)
-			{
-				for (var i = 0; i < ptr.Size; i += 2)
-				{
-					Add(new LoadRegToPtr(ptr.Get(i), regs[i / 2]));
-				}
-			}
-			else throw new InvalidOperationException();
-		}
-
-		public void MovePtrToRegs(IPointer ptr, int[] regs)
-		{
-			if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
-			else if (ptr.Size == 1) Add(new LoadPtrToReg8(regs[0], ptr));
-			else if (ptr.Size % 2 == 0)
-			{
-				for (var i = 0; i < ptr.Size; i += 2)
-				{
-					Add(new LoadPtrToReg(regs[i / 2], ptr.Get(i)));
-				}
-			}
-			else throw new InvalidOperationException();
-		}
-
-		public void MovePtrToPtr(IPointer src, IPointer dest)
-		{
-			if (src.Size > dest.Size) throw new InvalidOperationException();
-			else
-			{
-				for (var i = 0; i < NumRegForBytes(src.Size); i++)
-				{
-					if ((i + 1) * 2 > src.Size)
-					{
-						Add(new LoadPtrToReg8(8, src.Get(i * 2)));
-						Add(new LoadRegToPtr8(dest.Get(i * 2), 8));
-					}
-					else
-					{
-						Add(new LoadPtrToReg(8, src.Get(i * 2)));
-						Add(new LoadRegToPtr(dest.Get(i * 2), 8));
-					}
-				}
-			}
-		}
+		// public void MovePtrToRegs(IPointer ptr, int[] regs)
+		// {
+		// 	if (regs.Length != NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
+		// 	else if (ptr.Size == 1) Add(new LoadPtrToReg8(regs[0], ptr));
+		// 	else if (ptr.Size % 2 == 0)
+		// 	{
+		// 		for (var i = 0; i < ptr.Size; i += 2)
+		// 		{
+		// 			Add(new LoadPtrToReg(regs[i / 2], ptr.Get(i)));
+		// 		}
+		// 	}
+		// 	else throw new InvalidOperationException();
+		// }
 
 		public static int[] FitTempRegs(int bytes)
 		{

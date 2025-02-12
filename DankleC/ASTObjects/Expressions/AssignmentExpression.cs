@@ -8,11 +8,6 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly string Name = name;
 		public readonly IExpression Expression = expr;
 
-		public override void PrepScope(IRScope scope)
-		{
-			Expression.PrepScope(scope);
-		}
-
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
 		{
 			throw new NotImplementedException();

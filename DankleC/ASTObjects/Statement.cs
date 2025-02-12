@@ -15,7 +15,6 @@ namespace DankleC.ASTObjects
         public IRScope Scope { get; internal set; }
 #pragma warning restore CS8618
 
-		public abstract void PrepScope();
         public abstract void BuildIR(IRBuilder builder, IRFunction func);
 
 		public static readonly Random IDRandomizer = new();
@@ -27,16 +26,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = Expression.Resolve(builder, func, Scope).Cast(func.ReturnType);
-
-			if (func.ReturnType.Size <= 2) expr.WriteToRegisters([0], builder);
-			else if (func.ReturnType.Size <= 4) expr.WriteToRegisters([0, 1], builder);
-			else throw new NotImplementedException();
-		}
-
-		public override void PrepScope()
-		{
-			Expression.PrepScope(Scope);
+			//throw new NotImplementedException();
 		}
 	}
 
@@ -48,14 +38,9 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = Expression.Resolve(builder, func, Scope).Cast(Type);
+			var value = Expression.Resolve(builder, func, Scope).Cast(Type).Execute();
 			var variable = Scope.AllocLocal(Name, Type);
-			variable.WriteFrom(expr);
-		}
-
-		public override void PrepScope()
-		{
-			Expression.PrepScope(Scope);
+			variable.Store(builder, value);
 		}
 	}
 
@@ -70,11 +55,6 @@ namespace DankleC.ASTObjects
 			var expr = Expression.Resolve(builder, func, Scope).Cast(variable.Type);
 			variable.WriteFrom(expr, builder);
 		}
-
-		public override void PrepScope()
-		{
-			Expression.PrepScope(Scope);
-		}
 	}
 
 	public class DeclareStatement(TypeSpecifier type, string name) : Statement
@@ -84,12 +64,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var variable = Scope.AllocLocal(Name, Type);
-		}
-
-		public override void PrepScope()
-		{
-			
+			Scope.AllocLocal(Name, Type);
 		}
 	}
 }

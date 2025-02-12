@@ -10,7 +10,6 @@ namespace DankleC.ASTObjects
 {
 	public interface IExpression : IASTObject
 	{
-		public void PrepScope(IRScope scope);
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
 	}
 
@@ -21,15 +20,7 @@ namespace DankleC.ASTObjects
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
 
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
-		public abstract void WriteToRegisters(int[] regs, IRBuilder builder);
-		public abstract void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs);
-		public abstract void PrepScope(IRScope scope);
-
-		public virtual int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
-		{
-			WriteToRegisters(regs, builder);
-			return regs;
-		}
+		public abstract IValue Execute();
 
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
@@ -51,6 +42,5 @@ namespace DankleC.ASTObjects
 	{
 		public T Resolve<T>(IRBuilder builder, IRFunction func, IRScope scope) where T : ResolvedExpression => (T)Resolve(builder, func, scope);
 		public abstract ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
-		public abstract void PrepScope(IRScope scope);
 	}
 }

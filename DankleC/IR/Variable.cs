@@ -1,4 +1,6 @@
-﻿using DankleC.ASTObjects;
+﻿using Dankle.Components.CodeGen;
+using Dankle.Components.Instructions;
+using DankleC.ASTObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,64 +9,71 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
-	public abstract class Variable(string name, TypeSpecifier type, IRScope scope)
+	public abstract class Variable(string name, TypeSpecifier type, IRScope scope) : IValue
 	{
 		public readonly string Name = name;
 		public readonly TypeSpecifier Type = type;
 		public readonly IRScope Scope = scope;
 
-		public abstract void ReadTo(int[] regs);
-		public abstract void ReadTo(IPointer ptr);
-		public abstract void WriteFrom(ResolvedExpression expr);
-	}
+		public abstract Type CGType { get; }
 
-	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope)
+		public abstract ICGArg MakeArg();
+        public abstract void Store(IRBuilder builder, IValue value);
+		public abstract void WriteTo(IRInsn insn, IPointer ptr);
+    }
+
+	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
 	{
 		public readonly int[] Registers = reg;
 
-		public override void ReadTo(int[] regs)
-		{
-			if (regs.Length != Registers.Length) throw new InvalidOperationException("Mismatched register count");
+		public override Type CGType => Registers.Length == 1 ? typeof(CGRegister) : typeof(CGDoubleRegister);
 
-			for (int i = 0; i < Registers.Length; i++)
-			{
-				if (regs[i] < 0) continue;
-				Scope.Builder.Add(new MoveReg(regs[i], Registers[i]));
-			}
+		public override ICGArg MakeArg()
+		{
+			if (Registers.Length == 1) return new CGRegister(Registers[0]);
+			else if (Registers.Length == 2) return new CGDoubleRegister(Registers[0], Registers[1]);
+			throw new NotImplementedException();
 		}
 
-		public override void ReadTo(IPointer ptr)
+        public override void Store(IRBuilder builder, IValue value)
 		{
-			Scope.Builder.MoveRegsToPtr(Registers, ptr);
+			throw new NotImplementedException();
 		}
 
-		public override void WriteFrom(ResolvedExpression expr)
-		{
-			if (expr.Type.Size != Type.Size) throw new InvalidOperationException();
-			expr.WriteToRegisters(Registers, Scope.Builder);
-		}
-	}
+        public override void WriteTo(IRInsn insn, IPointer ptr)
+        {
+			insn.MoveRegsToPtr(Registers, ptr);
+        }
+    }
 
-	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope)
+	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope), IPointerValue
 	{
 		public readonly IPointer Pointer = pointer;
 
-		public override void ReadTo(int[] regs)
+		public override Type CGType => Type.Size switch
 		{
-			Scope.Builder.MovePtrToRegs(Pointer, regs);
-		}
+			1 => typeof(CGPointer<byte>),
+			4 => typeof(CGPointer<uint>),
+			_ => typeof(CGPointer<ushort>)
+		};
 
-		public override void ReadTo(IPointer ptr)
+        public override ICGArg MakeArg() => Type.Size switch
 		{
-			Scope.Builder.MovePtrToPtr(Pointer, ptr);
-		}
+			1 => Pointer.Build<byte>(Scope),
+			4 => Pointer.Build<uint>(Scope),
+			_ => Pointer.Build<ushort>(Scope)
+		};
 
-		public override void WriteFrom(ResolvedExpression expr)
-		{
-			if (expr.Type.Size != Type.Size) throw new InvalidOperationException("Mismatched size");
-			expr.WriteToPointer(Pointer, Scope.Builder, []);
-		}
-	}
+        public override void Store(IRBuilder builder, IValue value)
+        {
+			builder.Add(new IRStore(Pointer, value));
+        }
+
+        public override void WriteTo(IRInsn insn, IPointer ptr)
+        {
+			insn.MovePtrToPtr(Pointer, ptr);
+        }
+    }
 
 	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : StackVariable(name, type, pointer, scope), IDisposable
 	{

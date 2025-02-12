@@ -25,6 +25,16 @@ namespace DankleC
 				{
 					insn.Compile(this);
 				}
+
+				foreach (var insn in func.Insns)
+				{
+					insn.PostCompile(this);
+
+					foreach (var cg in insn.Insns)
+					{
+						CompiledSymbols[currentFunc] += $"\n    {cg.Generate()}";
+					}
+				}
 			}
 
 			var builder = new StringBuilder();
@@ -41,16 +51,6 @@ namespace DankleC
 			}
 
 			return builder.ToString();
-		}
-
-		public void Add(CGInsn insn)
-		{
-			CompiledSymbols[currentFunc] += $"\n    {insn.Generate()}";
-		}
-
-		public void AddLabel(string name)
-		{
-			CompiledSymbols[currentFunc] += $"\n{name}:";
 		}
 	}
 }
