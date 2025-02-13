@@ -21,12 +21,12 @@ namespace DankleC.IR
 		public abstract void Store(IRBuilder builder, IValue value);
 		public abstract void WriteTo(IRInsn insn, IPointer ptr);
 		public abstract void WriteTo(IRInsn insn, int[] regs);
-		public abstract int[] ToRegisters(IRInsn insn);
+		public abstract SimpleRegisterValue ToRegisters(IRInsn insn);
     }
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
 	{
-		public readonly int[] Registers = reg;
+		public int[] Registers => reg;
 
 		public override Type CGType => Registers.Length == 1 ? typeof(CGRegister) : typeof(CGDoubleRegister);
 
@@ -37,12 +37,14 @@ namespace DankleC.IR
 			throw new NotImplementedException();
 		}
 
-        public override void Store(IRBuilder builder, IValue value)
+		public CGRegister MakeArg(int reg) => new(Registers[reg]);
+
+		public override void Store(IRBuilder builder, IValue value)
 		{
 			throw new NotImplementedException();
 		}
 
-		public override int[] ToRegisters(IRInsn insn) => Registers;
+		public override SimpleRegisterValue ToRegisters(IRInsn insn) => new(Registers, Type);
 
         public override void WriteTo(IRInsn insn, IPointer ptr)
         {
@@ -57,7 +59,7 @@ namespace DankleC.IR
 
 	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope), IPointerValue
 	{
-		public readonly IPointer Pointer = pointer;
+		public IPointer Pointer => pointer;
 
 		public override Type CGType => Type.Size switch
 		{
@@ -75,14 +77,14 @@ namespace DankleC.IR
 
         public override void Store(IRBuilder builder, IValue value)
         {
-			builder.Add(new IRStore(Pointer, value));
+			builder.Add(new IRStorePtr(Pointer, value));
         }
 
-        public override int[] ToRegisters(IRInsn insn)
+        public override SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var regs = insn.Alloc(Type.Size);
             WriteTo(insn, regs);
-            return regs;
+            return new(regs, Type);
         }
 
         public override void WriteTo(IRInsn insn, IPointer ptr)

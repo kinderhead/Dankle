@@ -61,8 +61,8 @@ namespace DankleC.ASTObjects.Expressions
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedEqualityExpression(Left, Op, Right, SourceType);
 
-        public override IValue Execute()
-        {
+        public override IValue Execute(IRBuilder builder, IRScope scope)
+		{
             throw new NotImplementedException();
         }
     }

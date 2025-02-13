@@ -144,9 +144,11 @@ namespace DankleC.IR
 			if (regs == 4) return [4, 5, 6, 7];
 			throw new InvalidOperationException();
 		}
+
+		public static SimpleRegisterValue GetReturn(TypeSpecifier type) => new(FitRetRegs(type.Size), type);
 	}
 
-    public class IRStore(IPointer ptr, IValue value) : IRInsn
+    public class IRStorePtr(IPointer ptr, IValue value) : IRInsn
     {
 		public readonly IPointer Ptr = ptr;
 		public readonly IValue Value = value;
@@ -156,6 +158,17 @@ namespace DankleC.IR
 			Value.WriteTo(this, Ptr);
 		}
     }
+
+	public class IRStoreRegs(int[] regs, IValue value) : IRInsn
+	{
+		public readonly int[] Registers = regs;
+		public readonly IValue Value = value;
+
+		public override void Compile(CodeGen gen)
+		{
+			Value.WriteTo(this, Registers);
+		}
+	}
 
 	public class IRSetReturn(IValue value) : IRInsn
 	{

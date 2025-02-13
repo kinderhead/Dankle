@@ -14,7 +14,7 @@ namespace DankleC.ASTObjects.Expressions
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
 		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
 
-		public override IValue Execute()
+		public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
 			var t = (BuiltinTypeSpecifier)Type;
 

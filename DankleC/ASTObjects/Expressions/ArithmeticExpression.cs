@@ -66,9 +66,42 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedArithmeticExpression(Left, Op, Right, type);
 
-        public override IValue Execute()
-        {
-            throw new NotImplementedException();
-        }
+        public override IValue Execute(IRBuilder builder, IRScope scope)
+		{
+			var left = Left.Execute(builder, scope);
+			TempStackVariable? save = null;
+
+			if (left is SimpleRegisterValue)
+			{
+				save = scope.AllocTemp(Type);
+				save.Store(builder, left);
+			}
+
+			var right = Right.Execute(builder, scope);
+
+			if (save is not null) left = save;
+
+			switch (Op)
+			{
+				case ArithmeticOperation.Addition:
+					builder.Add(new IRAdd(left, right));
+					break;
+				case ArithmeticOperation.Subtraction:
+					builder.Add(new IRSub(left, right));
+					break;
+				case ArithmeticOperation.Multiplication:
+					builder.Add(new IRMul(left, right));
+					break;
+				case ArithmeticOperation.Division:
+					builder.Add(new IRDiv(left, right));
+					break;
+				default:
+					throw new InvalidOperationException();
+			}
+
+			save?.Dispose();
+
+			return ReturnValue();
+		}
     }
 }

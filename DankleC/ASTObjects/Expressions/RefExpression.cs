@@ -23,8 +23,8 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-        public override IValue Execute()
-        {
+        public override IValue Execute(IRBuilder builder, IRScope scope)
+		{
             throw new NotImplementedException();
         }
     }

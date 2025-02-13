@@ -20,7 +20,7 @@ namespace DankleC.ASTObjects
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
 
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
-		public abstract IValue Execute();
+		public abstract IValue Execute(IRBuilder builder, IRScope scope);
 
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
@@ -36,6 +36,8 @@ namespace DankleC.ASTObjects
 		}
 
 		protected virtual ResolvedExpression AsCasted(TypeSpecifier type) => new CastExpression(this, type);
+
+		public SimpleRegisterValue ReturnValue() => new(IRInsn.FitRetRegs(Type.Size), Type);
 	}
 
 	public abstract class UnresolvedExpression : IExpression

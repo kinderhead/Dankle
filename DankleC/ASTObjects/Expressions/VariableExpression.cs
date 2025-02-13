@@ -26,7 +26,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
 
-		public override IValue Execute() => Variable;
+		public override IValue Execute(IRBuilder builder, IRScope scope) => Variable;
 
         public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
         {

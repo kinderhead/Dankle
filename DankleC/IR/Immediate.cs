@@ -15,11 +15,11 @@ namespace DankleC.IR
 
 		public ICGArg MakeArg() => new CGImmediate<ushort>(Value);
 
-        public int[] ToRegisters(IRInsn insn)
+        public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var reg = insn.Alloc();
             WriteTo(insn, [reg]);
-            return [reg];
+            return new([reg], Type);
         }
 
         public void WriteTo(IRInsn insn, IPointer ptr)
@@ -55,11 +55,11 @@ namespace DankleC.IR
 
 		public ICGArg MakeArg() => new CGImmediate<uint>(Value);
         
-        public int[] ToRegisters(IRInsn insn)
+        public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
-            var regs = insn.Alloc(2);
+            var regs = insn.Alloc(4);
             WriteTo(insn, regs);
-            return regs;
+            return new(regs, Type);
         }
 
 		public void WriteTo(IRInsn insn, IPointer ptr)

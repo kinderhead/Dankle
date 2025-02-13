@@ -25,8 +25,8 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedIndexExpression(Source, Expr, type);
 
-        public override IValue Execute()
-        {
+        public override IValue Execute(IRBuilder builder, IRScope scope)
+		{
             throw new NotImplementedException();
         }
 

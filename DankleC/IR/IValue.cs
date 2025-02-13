@@ -13,7 +13,7 @@ namespace DankleC.IR
         public void WriteTo(IRInsn insn, IPointer ptr);
         public void WriteTo(IRInsn insn, int[] regs);
 
-        public int[] ToRegisters(IRInsn insn);
+        public SimpleRegisterValue ToRegisters(IRInsn insn);
     }
 
     public interface IImmediateValue : IValue
@@ -23,17 +23,19 @@ namespace DankleC.IR
 
     public interface IRegisterValue : IValue
     {
+        public int[] Registers { get; }
 
+        public CGRegister MakeArg(int reg);
     }
 
     public interface IPointerValue : IValue
     {
-
+        public IPointer Pointer { get; }
     }
 
     public class SimpleRegisterValue(int[] regs, TypeSpecifier type) : IRegisterValue
     {
-        public readonly int[] Registers = regs;
+        public int[] Registers => regs;
 
         public TypeSpecifier Type => type;
 
@@ -46,7 +48,9 @@ namespace DankleC.IR
 			throw new NotImplementedException();
         }
 
-        public int[] ToRegisters(IRInsn insn) => Registers;
+        public CGRegister MakeArg(int reg) => new(Registers[reg]);
+
+		public SimpleRegisterValue ToRegisters(IRInsn insn) => this;
         public void WriteTo(IRInsn insn, IPointer ptr) => insn.MoveRegsToPtr(Registers, ptr);
         public void WriteTo(IRInsn insn, int[] regs) => insn.MoveRegsToRegs(Registers, regs);
     }

@@ -27,7 +27,7 @@ namespace DankleC.ASTObjects
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
 			var expr = Expression.Resolve(builder, func, Scope);
-			var value = expr.Execute();
+			var value = expr.Execute(builder, Scope);
 
 			builder.Add(new IRSetReturn(value));
 			builder.Add(new EndFrame());
@@ -43,7 +43,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var value = Expression.Resolve(builder, func, Scope).Cast(Type).Execute();
+			var value = Expression.Resolve(builder, func, Scope).Cast(Type).Execute(builder, Scope);
 			var variable = Scope.AllocLocal(Name, Type);
 			variable.Store(builder, value);
 		}

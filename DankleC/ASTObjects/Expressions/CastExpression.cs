@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 
 namespace DankleC.ASTObjects.Expressions
 {
-	public class CastExpression(IExpression expr, TypeSpecifier type) : ResolvedExpression(type)
+	public class CastExpression(ResolvedExpression expr, TypeSpecifier type) : ResolvedExpression(type)
 	{
-		public readonly IExpression Expr = expr;
+		public readonly ResolvedExpression Expr = expr;
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new CastExpression(Expr, type);
 
-        public override IValue Execute()
-        {
-            throw new NotImplementedException();
+        public override IValue Execute(IRBuilder builder, IRScope scope)
+		{
+			builder.Add(new IRCast(Expr.Execute(builder, scope), Type));
+			return ReturnValue();
         }
     }
 }

@@ -65,7 +65,15 @@ namespace DankleC.IR
 			return new IRLabel(name);
 		}
 
-		public RegisterVariable GetReturned(TypeSpecifier type) => new("ret", type, IRInsn.FitRetRegs(type.Size), CurrentScope);
+		public static int[] FitTempRegs(int bytes)
+		{
+			var regs = NumRegForBytes(bytes);
+			if (regs == 1) return [8];
+			if (regs == 2) return [8, 9];
+			if (regs == 3) return [8, 9, 10];
+			if (regs == 4) return [8, 9, 10, 11];
+			throw new InvalidOperationException();
+		}
 
 		public static int NumRegForBytes(int bytes) => (int)Math.Ceiling(bytes / 2.0);
 	}
