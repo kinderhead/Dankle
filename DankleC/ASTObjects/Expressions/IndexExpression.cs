@@ -30,6 +30,11 @@ namespace DankleC.ASTObjects.Expressions
             throw new NotImplementedException();
         }
 
+        public override IValue GetRef(IRBuilder builder, IRScope scope)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
         {
             throw new NotImplementedException();

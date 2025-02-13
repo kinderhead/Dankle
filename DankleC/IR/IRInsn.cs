@@ -129,6 +129,16 @@ namespace DankleC.IR
 			}
 		}
 
+		public void MoveRegsToRegsReversed(int[] src, int[] dest)
+		{
+			if (src.Length != dest.Length) throw new InvalidOperationException();
+
+			for (int i = src.Length - 1; i >= 0; i++)
+			{
+				Add(CGInsn.Build<Move>(new CGRegister(dest[i]), new CGRegister(src[i])));
+			}
+		}
+
 		protected void Return(IValue value)
 		{
 			var regs = FitRetRegs(value.Type.Size);
@@ -188,11 +198,22 @@ namespace DankleC.IR
 		}
 	}
 
-	public class InitFrame() : IRInsn
+    public class IRLoadPtrAddress(IPointer ptr) : IRInsn
+    {
+		public readonly IPointer Pointer = ptr;
+
+		public override void Compile(CodeGen gen)
+		{
+			var regs = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt));
+			
+		}
+    }
+
+    public class InitFrame() : IRInsn
 	{
 		public override void Compile(CodeGen gen) { }
 
-        public override void PostCompile(CodeGen gen)
+		public override void PostCompile(CodeGen gen)
 		{
 			if (Scope.EffectiveStackUsed != 0) Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)-Scope.EffectiveStackUsed)));
 		}

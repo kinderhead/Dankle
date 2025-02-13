@@ -28,6 +28,16 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override IValue Execute(IRBuilder builder, IRScope scope) => Variable;
 
+		public override IValue GetRef(IRBuilder builder, IRScope scope)
+		{
+			if (Variable is StackVariable v)
+			{
+				builder.Add(new IRLoadPtrAddress(v.Pointer));
+				return ReturnValue();
+			}
+			else throw new InvalidOperationException();
+        }
+
         public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
         {
             throw new NotImplementedException();

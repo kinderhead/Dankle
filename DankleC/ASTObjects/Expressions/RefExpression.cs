@@ -25,7 +25,7 @@ namespace DankleC.ASTObjects.Expressions
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
-            throw new NotImplementedException();
+			return Expr.GetRef(builder, scope);
         }
     }
 }

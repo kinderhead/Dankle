@@ -166,14 +166,19 @@ short main()
 
 		public static void TestCast<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
-			T x = TypeInfo<T>.IsUnsigned ? T.MaxValue : T.MinValue;
+			TestCast<T, sbyte>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, byte>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, short>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, ushort>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, int>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, uint>(T.MinValue + T.CreateTruncating(1));
 
-			TestCast<T, sbyte>(x);
-			TestCast<T, byte>(x);
-			TestCast<T, short>(x);
-			TestCast<T, ushort>(x);
-			TestCast<T, int>(x);
-			TestCast<T, uint>(x);
+			TestCast<T, sbyte>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, byte>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, short>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, ushort>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, int>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, uint>(T.MaxValue - T.CreateTruncating(1));
 		}
 
 		public static void TestCast<T, R>(T x) where T : IBinaryInteger<T> where R : IBinaryInteger<R>

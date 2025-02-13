@@ -1,6 +1,7 @@
 short main()
 {
-    int x = 1;
-    short y = x;
+    short x = 69;
+    short* ptr = &x;
+    short y = *ptr;
     return 0;
 }

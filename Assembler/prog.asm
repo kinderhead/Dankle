@@ -4,13 +4,13 @@ cmain:
 	hlt
 
 _main:
-    pushr 3584
-    modstk 65534
-    ld r8, 69
+    modstk 65530
+    ld r8, 65535
     st [SP], r8
-    lea (r4, r5), [SP]
-    ld r6, [r4, r5]
-    ld r0, 0
-    modstk 2
-    popr 3584
-    ret
+    ld r5, [SP]
+    sxt r5, r4
+    st [SP + 0x0002], r4
+    st [SP + 0x0004], r5
+    ldb r4, 0
+    modstk 6
+    ret 

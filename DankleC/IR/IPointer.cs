@@ -1,4 +1,5 @@
 ﻿using Dankle.Components.CodeGen;
+using Dankle.Components.Instructions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -36,7 +37,7 @@ namespace DankleC.IR
 			else return CGPointer<T>.Make(12, 13, (short)Offset);
 		}
 
-		public IPointer Get(int offset) => Get(offset, Size - offset);
+        public IPointer Get(int offset) => Get(offset, Size - offset);
         public IPointer Get(int offset, int size)
         {
         	if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
