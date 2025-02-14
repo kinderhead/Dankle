@@ -205,7 +205,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			var regs = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt));
-			
+			Add(CGInsn.Build<LoadEffectiveAddress>(Pointer.Build<ushort>(Scope), regs.MakeArg()));
 		}
     }
 

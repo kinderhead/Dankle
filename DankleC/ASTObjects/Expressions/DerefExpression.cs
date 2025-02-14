@@ -25,10 +25,17 @@ namespace DankleC.ASTObjects.Expressions
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
-            throw new NotImplementedException();
+			if (!Type.IsNumber()) throw new NotImplementedException();
+
+
         }
 
-        public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+		public override IValue GetRef(IRBuilder builder, IRScope scope)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
         {
             throw new NotImplementedException();
         }
