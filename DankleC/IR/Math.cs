@@ -11,7 +11,7 @@ namespace DankleC.IR
 
         public override void Compile(CodeGen gen)
         {
-            if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
+            //if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
             var left = Left.ToRegisters(this);
             var right = Right.ToRegisters(this);
@@ -34,7 +34,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
+			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
 			var left = Left.ToRegisters(this);
 			var right = Right.ToRegisters(this);
@@ -57,7 +57,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
+			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
 			var left = Left.ToRegisters(this);
 			var right = Right.ToRegisters(this);
@@ -91,7 +91,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
+			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
 			var left = Left.ToRegisters(this);
 			var right = Right.ToRegisters(this);

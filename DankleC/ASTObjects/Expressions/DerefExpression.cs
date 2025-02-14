@@ -23,21 +23,36 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-        public override IValue Execute(IRBuilder builder, IRScope scope)
+		public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
 			if (!Type.IsNumber()) throw new NotImplementedException();
 
+			var ptr = Expr.Execute(builder, scope);
+			builder.Add(new IRDynLoadPtr(ptr, Type));
 
-        }
+			return ReturnValue();
+		}
 
 		public override IValue GetRef(IRBuilder builder, IRScope scope)
 		{
-			throw new NotImplementedException();
+			return Expr.Execute(builder, scope);
 		}
 
 		public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
-        {
-            throw new NotImplementedException();
+		{
+			var val = expr.Execute(builder, builder.CurrentScope);
+			TempStackVariable? save = null;
+
+			if (val is SimpleRegisterValue)
+			{
+				save = builder.CurrentScope.AllocTemp(expr.Type);
+				save.Store(builder, val);
+				val = save;
+			}
+
+			var ptr = Expr.Execute(builder, builder.CurrentScope);
+			builder.Add(new IRDynStorePtr(ptr, val));
+			save?.Dispose();
         }
     }
 }

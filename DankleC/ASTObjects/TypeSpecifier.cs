@@ -183,7 +183,7 @@ namespace DankleC.ASTObjects
 
 		public override string GetName() => $"{Inner.GetName()}[{ArraySize}]";
 
-		public override bool IsNumber() => false;
+		public override bool IsNumber() => true;
 		public override bool IsSigned() => false;
 		protected override int GetTypeSize() => ArraySize * Inner.Size;
 	}

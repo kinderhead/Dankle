@@ -111,9 +111,21 @@ namespace DankleC.IR
 			else if (ptr.Size == 1) Add(CGInsn.Build<Load8>(new CGRegister(regs[0]), ptr.Build<byte>(Scope)));
 			else if (ptr.Size % 2 == 0)
 			{
+				List<(int, int)> temps = [];
 				for (var i = 0; i < ptr.Size; i += 2)
 				{
-					Add(CGInsn.Build<Load>(new CGRegister(regs[i / 2]), ptr.Get(i).Build<ushort>(Scope)));
+					var reg = regs[i / 2];
+					if (ptr.UsingRegister(reg) && i != ptr.Size - 2)
+					{
+						reg = Alloc();
+						temps.Add((reg, regs[i / 2]));
+					}
+					Add(CGInsn.Build<Load>(new CGRegister(reg), ptr.Get(i).Build<ushort>(Scope)));
+				}
+
+				foreach (var i in temps)
+				{
+					Add(CGInsn.Build<Move>(new CGRegister(i.Item2), new CGRegister(i.Item1)));
 				}
 			}
 			else throw new InvalidOperationException();
@@ -197,9 +209,34 @@ namespace DankleC.IR
 			Add(CGInsn.Build<Return>());
 		}
 	}
+	
+	public class IRDynLoadPtr(IValue ptr, TypeSpecifier type) : IRInsn
+    {
+		public readonly IValue Pointer = ptr;
+		public readonly TypeSpecifier Type = type;
+
+		public override void Compile(CodeGen gen)
+		{
+			var regs = GetReturn(Type);
+			var ptrRegs = Pointer.ToRegisters(this);
+			MovePtrToRegs(new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Type.Size), regs.Registers);
+		}
+    }
+
+	public class IRDynStorePtr(IValue ptr, IValue value) : IRInsn
+    {
+		public readonly IValue Pointer = ptr;
+		public readonly IValue Value = value;
+
+		public override void Compile(CodeGen gen)
+		{
+			var ptrRegs = Pointer.ToRegisters(this);
+			Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Value.Type.Size));
+		}
+    }
 
     public class IRLoadPtrAddress(IPointer ptr) : IRInsn
-    {
+	{
 		public readonly IPointer Pointer = ptr;
 
 		public override void Compile(CodeGen gen)
@@ -207,7 +244,7 @@ namespace DankleC.IR
 			var regs = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt));
 			Add(CGInsn.Build<LoadEffectiveAddress>(Pointer.Build<ushort>(Scope), regs.MakeArg()));
 		}
-    }
+	}
 
     public class InitFrame() : IRInsn
 	{

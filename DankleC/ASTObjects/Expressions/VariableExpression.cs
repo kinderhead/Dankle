@@ -33,7 +33,7 @@ namespace DankleC.ASTObjects.Expressions
 			if (Variable is StackVariable v)
 			{
 				builder.Add(new IRLoadPtrAddress(v.Pointer));
-				return ReturnValue();
+				return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.AsPointer().Size), Type.AsPointer());
 			}
 			else throw new InvalidOperationException();
         }
