@@ -1,6 +1,6 @@
 short main()
 {
-    int x[5];
-    int y = x[2];
+    int x = 4;
+    char y = x != 4;
     return 0;
 }

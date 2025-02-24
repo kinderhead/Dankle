@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
+	public readonly struct InsnDef
+	{
+		public readonly CGInsn? Insn;
+		public readonly string? Label;
+
+		public InsnDef(CGInsn insn) => Insn = insn;
+		public InsnDef(string label) => Label = label;
+	}
+
 	public abstract class IRInsn
 	{
 #pragma warning disable CS8618
@@ -17,7 +26,7 @@ namespace DankleC.IR
 
 		private readonly List<int> usedRegs = [];
 
-		public readonly List<CGInsn> Insns = [];
+		public readonly List<InsnDef> Insns = [];
 
 		public abstract void Compile(CodeGen gen);
 		public virtual void PostCompile(CodeGen gen) { }
@@ -39,7 +48,7 @@ namespace DankleC.IR
 				usedRegs.Add(reg);
 				ret.Add(reg);
 			}
-			
+
 			return [.. ret];
 		}
 
@@ -66,7 +75,8 @@ namespace DankleC.IR
 			}
 		}
 
-		public void Add(CGInsn insn) => Insns.Add(insn);
+		public void Add(CGInsn insn) => Insns.Add(new(insn));
+		public void Add(string label) => Insns.Add(new(label));
 
 		public void MoveRegsToPtr(int[] regs, IPointer ptr)
 		{
@@ -145,7 +155,7 @@ namespace DankleC.IR
 		{
 			if (src.Length != dest.Length) throw new InvalidOperationException();
 
-			for (int i = src.Length - 1; i >= 0; i++)
+			for (int i = src.Length - 1; i >= 0; i--)
 			{
 				Add(CGInsn.Build<Move>(new CGRegister(dest[i]), new CGRegister(src[i])));
 			}

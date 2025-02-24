@@ -18,8 +18,6 @@ namespace DankleC.IR
 		public IRFunction CurrentFunction { get; private set; }
 		public IRScope CurrentScope { get; private set; }
 
-		private int logicLabelCounter = 0;
-
 		public void Build()
 		{
 			foreach (var i in AST.Functions)
@@ -57,12 +55,6 @@ namespace DankleC.IR
 		{
 			insn.Scope = CurrentScope;
 			CurrentFunction.Insns.Add(insn);
-		}
-
-		public IRLabel GetLogicLabel()
-		{
-			var name = $"L${logicLabelCounter++}";
-			return new IRLabel(name);
 		}
 
 		public static int[] FitTempRegs(int bytes)

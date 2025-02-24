@@ -154,7 +154,7 @@ namespace Dankle.Components.Instructions
 
 	public class LessThan32 : Instruction
 	{
-		public override ushort Opcode => 70;
+		public override ushort Opcode => 67;
 
 		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
 		public override string Name => "LTL";
@@ -170,7 +170,7 @@ namespace Dankle.Components.Instructions
 
 	public class LessThanOrEq32 : Instruction
 	{
-		public override ushort Opcode => 71;
+		public override ushort Opcode => 68;
 
 		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
 		public override string Name => "LTEL";
@@ -186,7 +186,7 @@ namespace Dankle.Components.Instructions
 
 	public class GreaterThan32 : Instruction
 	{
-		public override ushort Opcode => 72;
+		public override ushort Opcode => 69;
 
 		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
 		public override string Name => "GTL";
@@ -202,7 +202,7 @@ namespace Dankle.Components.Instructions
 
 	public class GreaterThanOrEq32 : Instruction
 	{
-		public override ushort Opcode => 73;
+		public override ushort Opcode => 70;
 
 		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
 		public override string Name => "GTEL";

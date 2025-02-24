@@ -24,7 +24,9 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly Variable Variable = variable;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
+        public override bool IsSimpleExpression => true;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
 
 		public override IValue Execute(IRBuilder builder, IRScope scope) => Variable;
 
@@ -40,7 +42,7 @@ namespace DankleC.ASTObjects.Expressions
 
         public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
         {
-            throw new NotImplementedException();
+			Variable.Store(builder, expr.Execute(builder, builder.CurrentScope));
         }
     }
 }

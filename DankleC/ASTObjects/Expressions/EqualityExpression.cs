@@ -59,11 +59,25 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly ResolvedExpression Right = right;
         public readonly TypeSpecifier SourceType = type;
 
+        public override bool IsSimpleExpression => false;
+
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedEqualityExpression(Left, Op, Right, SourceType);
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
-		{
-            throw new NotImplementedException();
+        {
+            switch (Op)
+            {
+                case EqualityOperation.Equals:
+                    builder.Add(new IREq(Left.Execute(builder, scope), Right.Execute(builder, scope)));
+                    break;
+                case EqualityOperation.NotEquals:
+                    builder.Add(new IRNeq(Left.Execute(builder, scope), Right.Execute(builder, scope)));
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return ReturnValue();
         }
     }
 }

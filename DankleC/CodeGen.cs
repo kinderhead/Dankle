@@ -15,6 +15,8 @@ namespace DankleC
 
 		public string CurrentFunc { get; private set; } = "";
 
+		private int logicLabelCounter = 0;
+
 		public string Compile()
 		{
 			foreach (var func in IR.Functions)
@@ -32,7 +34,8 @@ namespace DankleC
 
 					for (var i = 0; i < insn.Insns.Count; i++)
 					{
-						CompiledSymbols[CurrentFunc] += $"\n    {insn.Insns[i].Generate()}";
+						if (insn.Insns[i].Insn is not null) CompiledSymbols[CurrentFunc] += $"\n    {insn.Insns[i].Insn?.Generate()}";
+						else CompiledSymbols[CurrentFunc] += $"\n{insn.Insns[i].Label}:";
 					}
 				}
 			}
@@ -51,6 +54,11 @@ namespace DankleC
 			}
 
 			return builder.ToString();
+		}
+
+		public string GetLogicLabel()
+		{
+			return $"L${logicLabelCounter++}";
 		}
 	}
 }

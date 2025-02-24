@@ -68,33 +68,39 @@ namespace DankleC.IR
 			_ => typeof(CGPointer<ushort>)
 		};
 
-        public override ICGArg MakeArg() => Type.Size switch
+		public override ICGArg MakeArg() => Type.Size switch
 		{
 			1 => Pointer.Build<byte>(Scope),
 			4 => Pointer.Build<uint>(Scope),
 			_ => Pointer.Build<ushort>(Scope)
 		};
 
-        public override void Store(IRBuilder builder, IValue value)
-        {
+		public override void Store(IRBuilder builder, IValue value)
+		{
 			builder.Add(new IRStorePtr(Pointer, value));
-        }
+		}
 
-        public override SimpleRegisterValue ToRegisters(IRInsn insn)
-        {
-            var regs = insn.Alloc(Type.Size);
-            WriteTo(insn, regs);
-            return new(regs, Type);
-        }
+		public override SimpleRegisterValue ToRegisters(IRInsn insn)
+		{
+			var regs = insn.Alloc(Type.Size);
+			WriteTo(insn, regs);
+			return new(regs, Type);
+		}
 
-        public override void WriteTo(IRInsn insn, IPointer ptr)
-        {
+		public override void WriteTo(IRInsn insn, IPointer ptr)
+		{
 			insn.MovePtrToPtr(Pointer, ptr);
-        }
+		}
 
 		public override void WriteTo(IRInsn insn, int[] regs)
 		{
 			insn.MovePtrToRegs(Pointer, regs);
+		}
+
+		public StackVariable Index(int offset)
+		{
+			if (Type is not ArrayTypeSpecifier arr) throw new NotImplementedException();
+			return new(Name, arr.Inner, pointer.Get(offset, arr.Inner.Size), Scope);
 		}
 	}
 

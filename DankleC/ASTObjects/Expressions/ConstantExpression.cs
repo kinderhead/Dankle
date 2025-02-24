@@ -11,7 +11,9 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly object Value = value;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
+        public override bool IsSimpleExpression => true;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
 		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
 
 		public override IValue Execute(IRBuilder builder, IRScope scope)

@@ -9,11 +9,11 @@ namespace DankleC.IR
     {
         public readonly ushort Value = value;
 
-        public Type CGType => typeof(CGImmediate<ushort>);
+        public Type CGType => Type.Size == 1 ? typeof(CGImmediate<byte>) : typeof(CGImmediate<ushort>);
 
         public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
 
-		public ICGArg MakeArg() => new CGImmediate<ushort>(Value);
+		public ICGArg MakeArg() => Type.Size == 1 ? new CGImmediate<byte>((byte)Value) : new CGImmediate<ushort>(Value);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {

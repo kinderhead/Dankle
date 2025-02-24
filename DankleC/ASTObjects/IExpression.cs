@@ -16,6 +16,7 @@ namespace DankleC.ASTObjects
 	public abstract class ResolvedExpression(TypeSpecifier type) : IExpression
 	{
 		public readonly TypeSpecifier Type = type;
+		public abstract bool IsSimpleExpression { get; }
 
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
 

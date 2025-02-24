@@ -18,7 +18,9 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly ResolvedExpression Expr = expr;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type)
+        public override bool IsSimpleExpression => false;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type)
 		{
 			throw new NotImplementedException();
 		}

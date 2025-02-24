@@ -74,14 +74,16 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly ArithmeticOperation Op = op;
 		public readonly ResolvedExpression Right = right;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedArithmeticExpression(Left, Op, Right, type);
+        public override bool IsSimpleExpression => false;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedArithmeticExpression(Left, Op, Right, type);
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
 			var left = Left.Execute(builder, scope);
 			TempStackVariable? save = null;
 
-			if (left is SimpleRegisterValue)
+			if (left is SimpleRegisterValue && !Right.IsSimpleExpression)
 			{
 				save = scope.AllocTemp(Type);
 				save.Store(builder, left);
