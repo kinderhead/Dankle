@@ -207,6 +207,10 @@ short main()
 
 			TestComparison(x, y, EqualityOperation.Equals);
 			TestComparison(x, y, EqualityOperation.NotEquals);
+			TestComparison(x, x, EqualityOperation.Equals);
+			TestComparison(x, x, EqualityOperation.NotEquals);
+			TestComparison(y, y, EqualityOperation.Equals);
+			TestComparison(y, y, EqualityOperation.NotEquals);
 
 			TestComparison(x, y, EqualityOperation.LessThan);
 			TestComparison(y, x, EqualityOperation.LessThan);

@@ -54,23 +54,52 @@ namespace DankleC.IR
             insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
         }
 
-        public static void SmallOp<TCompareSigned, TCompareUnsigned, TCompareSigned32, TCompareUnsigned32>(IRInsn insn, IValue left, IValue right, SimpleRegisterValue ret) where TCompareSigned : Instruction, new() where TCompareUnsigned : Instruction, new() where TCompareSigned32 : Instruction, new() where TCompareUnsigned32 : Instruction, new()
+        public static void SmallOp<TCompareSigned, TCompareUnsigned, TCompareSigned32, TCompareUnsigned32>(IRInsn insn, IValue left, IValue right) where TCompareSigned : Instruction, new() where TCompareUnsigned : Instruction, new() where TCompareSigned32 : Instruction, new() where TCompareUnsigned32 : Instruction, new()
         {
             if (left.Type.IsSigned())
             {
                 if (left.Type.Size == 1)
                 {
-                    insn.Add(CGInsn.Build<TCompareSigned>(left.ToRegisters(insn).MakeArg(), right.ToRegisters(insn).MakeArg()));
-                    insn.Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+                    var leftArg = left;
+                    var rightArg = right;
+
+                    if (leftArg is IPointerValue)
+                    {
+                        leftArg = left.ToRegisters(insn);
+                        insn.Add(CGInsn.Build<SignExtend8>(leftArg.MakeArg(), leftArg.MakeArg()));
+                    }
+
+                    if (rightArg is IPointerValue)
+                    {
+                        rightArg = right.ToRegisters(insn);
+                        insn.Add(CGInsn.Build<SignExtend8>(rightArg.MakeArg(), rightArg.MakeArg()));
+                    }
+
+                    insn.Add(CGInsn.Build<TCompareSigned>(leftArg.MakeArg(), rightArg.MakeArg()));
                 }
                 else if (left.Type.Size == 2)
                 {
                     insn.Add(CGInsn.Build<TCompareSigned>(left.MakeArg(), right.MakeArg()));
-                    insn.Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
                 }
                 else if (left.Type.Size == 4)
                 {
-                    
+                    insn.Add(CGInsn.Build<TCompareSigned32>(left.MakeArg(), right.MakeArg()));
+                }
+                else throw new NotImplementedException();
+            }
+            else
+            {
+                if (left.Type.Size == 1)
+                {
+                    insn.Add(CGInsn.Build<TCompareUnsigned>(left.ToRegisters(insn).MakeArg(), right.ToRegisters(insn).MakeArg()));
+                }
+                else if (left.Type.Size == 2)
+                {
+                    insn.Add(CGInsn.Build<TCompareUnsigned>(left.MakeArg(), right.MakeArg()));
+                }
+                else if (left.Type.Size == 4)
+                {
+                    insn.Add(CGInsn.Build<TCompareUnsigned32>(left.MakeArg(), right.MakeArg()));
                 }
                 else throw new NotImplementedException();
             }
@@ -156,7 +185,50 @@ namespace DankleC.IR
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
-            LogicUtils.SmallOp<LessThan, UnsignedLessThan, LessThan32, LessThan32>(this, Left, Right, ret);
+            LogicUtils.SmallOp<LessThan, UnsignedLessThan, LessThan32, UnsignedLessThan32>(this, Left, Right);
+            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+        }
+    }
+
+    public class IRLte(IValue left, IValue right) : IRInsn
+    {
+        public readonly IValue Left = left;
+        public readonly IValue Right = right;
+
+        public override void Compile(CodeGen gen)
+        {
+            var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
+
+            LogicUtils.SmallOp<LessThanOrEq, UnsignedLessThanOrEq, LessThanOrEq32, UnsignedLessThanOrEq32>(this, Left, Right);
+            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+        }
+    }
+
+    public class IRGt(IValue left, IValue right) : IRInsn
+    {
+        public readonly IValue Left = left;
+        public readonly IValue Right = right;
+
+        public override void Compile(CodeGen gen)
+        {
+            var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
+
+            LogicUtils.SmallOp<GreaterThan, UnsignedGreaterThan, GreaterThan32, UnsignedGreaterThan32>(this, Left, Right);
+            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+        }
+    }
+
+    public class IRGte(IValue left, IValue right) : IRInsn
+    {
+        public readonly IValue Left = left;
+        public readonly IValue Right = right;
+
+        public override void Compile(CodeGen gen)
+        {
+            var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
+
+            LogicUtils.SmallOp<GreaterThanOrEq, UnsignedGreaterThanOrEq, GreaterThanOrEq32, UnsignedGreaterThanOrEq32>(this, Left, Right);
+            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
 }

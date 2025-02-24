@@ -43,7 +43,7 @@ namespace DankleC.ASTObjects.Expressions
                 return new ConstantExpression(type, res);
             }
 
-            if (type.Size == 1 && type.IsSigned() && Op != EqualityOperation.Equals && Op != EqualityOperation.NotEquals) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
+            //if (type.Size == 1 && type.IsSigned() && Op != EqualityOperation.Equals && Op != EqualityOperation.NotEquals) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
 
             left = left.Cast(type);
             right = right.Cast(type);
@@ -72,6 +72,18 @@ namespace DankleC.ASTObjects.Expressions
                     break;
                 case EqualityOperation.NotEquals:
                     builder.Add(new IRNeq(Left.Execute(builder, scope), Right.Execute(builder, scope)));
+                    break;
+                case EqualityOperation.LessThan:
+                    builder.Add(new IRLt(Left.Execute(builder, scope), Right.Execute(builder, scope)));
+                    break;
+                case EqualityOperation.LessThanOrEqual:
+                    builder.Add(new IRLte(Left.Execute(builder, scope), Right.Execute(builder, scope)));
+                    break;
+                case EqualityOperation.GreaterThan:
+                    builder.Add(new IRGt(Left.Execute(builder, scope), Right.Execute(builder, scope)));
+                    break;
+                case EqualityOperation.GreaterThanOrEqual:
+                    builder.Add(new IRGte(Left.Execute(builder, scope), Right.Execute(builder, scope)));
                     break;
                 default:
                     throw new NotImplementedException();

@@ -1,6 +1,7 @@
 short main()
 {
-    int x = 4;
-    char y = x != 4;
+    unsigned int x = 4294967294;
+    unsigned int y = 1;
+    char z = x < y;
     return 0;
 }
