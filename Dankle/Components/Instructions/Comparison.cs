@@ -228,7 +228,7 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any32>();
 			var arg2 = ctx.GetNextArg<Any32>();
 
-			ctx.Core.ALU.CompareAndSetFlag((int)arg1.Read(), Comparison.LT, (int)arg2.Read());
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LT, arg2.Read());
 		}
 	}
 

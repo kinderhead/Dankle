@@ -106,10 +106,11 @@ namespace DankleC.IR
         }
     }
 
-    public class IREq(IValue left, IValue right) : IRInsn
+    public class IREq(IValue left, IValue right, bool ret) : IRInsn
     {
         public readonly IValue Left = left;
         public readonly IValue Right = right;
+        public readonly bool ShouldReturn = ret;
 
         public override void Compile(CodeGen gen)
         {
@@ -118,33 +119,22 @@ namespace DankleC.IR
             if (Left.Type.Size == 1)
             {
                 Add(CGInsn.Build<Compare>(Left.ToRegisters(this).MakeArg(), Right.ToRegisters(this).MakeArg()));
-                Add(CGInsn.Build<GetCompare>(new CGRegister(ret.Registers[0])));
+                if (ShouldReturn) Add(CGInsn.Build<GetCompare>(new CGRegister(ret.Registers[0])));
             }
             else if (Left.Type.Size == 2)
             {
                 Add(CGInsn.Build<Compare>(Left.MakeArg(), Right.MakeArg()));
-                Add(CGInsn.Build<GetCompare>(new CGRegister(ret.Registers[0])));
+                if (ShouldReturn) Add(CGInsn.Build<GetCompare>(new CGRegister(ret.Registers[0])));
             }
-            else if (Left.Type.Size == 4)
-            {
-                var zero = gen.GetLogicLabel();
-                var one = gen.GetLogicLabel();
-
-                LogicUtils.LargeOp32<Compare, JumpNeq>(this, Left, Right, zero);
-                Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
-                Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
-                Add(zero);
-                Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
-                Add(one);
-            }
-            else throw new NotImplementedException();
+            else throw new InvalidOperationException();
         }
     }
 
-    public class IRNeq(IValue left, IValue right) : IRInsn
+    public class IRNeq(IValue left, IValue right, bool ret) : IRInsn
     {
         public readonly IValue Left = left;
         public readonly IValue Right = right;
+        public readonly bool ShouldReturn = ret;
 
         public override void Compile(CodeGen gen)
         {
@@ -153,82 +143,116 @@ namespace DankleC.IR
             if (Left.Type.Size == 1)
             {
                 Add(CGInsn.Build<Compare>(Left.ToRegisters(this).MakeArg(), Right.ToRegisters(this).MakeArg()));
-                Add(CGInsn.Build<GetNotCompare>(new CGRegister(ret.Registers[0])));
+                if (ShouldReturn) Add(CGInsn.Build<GetNotCompare>(new CGRegister(ret.Registers[0])));
             }
             else if (Left.Type.Size == 2)
             {
                 Add(CGInsn.Build<Compare>(Left.MakeArg(), Right.MakeArg()));
-                Add(CGInsn.Build<GetNotCompare>(new CGRegister(ret.Registers[0])));
+                if (ShouldReturn) Add(CGInsn.Build<GetNotCompare>(new CGRegister(ret.Registers[0])));
             }
-            else if (Left.Type.Size == 4)
-            {
-                var zero = gen.GetLogicLabel();
-                var one = gen.GetLogicLabel();
+            // else if (Left.Type.Size == 4)
+            // {
+            //     var zero = gen.GetLogicLabel();
+            //     var one = gen.GetLogicLabel();
 
-                LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
-                Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
-                Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
-                Add(zero);
-                Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
-                Add(one);
-            }
-            else throw new NotImplementedException();
+            //     LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
+            //     Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
+            //     Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
+            //     Add(zero);
+            //     Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
+            //     Add(one);
+            // }
+            else throw new InvalidOperationException();
         }
     }
 
-    public class IRLt(IValue left, IValue right) : IRInsn
+    public class IRLt(IValue left, IValue right, bool ret) : IRInsn
     {
         public readonly IValue Left = left;
         public readonly IValue Right = right;
+        public readonly bool ShouldReturn = ret;
 
         public override void Compile(CodeGen gen)
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
             LogicUtils.SmallOp<LessThan, UnsignedLessThan, LessThan32, UnsignedLessThan32>(this, Left, Right);
-            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+            if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
 
-    public class IRLte(IValue left, IValue right) : IRInsn
+    public class IRLte(IValue left, IValue right, bool ret) : IRInsn
     {
         public readonly IValue Left = left;
         public readonly IValue Right = right;
+        public readonly bool ShouldReturn = ret;
 
         public override void Compile(CodeGen gen)
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
             LogicUtils.SmallOp<LessThanOrEq, UnsignedLessThanOrEq, LessThanOrEq32, UnsignedLessThanOrEq32>(this, Left, Right);
-            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+            if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
 
-    public class IRGt(IValue left, IValue right) : IRInsn
+    public class IRGt(IValue left, IValue right, bool ret) : IRInsn
     {
         public readonly IValue Left = left;
         public readonly IValue Right = right;
+        public readonly bool ShouldReturn = ret;
 
         public override void Compile(CodeGen gen)
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
             LogicUtils.SmallOp<GreaterThan, UnsignedGreaterThan, GreaterThan32, UnsignedGreaterThan32>(this, Left, Right);
-            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+            if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
 
-    public class IRGte(IValue left, IValue right) : IRInsn
+    public class IRGte(IValue left, IValue right, bool ret) : IRInsn
     {
         public readonly IValue Left = left;
         public readonly IValue Right = right;
+        public readonly bool ShouldReturn = ret;
 
         public override void Compile(CodeGen gen)
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
             LogicUtils.SmallOp<GreaterThanOrEq, UnsignedGreaterThanOrEq, GreaterThanOrEq32, UnsignedGreaterThanOrEq32>(this, Left, Right);
-            Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+            if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
+        }
+    }
+
+    public class IRJumpEq(ILabel label) : IRInsn
+    {
+        public readonly ILabel Label = label;
+
+        public override void Compile(CodeGen gen)
+        {
+            Add(CGInsn.Build<JumpEq>(new CGLabel<uint>(Label.Resolve(gen))));
+        }
+    }
+    
+    public class IRJump(ILabel label) : IRInsn
+    {
+        public readonly ILabel Label = label;
+
+        public override void Compile(CodeGen gen)
+        {
+            Add(CGInsn.Build<Jump>(new CGLabel<uint>(Label.Resolve(gen))));
+        }
+    }
+    
+    public class IRJumpNeq(ILabel label) : IRInsn
+    {
+        public readonly ILabel Label = label;
+
+        public override void Compile(CodeGen gen)
+        {
+            Add(CGInsn.Build<JumpNeq>(new CGLabel<uint>(Label.Resolve(gen))));
         }
     }
 }

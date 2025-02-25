@@ -180,16 +180,16 @@ namespace DankleC.IR
 		public static SimpleRegisterValue GetReturn(TypeSpecifier type) => new(FitRetRegs(type.Size), type);
 	}
 
-    public class IRStorePtr(IPointer ptr, IValue value) : IRInsn
-    {
+	public class IRStorePtr(IPointer ptr, IValue value) : IRInsn
+	{
 		public readonly IPointer Ptr = ptr;
 		public readonly IValue Value = value;
 
-        public override void Compile(CodeGen gen)
+		public override void Compile(CodeGen gen)
 		{
 			Value.WriteTo(this, Ptr);
 		}
-    }
+	}
 
 	public class IRStoreRegs(int[] regs, IValue value) : IRInsn
 	{
@@ -219,9 +219,9 @@ namespace DankleC.IR
 			Add(CGInsn.Build<Return>());
 		}
 	}
-	
+
 	public class IRDynLoadPtr(IValue ptr, TypeSpecifier type) : IRInsn
-    {
+	{
 		public readonly IValue Pointer = ptr;
 		public readonly TypeSpecifier Type = type;
 
@@ -231,10 +231,10 @@ namespace DankleC.IR
 			var ptrRegs = Pointer.ToRegisters(this);
 			MovePtrToRegs(new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Type.Size), regs.Registers);
 		}
-    }
+	}
 
 	public class IRDynStorePtr(IValue ptr, IValue value) : IRInsn
-    {
+	{
 		public readonly IValue Pointer = ptr;
 		public readonly IValue Value = value;
 
@@ -243,9 +243,9 @@ namespace DankleC.IR
 			var ptrRegs = Pointer.ToRegisters(this);
 			Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Value.Type.Size));
 		}
-    }
+	}
 
-    public class IRLoadPtrAddress(IPointer ptr) : IRInsn
+	public class IRLoadPtrAddress(IPointer ptr) : IRInsn
 	{
 		public readonly IPointer Pointer = ptr;
 
@@ -256,7 +256,7 @@ namespace DankleC.IR
 		}
 	}
 
-    public class InitFrame() : IRInsn
+	public class InitFrame() : IRInsn
 	{
 		public override void Compile(CodeGen gen) { }
 
@@ -273,21 +273,6 @@ namespace DankleC.IR
 		public override void PostCompile(CodeGen gen)
 		{
 			if (Scope.EffectiveStackUsed != 0) Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.EffectiveStackUsed)));
-		}
-	}
-
-	public class IRLabel(string name) : IRInsn
-	{
-		public readonly string Name = name;
-
-		public override void Compile(CodeGen gen)
-		{
-			
-		}
-
-		public override void PostCompile(CodeGen gen)
-		{
-			gen.CompiledSymbols[gen.CurrentFunc] += $"\n{Name}:";
 		}
 	}
 }
