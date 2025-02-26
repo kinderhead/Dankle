@@ -160,7 +160,29 @@ namespace DankleC
 			return expr;
 		}
 
-		public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
+        public override IASTObject VisitLogicalOrExpression([NotNull] CParser.LogicalOrExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.logicalAndExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+				expr = new LogicalExpression(expr, LogicalOperation.Or, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
+
+        public override IASTObject VisitLogicalAndExpression([NotNull] CParser.LogicalAndExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.equalityExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+				expr = new LogicalExpression(expr, LogicalOperation.And, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+		}
+
+        public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
 
 		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 

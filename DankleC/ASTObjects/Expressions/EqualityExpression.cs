@@ -48,6 +48,8 @@ namespace DankleC.ASTObjects.Expressions
             left = left.Cast(type);
             right = right.Cast(type);
 
+            //if (type.Size == 4 && (Op == EqualityOperation.Equals || Op == EqualityOperation.NotEquals)) return new 
+
             return new ResolvedEqualityExpression(left, Op, right, type);
         }
     }
@@ -69,26 +71,9 @@ namespace DankleC.ASTObjects.Expressions
             return ReturnValue();
         }
 
-        public override void Conditional(IRBuilder builder, IRScope scope, Action ifTrue, Action? ifFalse)
+        public override void Conditional(IRBuilder builder, IRScope scope, bool negate = false)
         {
-            var trueLabel = new IRLogicLabel();
-            var falseLabel = new IRLogicLabel();
-
-            Compare(builder, scope, Op, false);
-            if (Op == EqualityOperation.NotEquals) builder.Add(new IRJumpEq(falseLabel));
-            else builder.Add(new IRJumpNeq(falseLabel));
-
-            ifTrue();
-
-            if (ifFalse is not null) builder.Add(new IRJump(trueLabel));
-
-            builder.Add(falseLabel);
-
-            if (ifFalse is not null)
-            {
-                ifFalse();
-                builder.Add(trueLabel);
-            }
+            Compare(builder, scope, negate ? Invert(Op) : Op, false);
         }
 
         private void Compare(IRBuilder builder, IRScope scope, EqualityOperation op, bool ret)

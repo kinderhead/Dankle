@@ -4,24 +4,24 @@ using System;
 
 namespace DankleTest
 {
-    [TestClass]
-    public class CTest
-    {
+	[TestClass]
+	public class CTest
+	{
 		#region Variables
 		[TestMethod]
 		[TestCategory("Variables")]
-        public void TestCharVar()
-        {
-            using var c = new CTestHelper(@"
+		public void TestCharVar()
+		{
+			using var c = new CTestHelper(@"
 short main()
 {
     signed char x = -5;
     return 0;
 }
 ");
-            c.RunUntil<ReturnStatement>();
-            Assert.AreEqual(-5, c.GetVariable<sbyte>("x"));
-        }
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(-5, c.GetVariable<sbyte>("x"));
+		}
 
 		[TestMethod]
 		[TestCategory("Variables")]
@@ -291,7 +291,7 @@ short main()
 		[TestMethod, TestCategory("Comparison")]
 		public void TestCharCompare() => CTestHelper.TestComparison<sbyte>();
 
-		[TestMethod, TestCategory("Comparison")	]
+		[TestMethod, TestCategory("Comparison")]
 		public void TestUCharCompare() => CTestHelper.TestComparison<byte>();
 
 		[TestMethod, TestCategory("Comparison")]
@@ -305,26 +305,44 @@ short main()
 
 		[TestMethod, TestCategory("Comparison")]
 		public void TestUIntCompare() => CTestHelper.TestComparison<uint>();
+		
+		[TestMethod, TestCategory("Comparison")]
+		public void TestCharLogic() => CTestHelper.TestLogic<sbyte>();
+
+		[TestMethod, TestCategory("Comparison")	]
+		public void TestUCharLogic() => CTestHelper.TestLogic<byte>();
+
+		[TestMethod, TestCategory("Comparison")]
+		public void TestShortLogic() => CTestHelper.TestLogic<short>();
+
+		[TestMethod, TestCategory("Comparison")]
+		public void TestUShortLogic() => CTestHelper.TestLogic<ushort>();
+
+		[TestMethod, TestCategory("Comparison")]
+		public void TestIntLogic() => CTestHelper.TestLogic<int>();
+
+		[TestMethod, TestCategory("Comparison")]
+		public void TestUIntLogic() => CTestHelper.TestLogic<uint>();
 
 		#endregion
 
-//		#region Return
+		//		#region Return
 
-//		[TestMethod]
-//		[TestCategory("Return")]
-//		public void TestReturnChar()
-//		{
-//			using var c = new CTestHelper(@"
-//char main()
-//{
-//    char x = 10;
-//    return x;
-//}
-//");
-//			c.RunUntilDone();
-//			Assert.AreEqual(10, c.Computer.MainCore.Registers[0]);
-//		}
+		//		[TestMethod]
+		//		[TestCategory("Return")]
+		//		public void TestReturnChar()
+		//		{
+		//			using var c = new CTestHelper(@"
+		//char main()
+		//{
+		//    char x = 10;
+		//    return x;
+		//}
+		//");
+		//			c.RunUntilDone();
+		//			Assert.AreEqual(10, c.Computer.MainCore.Registers[0]);
+		//		}
 
-//		#endregion
+		//		#endregion
 	}
 }

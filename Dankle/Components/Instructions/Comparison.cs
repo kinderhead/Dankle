@@ -328,4 +328,18 @@ namespace Dankle.Components.Instructions
 			ctx.Core.Compare = BitOperations.PopCount((uint)(ctx.Core.Flags & mask.Read())) % 2 == 1;
 		}
 	}
+
+	public class FlipCompare : Instruction
+	{
+		public override ushort Opcode => 75;
+
+		public override Type[] Arguments => [];
+
+		public override string Name => "FCMP";
+
+		protected override void Handle(Context ctx)
+		{
+			ctx.Core.Compare = !ctx.Core.Compare;
+		}
+	}
 }

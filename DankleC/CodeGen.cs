@@ -11,17 +11,17 @@ namespace DankleC
 	public class CodeGen(IRBuilder ir)
 	{
 		public readonly IRBuilder IR = ir;
-		public readonly Dictionary<string, string> CompiledSymbols = [];
+		public readonly Dictionary<string, List<InsnDef>> CompiledSymbols = [];
 
 		public string CurrentFunc { get; private set; } = "";
 
 		private int logicLabelCounter = 0;
 
-		public string Compile()
+		public string Compile(Optimizer.Settings? settings = null)
 		{
 			foreach (var func in IR.Functions)
 			{
-				CompiledSymbols[func.SymbolName] = "";
+				CompiledSymbols[func.SymbolName] = [];
 				CurrentFunc = func.SymbolName;
 				foreach (var insn in func.Insns)
 				{
@@ -31,15 +31,11 @@ namespace DankleC
 				foreach (var insn in func.Insns)
 				{
 					insn.PostCompile(this);
-
-					for (var i = 0; i < insn.Insns.Count; i++)
-					{
-						if (insn.Insns[i].Insn is not null) CompiledSymbols[CurrentFunc] += $"\n    {insn.Insns[i].Insn?.Generate()}";
-						else CompiledSymbols[CurrentFunc] += $"\n{insn.Insns[i].Label}:";
-					}
+					CompiledSymbols[CurrentFunc].AddRange(insn.Insns);
 				}
 			}
 
+			var optimizer = new Optimizer(settings ?? new(true, false));
 			var builder = new StringBuilder();
 
 			foreach (var sym in CompiledSymbols)
@@ -50,7 +46,13 @@ namespace DankleC
 			foreach (var sym in CompiledSymbols)
 			{
 				builder.Append($"{sym.Key}:");
-				builder.AppendLine(sym.Value);
+
+				optimizer.Optimize(sym.Value);
+				for (var i = 0; i < sym.Value.Count; i++)
+				{
+					if (sym.Value[i].Insn is not null) builder.Append($"\n    {sym.Value[i].Insn?.Generate()}");
+					else builder.Append($"\n{sym.Value[i].Label}:");
+				}
 			}
 
 			return builder.ToString();

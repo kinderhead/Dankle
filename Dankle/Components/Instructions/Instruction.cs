@@ -143,6 +143,7 @@ namespace Dankle.Components.Instructions
 			Register<UnsignedLessThanOrEq32>();
 			Register<UnsignedGreaterThan32>();
 			Register<UnsignedGreaterThanOrEq32>();
+			Register<FlipCompare>();
 		}
 	}
 

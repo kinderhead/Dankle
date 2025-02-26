@@ -9,15 +9,6 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
-	public readonly struct InsnDef
-	{
-		public readonly CGInsn? Insn;
-		public readonly string? Label;
-
-		public InsnDef(CGInsn insn) => Insn = insn;
-		public InsnDef(string label) => Label = label;
-	}
-
 	public abstract class IRInsn
 	{
 #pragma warning disable CS8618

@@ -23,10 +23,10 @@ namespace DankleC.ASTObjects
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
 		public abstract IValue Execute(IRBuilder builder, IRScope scope);
 
-		public virtual void Conditional(IRBuilder builder, IRScope scope, Action ifTrue, Action? ifFalse)
+		public virtual void Conditional(IRBuilder builder, IRScope scope, bool negate = false)
 		{
-			var cond = new EqualityExpression(this, EqualityOperation.Equals, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)1));
-			cond.Resolve(builder, builder.CurrentFunction, scope).Conditional(builder, scope, ifTrue, ifFalse);
+			var cond = new EqualityExpression(this, EqualityOperation.NotEquals, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)0));
+			cond.Resolve(builder, builder.CurrentFunction, scope).Conditional(builder, scope, negate);
 		}
 
 		public ResolvedExpression Cast(TypeSpecifier type)

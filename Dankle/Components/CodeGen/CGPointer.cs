@@ -13,6 +13,9 @@ namespace Dankle.Components.CodeGen
 		public abstract Type ArgType { get; }
 		public string Build() => PreBuild().Replace("r12, r13", "SP").Replace("r14, r15", "PC");
 		protected abstract string PreBuild();
+
+		public override bool Equals(object? obj) => obj is CGPointer ptr && ptr.Build() == Build();
+        public override int GetHashCode() => base.GetHashCode();
 	}
 
 	public abstract class CGPointer<T> : CGPointer where T : IBinaryInteger<T>

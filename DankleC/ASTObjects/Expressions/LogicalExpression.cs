@@ -45,14 +45,39 @@ namespace DankleC.ASTObjects.Expressions
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type)
-        {
-            throw new NotImplementedException();
-        }
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedLogicalExpression(Left, Op, Right);
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
         {
-            throw new NotImplementedException();
+            var trueLabel = new IRLogicLabel();
+            var falseLabel = new IRLogicLabel();
+
+            if (Op == LogicalOperation.And)
+            {
+                Left.Conditional(builder, scope, true);
+                builder.Add(new IRJumpEq(falseLabel));
+                Right.Conditional(builder, scope, true);
+                builder.Add(new IRJumpEq(falseLabel));
+                builder.Add(new IRSetReturn(new Immediate(1, BuiltinType.UnsignedChar)));
+                builder.Add(new IRJump(trueLabel));
+                builder.Add(falseLabel);
+                builder.Add(new IRSetReturn(new Immediate(0, BuiltinType.UnsignedChar)));
+                builder.Add(trueLabel);
+            }
+            else
+            {
+                Left.Conditional(builder, scope);
+                builder.Add(new IRJumpEq(trueLabel));
+                Right.Conditional(builder, scope);
+                builder.Add(new IRJumpEq(trueLabel));
+                builder.Add(new IRSetReturn(new Immediate(0, BuiltinType.UnsignedChar)));
+                builder.Add(new IRJump(falseLabel));
+                builder.Add(trueLabel);
+                builder.Add(new IRSetReturn(new Immediate(1, BuiltinType.UnsignedChar)));
+                builder.Add(falseLabel);
+            }
+
+            return ReturnValue();
         }
     }
 }

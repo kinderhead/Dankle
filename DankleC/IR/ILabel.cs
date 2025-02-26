@@ -13,12 +13,7 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-
-		}
-
-		public override void PostCompile(CodeGen gen)
-		{
-			gen.CompiledSymbols[gen.CurrentFunc] += $"\n{Name}:";
+            Add(Name);
 		}
 
         public string Resolve(CodeGen gen) => Name;

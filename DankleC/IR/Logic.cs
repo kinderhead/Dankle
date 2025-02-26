@@ -126,6 +126,27 @@ namespace DankleC.IR
                 Add(CGInsn.Build<Compare>(Left.MakeArg(), Right.MakeArg()));
                 if (ShouldReturn) Add(CGInsn.Build<GetCompare>(new CGRegister(ret.Registers[0])));
             }
+            else if (Left.Type.Size == 4)
+            {
+                var zero = gen.GetLogicLabel();
+
+                if (ShouldReturn)
+                {
+                    var one = gen.GetLogicLabel();
+
+                    LogicUtils.LargeOp32<Compare, JumpNeq>(this, Left, Right, zero);
+                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
+                    Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
+                    Add(zero);
+                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
+                    Add(one);
+                }
+                else
+                {
+                    LogicUtils.LargeOp32<Compare, JumpNeq>(this, Left, Right, zero);
+                    Add(zero);
+                }
+            }
             else throw new InvalidOperationException();
         }
     }
@@ -144,24 +165,36 @@ namespace DankleC.IR
             {
                 Add(CGInsn.Build<Compare>(Left.ToRegisters(this).MakeArg(), Right.ToRegisters(this).MakeArg()));
                 if (ShouldReturn) Add(CGInsn.Build<GetNotCompare>(new CGRegister(ret.Registers[0])));
+                else Add(CGInsn.Build<FlipCompare>());
             }
             else if (Left.Type.Size == 2)
             {
                 Add(CGInsn.Build<Compare>(Left.MakeArg(), Right.MakeArg()));
                 if (ShouldReturn) Add(CGInsn.Build<GetNotCompare>(new CGRegister(ret.Registers[0])));
+                else Add(CGInsn.Build<FlipCompare>());
             }
-            // else if (Left.Type.Size == 4)
-            // {
-            //     var zero = gen.GetLogicLabel();
-            //     var one = gen.GetLogicLabel();
+            else if (Left.Type.Size == 4)
+            {
+                var zero = gen.GetLogicLabel();
 
-            //     LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
-            //     Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
-            //     Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
-            //     Add(zero);
-            //     Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
-            //     Add(one);
-            // }
+                if (ShouldReturn)
+                {
+                    var one = gen.GetLogicLabel();
+
+                    LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
+                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
+                    Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
+                    Add(zero);
+                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
+                    Add(one);
+                }
+                else
+                {
+                    LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
+                    Add(zero);
+                    Add(CGInsn.Build<FlipCompare>());
+                }
+            }
             else throw new InvalidOperationException();
         }
     }

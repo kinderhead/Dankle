@@ -32,7 +32,10 @@ namespace Dankle.Components.CodeGen
 		{
 			return $"r{Regnum}";
 		}
-	}
+
+		public override bool Equals(object? obj) => obj is CGRegister reg && reg.Regnum == Regnum;
+        public override int GetHashCode() => base.GetHashCode();
+    }
 
 	public class CGDoubleRegister(int reg1, int reg2) : CGArg<ushort>
 	{
@@ -44,6 +47,9 @@ namespace Dankle.Components.CodeGen
 		{
 			return $"(r{Reg1}, r{Reg2})";
 		}
+
+		public override bool Equals(object? obj) => obj is CGDoubleRegister reg && reg.Reg1 == Reg1 && reg.Reg2 == Reg2;
+        public override int GetHashCode() => base.GetHashCode();
 	}
 
 	public class CGImmediate<T>(T val) : CGArg<T> where T : IBinaryInteger<T>
@@ -55,6 +61,9 @@ namespace Dankle.Components.CodeGen
 		{
 			return $"{Value}";
 		}
+
+		public override bool Equals(object? obj) => obj is CGImmediate<T> imm && imm.Value == Value;
+        public override int GetHashCode() => base.GetHashCode();
 	}
 
 	public class CGLabel<T>(string name) : CGArg<T> where T : IBinaryInteger<T>
@@ -66,5 +75,8 @@ namespace Dankle.Components.CodeGen
 		{
 			return $"{Name}";
 		}
+
+		public override bool Equals(object? obj) => obj is CGLabel<T> label && label.Name == Name;
+        public override int GetHashCode() => base.GetHashCode();
 	}
 }
