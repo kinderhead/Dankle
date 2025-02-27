@@ -42,13 +42,23 @@ namespace DankleC.IR
 		{
 			CurrentScope = scope;
 			scope.Start();
-			foreach (var i in scope.Scope.Statements)
-			{
-				i.Scope = scope;
-				if (Debug) Add(new IRLabel($"stmt_{i.ID}"));
-				i.BuildIR(this, func);
-			}
+			ProcessStatements(scope.Scope.Statements, func, scope);
 			// scope.End();
+		}
+
+		public void ProcessStatements(List<Statement> statements, IRFunction func, IRScope scope)
+		{
+			foreach (var i in statements)
+			{
+				ProcessStatement(i, func, scope);
+			}
+		}
+
+		public void ProcessStatement(Statement statement, IRFunction func, IRScope scope)
+		{
+			statement.Scope = scope;
+			if (Debug) Add(new IRLabel($"stmt_{statement.ID}"));
+			statement.BuildIR(this, func);
 		}
 
 		public void Add(IRInsn insn)

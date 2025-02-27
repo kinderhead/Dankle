@@ -42,6 +42,8 @@ scope
 
 statement
     : semiStatement Semi
+    | scope
+    | ifStatement
     ;
 
 semiStatement
@@ -61,6 +63,10 @@ assignmentStatement
 
 declareStatement
     : type Identifier
+    ;
+
+ifStatement
+    : If LeftParen expression RightParen statement
     ;
 
 relationalExpression

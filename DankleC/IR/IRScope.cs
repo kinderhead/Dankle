@@ -9,14 +9,11 @@ namespace DankleC.IR
 {
 	public class IRScope(ScopeNode scope, IRBuilder builder, int startIndex)
 	{
-		public const int END_VAR_REG = 7;
-		public const int START_VAR_REG = 4;
-
 		public readonly ScopeNode Scope = scope;
 		public readonly IRBuilder Builder = builder;
 		public readonly int StartIndex = startIndex;
 
-		public readonly List<Variable> Locals = [];
+		private readonly List<List<Variable>> Locals = [[]];
 
 		public short EffectiveStackUsed { get => (short)(StackUsed + MaxTempStackUsed); }
 		public short StackUsed { get; private set; } = 0;
@@ -35,7 +32,7 @@ namespace DankleC.IR
 		{
 			var variable = new StackVariable(name, type, new StackPointer(StackUsed, type.Size), this);
 			StackUsed = checked((short)(StackUsed + type.Size));
-			Locals.Add(variable);
+			Locals.Last().Add(variable);
 			return variable;
 		}
 
@@ -56,18 +53,30 @@ namespace DankleC.IR
 
 		public Variable GetVariable(string name)
 		{
-			foreach (var i in Locals)
+			foreach (var i in Locals.AsEnumerable().Reverse())
 			{
-				if (i.Name == name) return i;
+				foreach (var e in i)
+				{
+					if (e.Name == name) return e;
+				}
 			}
 
 			throw new Exception($"Could not find variable with name {name}");
 		}
 
+		public void SubScope(Action func)
+		{
+			Locals.Add([]);
+			var lastStackUsed = StackUsed;
+			func();
+			Locals.RemoveAt(Locals.Count - 1);
+			StackUsed = lastStackUsed;
+		}
+
 		public void Start()
-        {
+		{
 			Builder.Add(new InitFrame());
-        }
+		}
 
 		//public void End()
 		//{

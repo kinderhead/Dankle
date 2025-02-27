@@ -27,6 +27,8 @@ namespace Assembler
 
 		public enum Type
 		{
+			Comment,
+			
 			Whitespace,
 			Newline,
 			Register,

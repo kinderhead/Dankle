@@ -181,16 +181,16 @@ namespace DankleC.IR
                 {
                     var one = gen.GetLogicLabel();
 
-                    LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
-                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
+                    LogicUtils.LargeOp32<Compare, JumpNeq>(this, Left, Right, zero);
+                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
                     Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
                     Add(zero);
-                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
+                    Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
                     Add(one);
                 }
                 else
                 {
-                    LogicUtils.LargeOp32<Compare, JumpEq>(this, Left, Right, zero);
+                    LogicUtils.LargeOp32<Compare, JumpNeq>(this, Left, Right, zero);
                     Add(zero);
                     Add(CGInsn.Build<FlipCompare>());
                 }

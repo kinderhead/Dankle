@@ -1,8 +1,7 @@
 short main()
-{    
-    int x = 2147483646;
-    int y = -2147483647;
-    int z = 1;
-    char a = x == y || z;
+{
+    short x = 69;
+    if (x == 69) x = 4;
+
     return 0;
 }

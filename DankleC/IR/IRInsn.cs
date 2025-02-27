@@ -66,7 +66,12 @@ namespace DankleC.IR
 			}
 		}
 
-		public void Add(CGInsn insn) => Insns.Add(new(insn));
+		public void Add(CGInsn insn)
+		{
+			Insns.Add(new(insn));
+			insn.Comment = GetType().Name;
+		}
+		
 		public void Add(string label) => Insns.Add(new(label));
 
 		public void MoveRegsToPtr(int[] regs, IPointer ptr)

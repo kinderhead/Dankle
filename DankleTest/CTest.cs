@@ -305,11 +305,11 @@ short main()
 
 		[TestMethod, TestCategory("Comparison")]
 		public void TestUIntCompare() => CTestHelper.TestComparison<uint>();
-		
+
 		[TestMethod, TestCategory("Comparison")]
 		public void TestCharLogic() => CTestHelper.TestLogic<sbyte>();
 
-		[TestMethod, TestCategory("Comparison")	]
+		[TestMethod, TestCategory("Comparison")]
 		public void TestUCharLogic() => CTestHelper.TestLogic<byte>();
 
 		[TestMethod, TestCategory("Comparison")]
@@ -323,6 +323,23 @@ short main()
 
 		[TestMethod, TestCategory("Comparison")]
 		public void TestUIntLogic() => CTestHelper.TestLogic<uint>();
+		
+		[TestMethod]
+		[TestCategory("Comparison")]
+		public void TestIf()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short x = 69;
+    if (x == 69) x = 4;
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(4, c.GetVariable<short>("x"));
+		}
 
 		#endregion
 

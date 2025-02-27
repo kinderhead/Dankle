@@ -81,6 +81,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.ifStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIfStatement([NotNull] CParser.IfStatementContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.relationalExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
