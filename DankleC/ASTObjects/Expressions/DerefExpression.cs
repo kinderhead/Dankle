@@ -40,14 +40,23 @@ namespace DankleC.ASTObjects.Expressions
 			return Expr.Execute(builder, scope);
 		}
 
-		public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+        public override IValue PostIncrement(IRBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IValue PreIncrement(IRBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteFrom(IValue val, IRBuilder builder)
 		{
-			var val = expr.Execute(builder, builder.CurrentScope);
 			TempStackVariable? save = null;
 
 			if (val is SimpleRegisterValue)
 			{
-				save = builder.CurrentScope.AllocTemp(expr.Type);
+				save = builder.CurrentScope.AllocTemp(Expr.Type);
 				save.Store(builder, val);
 				val = save;
 			}

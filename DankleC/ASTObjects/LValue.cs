@@ -15,6 +15,8 @@ namespace DankleC.ASTObjects
 	public abstract class LValue(TypeSpecifier type) : ResolvedExpression(type)
 	{
 		public abstract IValue GetRef(IRBuilder builder, IRScope scope);
-		public abstract void WriteFrom(ResolvedExpression expr, IRBuilder builder);
+		public abstract void WriteFrom(IValue val, IRBuilder builder);
+		public abstract IValue PostIncrement(IRBuilder builder);
+		public abstract IValue PreIncrement(IRBuilder builder);
 	}
 }

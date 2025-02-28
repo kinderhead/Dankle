@@ -23,7 +23,7 @@ namespace DankleC.ASTObjects
 			foreach (var i in Statements)
 			{
 				if (i is T stmt) stmts.Add(stmt);
-				else if (i is IStatementHolder holder) stmts.AddRange(holder.FindAll<T>());
+				if (i is IStatementHolder holder) stmts.AddRange(holder.FindAll<T>());
 			}
 
 			return stmts;

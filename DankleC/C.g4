@@ -44,6 +44,8 @@ statement
     : semiStatement Semi
     | scope
     | ifStatement
+    | whileStatement
+    | forStatement
     ;
 
 semiStatement
@@ -51,6 +53,7 @@ semiStatement
     | initAssignmentStatement
     | assignmentStatement
     | declareStatement
+    | expressionStatement
     ;
 
 initAssignmentStatement
@@ -65,8 +68,21 @@ declareStatement
     : type Identifier
     ;
 
+expressionStatement
+    : expression
+    ;
+
 ifStatement
     : If LeftParen expression RightParen statement (Else statement)?
+    ;
+
+whileStatement
+    : While LeftParen expression RightParen statement
+    | Do statement While LeftParen expression RightParen Semi
+    ;
+
+forStatement
+    : For LeftParen stmt1=semiStatement? Semi stmt2=semiStatement? Semi stmt3=semiStatement? RightParen statement
     ;
 
 relationalExpression
@@ -114,10 +130,11 @@ castExpression
 unaryExpression
     : postfixExpression
     | (And | Star) castExpression
+    | (PlusPlus) unaryExpression
     ;
 
 postfixExpression
-    : primaryExpression
+    : primaryExpression (PlusPlus)?
     | indexExpression
     ;
 

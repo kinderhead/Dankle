@@ -29,6 +29,8 @@ namespace DankleC.ASTObjects
 			cond.Resolve(builder, builder.CurrentFunction, scope).Conditional(builder, scope, negate);
 		}
 
+		public virtual ResolvedExpression Standalone() => this;
+
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
 			if (Type == type) return this;

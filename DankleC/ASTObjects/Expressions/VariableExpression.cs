@@ -40,9 +40,21 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new InvalidOperationException();
         }
 
-        public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+		public override IValue PostIncrement(IRBuilder builder)
+		{
+			builder.Add(new IRPostIncrement(Variable));
+			return ReturnValue();
+        }
+
+        public override IValue PreIncrement(IRBuilder builder)
         {
-			Variable.Store(builder, expr.Execute(builder, builder.CurrentScope));
+            builder.Add(new IRPreIncrement(Variable));
+			return ReturnValue();
+        }
+
+        public override void WriteFrom(IValue val, IRBuilder builder)
+        {
+			Variable.Store(builder, val);
         }
     }
 }

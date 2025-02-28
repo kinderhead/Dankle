@@ -84,6 +84,7 @@ namespace DankleC
 		{
 			if (context.postfixExpression() is CParser.PostfixExpressionContext pe) return Visit(pe);
 			else if (context.Star() is not null) return new DerefExpression((IExpression)Visit(context.castExpression()));
+			else if (context.PlusPlus() is not null) return new PreIncrementExpression((UnresolvedLValue)Visit(context.unaryExpression()));
 			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 		}
 
@@ -95,7 +96,8 @@ namespace DankleC
 
 		public override IASTObject VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context)
 		{
-			return Visit(context.children[0]);
+			if (context.PlusPlus() is not null) return new PostIncrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
+			else return Visit(context.children[0]);
 		}
 
 		public override IASTObject VisitPrimaryExpression([NotNull] CParser.PrimaryExpressionContext context)
@@ -212,11 +214,10 @@ namespace DankleC
 
 		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
 		public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), context.Identifier().GetText());
-
-        public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context)
-        {
-			return new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
-        }
+		public override IASTObject VisitExpressionStatement([NotNull] CParser.ExpressionStatementContext context) => new ExpressionStatement(Visit(context.expression()));
+        public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context) => new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
+		public override IASTObject VisitWhileStatement([NotNull] CParser.WhileStatementContext context) => new WhileStatement(Visit(context.expression()), Visit(context.statement()), context.Do() is not null);
+		public override IASTObject VisitForStatement([NotNull] CParser.ForStatementContext context) => new ForStatement(Visit());
 
         public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
 

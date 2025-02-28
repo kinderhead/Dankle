@@ -318,5 +318,51 @@ short main()
 			Assert.AreEqual(z, c.GetVariable<T>("z"));
 			Assert.AreEqual(a ? 1 : 0, c.GetVariable<byte>("a"));
 		}
+
+		public static void TestPostIncrement<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestPostIncrement<T>(false);
+		}
+
+		public static void TestPostIncrement<T>(bool decrement) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var x = T.MaxValue;
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+    {type} x = {x};
+	{type} y = x++;
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
+			Assert.AreEqual(x, c.GetVariable<T>("y"));
+		}
+
+		public static void TestPreIncrement<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestPreIncrement<T>(false);
+		}
+
+		public static void TestPreIncrement<T>(bool decrement) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var x = T.MaxValue;
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+    {type} x = {x};
+	{type} y = ++x;
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
+			Assert.AreEqual(x + T.One, c.GetVariable<T>("y"));
+		}
 	}
 }

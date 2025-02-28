@@ -16,48 +16,62 @@ namespace Dankle.Components.CodeGen
     {
         public readonly Settings OptimizationSettings = settings;
 
+        private List<InsnDef> currentDefs = [];
+        private int index = 0;
+
         public void Optimize(List<InsnDef> defs)
         {
             if (OptimizationSettings.Simple) SimplePass(defs);
         }
+        
+        private InsnDef? Next() => index + 1 < currentDefs.Count ? currentDefs[index + 1] : null;
+        private string? NextIsLabel() => Next() is InsnDef d && d.Label is string label ? label : null;
+        private CGInsn? NextIsInsn() => Next() is InsnDef d && d.Insn is CGInsn insn ? insn : null;
+
+        private void Remove()
+        {
+            currentDefs.RemoveAt(index);
+            index--;
+        }
 
         private void SimplePass(List<InsnDef> defs)
         {
-            int i = 0;
+            index = 0;
+            currentDefs = defs;
 
-            InsnDef? next() => i + 1 < defs.Count ? defs[i + 1] : null;
-            string? nextIsLabel() => next() is InsnDef d && d.Label is string label ? label : null;
-            CGInsn? nextIsInsn() => next() is InsnDef d && d.Insn is CGInsn insn ? insn : null;
-
-			void remove()
+            for (; index < currentDefs.Count; index++)
             {
-                defs.RemoveAt(i);
-                i--;
-            }
-
-            for (; i < defs.Count; i++)
-            {
-                if (defs[i].Insn is CGInsn insn)
+                if (currentDefs[index].Insn is CGInsn insn)
                 {
-                    if (insn.Insn is IJumpInsn jmp)
-                    {
-                        if (nextIsLabel() is string label && insn.Args[jmp.JumpArgIndex].Equals(new CGLabel<uint>(label))) remove();
-                    }
-                    else if (insn.Insn is FlipCompare)
-                    {
-                        var e = nextIsInsn();
+                    CheckRedundantJump(insn);
+                    ReduceFCMP(insn);
+                }
+            }
+        }
 
-                        if (e?.Insn is JumpEq)
-                        {
-                            e.Insn = new JumpNeq();
-                            remove();
-                        }
-                        else if (e?.Insn is JumpNeq)
-                        {
-                            e.Insn = new JumpEq();
-							remove();
-						}
-					}
+        private void CheckRedundantJump(CGInsn insn)
+        {
+            if (insn.Insn is IJumpInsn jmp)
+            {
+                if (NextIsLabel() is string label && insn.Args[jmp.JumpArgIndex].Equals(new CGLabel<uint>(label))) Remove();
+            }
+        }
+
+        private void ReduceFCMP(CGInsn insn)
+        {
+            if (insn.Insn is FlipCompare)
+            {
+                var e = NextIsInsn();
+
+                if (e?.Insn is JumpEq)
+                {
+                    e.Insn = new JumpNeq();
+                    Remove();
+                }
+                else if (e?.Insn is JumpNeq)
+                {
+                    e.Insn = new JumpEq();
+                    Remove();
                 }
             }
         }

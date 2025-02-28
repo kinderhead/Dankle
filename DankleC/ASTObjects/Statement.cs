@@ -58,7 +58,7 @@ namespace DankleC.ASTObjects
 		{
 			var variable = Dest.Resolve<LValue>(builder, func, Scope);
 			var expr = Expression.Resolve(builder, func, Scope).Cast(variable.Type);
-			variable.WriteFrom(expr, builder);
+			variable.WriteFrom(expr.Execute(builder, Scope), builder);
 		}
 	}
 

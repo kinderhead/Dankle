@@ -31,10 +31,10 @@ namespace DankleC.ASTObjects
             List<T> stmts = [];
 
             if (Statement is T stmt) stmts.Add(stmt);
-            else if (Statement is IStatementHolder holder) stmts.AddRange(holder.FindAll<T>());
+            if (Statement is IStatementHolder holder) stmts.AddRange(holder.FindAll<T>());
 
 			if (Else is T estmt) stmts.Add(estmt);
-			else if (Else is IStatementHolder holder) stmts.AddRange(holder.FindAll<T>());
+			if (Else is IStatementHolder eholder) stmts.AddRange(eholder.FindAll<T>());
 
 			return stmts;
         }

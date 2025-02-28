@@ -154,6 +154,42 @@ short main()
 		[TestMethod, TestCategory("Math")]
 		public void TestUIntMath() => CTestHelper.TestMath<uint>();
 
+		[TestMethod, TestCategory("Math")]
+		public void TestCharPostIncrement() => CTestHelper.TestPostIncrement<sbyte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestUCharPostIncrement() => CTestHelper.TestPostIncrement<byte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestShortPostIncrement() => CTestHelper.TestPostIncrement<short>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestUShortPostIncrement() => CTestHelper.TestPostIncrement<ushort>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestIntPostIncrement() => CTestHelper.TestPostIncrement<int>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestUIntPostIncrement() => CTestHelper.TestPostIncrement<uint>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestCharPreIncrement() => CTestHelper.TestPreIncrement<sbyte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestUCharPreIncrement() => CTestHelper.TestPreIncrement<byte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestShortPreIncrement() => CTestHelper.TestPreIncrement<short>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestUShortPreIncrement() => CTestHelper.TestPreIncrement<ushort>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestIntPreIncrement() => CTestHelper.TestPreIncrement<int>();
+
+		[TestMethod, TestCategory("Math")]
+		public void TestUIntPreIncrement() => CTestHelper.TestPreIncrement<uint>();
+
 		[TestMethod]
 		[TestCategory("Math")]
 		public void TestBigIntMath()
@@ -323,7 +359,7 @@ short main()
 
 		[TestMethod, TestCategory("Logic")]
 		public void TestUIntLogic() => CTestHelper.TestLogic<uint>();
-		
+
 		[TestMethod]
 		[TestCategory("Logic")]
 		public void TestIf()
@@ -360,6 +396,70 @@ short main()
 ");
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual(2, c.GetVariable<short>("x"));
+		}
+
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void TestWhile()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short x = 0;
+
+    while (x != 10)
+    {
+        x = x + 1;
+    }
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(10, c.GetVariable<short>("x"));
+		}
+
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void TestWhileInt()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    int x = 0;
+
+    while (x != 10)
+    {
+        x = x + 1;
+    }
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(10, c.GetVariable<int>("x"));
+		}
+		
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void TestDoWhile()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short x = 0;
+
+    do
+    {
+        x = x + 1;
+    }
+	while (x != 10);
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(10, c.GetVariable<short>("x"));
 		}
 
 		#endregion
