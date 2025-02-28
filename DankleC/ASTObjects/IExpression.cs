@@ -10,26 +10,26 @@ namespace DankleC.ASTObjects
 {
 	public interface IExpression : IASTObject
 	{
-		public void PrepScope(IRScope scope);
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
 	}
 
 	public abstract class ResolvedExpression(TypeSpecifier type) : IExpression
 	{
 		public readonly TypeSpecifier Type = type;
+		public abstract bool IsSimpleExpression { get; }
 
 		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
 
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
-		public abstract void WriteToRegisters(int[] regs, IRBuilder builder);
-		public abstract void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs);
-		public abstract void PrepScope(IRScope scope);
+		public abstract IValue Execute(IRBuilder builder, IRScope scope);
 
-		public virtual int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
+		public virtual void Conditional(IRBuilder builder, IRScope scope, bool negate = false)
 		{
-			WriteToRegisters(regs, builder);
-			return regs;
+			var cond = new EqualityExpression(this, EqualityOperation.NotEquals, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)0));
+			cond.Resolve(builder, builder.CurrentFunction, scope).Conditional(builder, scope, negate);
 		}
+
+		public virtual ResolvedExpression Standalone() => this;
 
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
@@ -45,12 +45,13 @@ namespace DankleC.ASTObjects
 		}
 
 		protected virtual ResolvedExpression AsCasted(TypeSpecifier type) => new CastExpression(this, type);
+
+		public SimpleRegisterValue ReturnValue() => new(IRInsn.FitRetRegs(Type.Size), Type);
 	}
 
 	public abstract class UnresolvedExpression : IExpression
 	{
 		public T Resolve<T>(IRBuilder builder, IRFunction func, IRScope scope) where T : ResolvedExpression => (T)Resolve(builder, func, scope);
 		public abstract ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
-		public abstract void PrepScope(IRScope scope);
 	}
 }

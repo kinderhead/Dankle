@@ -12,14 +12,7 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly string Name = name;
 
-		public override void MarkReferenceable(IRScope scope)
-		{
-			scope.RequireStackAlloc(Name);
-		}
-
-		public override void PrepScope(IRScope scope) { }
-
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+        public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
 		{
 			var variable = scope.GetVariable(Name);
 
@@ -31,45 +24,37 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly Variable Variable = variable;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
+        public override bool IsSimpleExpression => true;
 
-		public override void WriteToRegisters(int[] regs, IRBuilder builder)
-		{
-			Variable.ReadTo(regs);
-		}
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
 
-		public override int[] GetOrWriteToRegisters(int[] regs, IRBuilder builder)
+		public override IValue Execute(IRBuilder builder, IRScope scope) => Variable;
+
+		public override IValue GetRef(IRBuilder builder, IRScope scope)
 		{
-			if (Variable is RegisterVariable regvar)
+			if (Variable is StackVariable v)
 			{
-				if (regs.Length == regvar.Registers.Length) return regvar.Registers;
-				throw new InvalidOperationException();
+				builder.Add(new IRLoadPtrAddress(v.Pointer));
+				return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.AsPointer().Size), Type.AsPointer());
 			}
-			else if (Variable is StackVariable stkvar) 
-			{
-				stkvar.ReadTo(regs);
-				return regs;
-			}
-			throw new NotImplementedException();
-		}
+			else throw new InvalidOperationException();
+        }
 
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
+		public override IValue PostIncrement(IRBuilder builder)
 		{
-			Variable.ReadTo(pointer);
-		}
+			builder.Add(new IRPostIncrement(Variable));
+			return ReturnValue();
+        }
 
-		public override void PrepScope(IRScope scope) { }
-
-		public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs, int[] regsInUse)
-		{
-			if (Variable is not StackVariable var) throw new InvalidOperationException();
-			regs = null;
-			return var.Pointer;
-		}
-
-        public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+        public override IValue PreIncrement(IRBuilder builder)
         {
-			Variable.WriteFrom(expr);
+            builder.Add(new IRPreIncrement(Variable));
+			return ReturnValue();
+        }
+
+        public override void WriteFrom(IValue val, IRBuilder builder)
+        {
+			Variable.Store(builder, val);
         }
     }
 }

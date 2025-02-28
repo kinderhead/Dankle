@@ -11,16 +11,6 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly IExpression Expr = expr;
 
-        public override void MarkReferenceable(IRScope scope)
-        {
-			throw new InvalidOperationException();
-        }
-
-        public override void PrepScope(IRScope scope)
-		{
-			Expr.PrepScope(scope);
-		}
-
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => new ResolvedDerefExpression(Expr.Resolve(builder, func, scope));
 	}
 
@@ -28,52 +18,52 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly ResolvedExpression Expr = expr;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type)
+        public override bool IsSimpleExpression => false;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type)
 		{
 			throw new NotImplementedException();
 		}
 
-        public override IPointer GetRef(IRBuilder builder, out IRScope.TempRegHolder? regs, int[] regsInUse)
+		public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
-            throw new InvalidOperationException();
-        }
+			if (!Type.IsNumber()) throw new NotImplementedException();
 
-        public override void PrepScope(IRScope scope)
-		{
-			Expr.PrepScope(scope);
+			var ptr = Expr.Execute(builder, scope);
+			builder.Add(new IRDynLoadPtr(ptr, Type));
+
+			return ReturnValue();
 		}
 
-        public override void WriteFrom(ResolvedExpression expr, IRBuilder builder)
+		public override IValue GetRef(IRBuilder builder, IRScope scope)
+		{
+			return Expr.Execute(builder, scope);
+		}
+
+        public override IValue PostIncrement(IRBuilder builder)
         {
-            var tmp = builder.CurrentScope.AllocTempRegs(4);
-			var regs = Expr.GetOrWriteToRegisters(tmp.Registers, builder);
-			expr.Cast(Type).WriteToPointer(new RegisterPointer(regs[0], regs[1], 0, Type.Size), builder, regs);
-			tmp.Dispose(regs[0] == tmp.Registers[0]);
+            throw new NotImplementedException();
         }
 
-        public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
+        public override IValue PreIncrement(IRBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteFrom(IValue val, IRBuilder builder)
 		{
-			throw new NotImplementedException();
-		}
+			TempStackVariable? save = null;
 
-		public override void WriteToRegisters(int[] regs, IRBuilder builder)
-		{
-			if (regs.Length != IRBuilder.NumRegForBytes(Type.Size)) throw new InvalidOperationException();
-
-			var ptrRegs = new int[2];
-			ptrRegs[0] = regs[0];
-
-			IRScope.TempRegHolder? tmp = null;
-			if (regs.Length == 1)
+			if (val is SimpleRegisterValue)
 			{
-				tmp = builder.CurrentScope.AllocTempRegs(2);
-				ptrRegs[1] = tmp.Registers[0];
+				save = builder.CurrentScope.AllocTemp(Expr.Type);
+				save.Store(builder, val);
+				val = save;
 			}
-			else ptrRegs[1] = regs[1];
 
-			ptrRegs = Expr.GetOrWriteToRegisters(ptrRegs, builder);
-			builder.MovePtrToRegs(new RegisterPointer(ptrRegs[0], ptrRegs[1], 0, Type.Size), regs);
-			tmp?.Dispose(ptrRegs[1] == tmp.Registers[0]);
-		}
-	}
+			var ptr = Expr.Execute(builder, builder.CurrentScope);
+			builder.Add(new IRDynStorePtr(ptr, val));
+			save?.Dispose();
+        }
+    }
 }

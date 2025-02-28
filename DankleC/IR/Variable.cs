@@ -1,4 +1,6 @@
-﻿using DankleC.ASTObjects;
+﻿using Dankle.Components.CodeGen;
+using Dankle.Components.Instructions;
+using DankleC.ASTObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,62 +9,98 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
-	public abstract class Variable(string name, TypeSpecifier type, IRScope scope)
+	public abstract class Variable(string name, TypeSpecifier type, IRScope scope) : IValue
 	{
 		public readonly string Name = name;
-		public readonly TypeSpecifier Type = type;
+		public TypeSpecifier Type => type;
 		public readonly IRScope Scope = scope;
 
-		public abstract void ReadTo(int[] regs);
-		public abstract void ReadTo(IPointer ptr);
-		public abstract void WriteFrom(ResolvedExpression expr);
+		public abstract Type CGType { get; }
+
+		public abstract ICGArg MakeArg();
+		public abstract void Store(IRBuilder builder, IValue value);
+		public abstract void WriteTo(IRInsn insn, IPointer ptr);
+		public abstract void WriteTo(IRInsn insn, int[] regs);
+		public abstract SimpleRegisterValue ToRegisters(IRInsn insn);
+    }
+
+	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
+	{
+		public int[] Registers => reg;
+
+		public override Type CGType => Registers.Length == 1 ? typeof(CGRegister) : typeof(CGDoubleRegister);
+
+		public override ICGArg MakeArg()
+		{
+			if (Registers.Length == 1) return new CGRegister(Registers[0]);
+			else if (Registers.Length == 2) return new CGDoubleRegister(Registers[0], Registers[1]);
+			throw new NotImplementedException();
+		}
+
+		public CGRegister MakeArg(int reg) => new(Registers[reg]);
+
+		public override void Store(IRBuilder builder, IValue value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override SimpleRegisterValue ToRegisters(IRInsn insn) => new(Registers, Type);
+
+        public override void WriteTo(IRInsn insn, IPointer ptr)
+        {
+			insn.MoveRegsToPtr(Registers, ptr);
+        }
+
+		public override void WriteTo(IRInsn insn, int[] regs)
+		{
+			insn.MoveRegsToRegs(Registers, regs);
+		}
 	}
 
-	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope)
+	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope), IPointerValue
 	{
-		public readonly int[] Registers = reg;
+		public IPointer Pointer => pointer;
 
-		public override void ReadTo(int[] regs)
+		public override Type CGType => Type.Size switch
 		{
-			if (regs.Length != Registers.Length) throw new InvalidOperationException("Mismatched register count");
+			1 => typeof(CGPointer<byte>),
+			4 => typeof(CGPointer<uint>),
+			_ => typeof(CGPointer<ushort>)
+		};
 
-			for (int i = 0; i < Registers.Length; i++)
-			{
-				if (regs[i] < 0) continue;
-				Scope.Builder.Add(new MoveReg(regs[i], Registers[i]));
-			}
+		public override ICGArg MakeArg() => Type.Size switch
+		{
+			1 => Pointer.Build<byte>(Scope),
+			4 => Pointer.Build<uint>(Scope),
+			_ => Pointer.Build<ushort>(Scope)
+		};
+
+		public override void Store(IRBuilder builder, IValue value)
+		{
+			builder.Add(new IRStorePtr(Pointer, value));
 		}
 
-		public override void ReadTo(IPointer ptr)
+		public override SimpleRegisterValue ToRegisters(IRInsn insn)
 		{
-			Scope.Builder.MoveRegsToPtr(Registers, ptr);
+			var regs = insn.Alloc(Type.Size);
+			WriteTo(insn, regs);
+			return new(regs, Type);
 		}
 
-		public override void WriteFrom(ResolvedExpression expr)
+		public override void WriteTo(IRInsn insn, IPointer ptr)
 		{
-			if (expr.Type.Size != Type.Size) throw new InvalidOperationException();
-			expr.WriteToRegisters(Registers, Scope.Builder);
-		}
-	}
-
-	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope)
-	{
-		public readonly IPointer Pointer = pointer;
-
-		public override void ReadTo(int[] regs)
-		{
-			Scope.Builder.MovePtrToRegs(Pointer, regs);
+			insn.MovePtrToPtr(Pointer, ptr);
 		}
 
-		public override void ReadTo(IPointer ptr)
+		public override void WriteTo(IRInsn insn, int[] regs)
 		{
-			Scope.Builder.MovePtrToPtr(Pointer, ptr);
+			insn.MovePtrToRegs(Pointer, regs);
 		}
 
-		public override void WriteFrom(ResolvedExpression expr)
+		public StackVariable Index(int offset)
 		{
-			if (expr.Type.Size != Type.Size) throw new InvalidOperationException("Mismatched size");
-			expr.WriteToPointer(Pointer, Scope.Builder, []);
+			if (Type is not ArrayTypeSpecifier arr) throw new NotImplementedException();
+			return new(Name, arr.Inner, pointer.Get(offset, arr.Inner.Size), Scope);
 		}
 	}
 

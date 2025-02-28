@@ -11,7 +11,7 @@ namespace Assembler
     {
 		protected override bool KeepToken(Token tk)
 		{
-			return tk.Symbol != Token.Type.Whitespace && tk.Symbol != Token.Type.Newline;
+			return tk.Symbol != Token.Type.Whitespace && tk.Symbol != Token.Type.Newline && tk.Symbol != Token.Type.Comment;
 		}
 
         public Tokenizer(string input, bool includeBIOS = true) : base(input)
@@ -24,6 +24,7 @@ namespace Assembler
 
         protected override void GenerateTokenMap()
 		{
+			TokenMap[Token.Type.Comment] = new(@"^;.*\n?");
 			TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+");
 			TokenMap[Token.Type.Newline] = new(@"^\n+");
 			TokenMap[Token.Type.Register] = new(@"^r([0-9]|1[0-5])\b");

@@ -104,7 +104,7 @@ namespace DankleC.ASTObjects
 
 		public override bool AreEqual(TypeSpecifier a)
 		{
-            if (a is not BuiltinTypeSpecifier type) return false;
+            if (a is not BuiltinTypeSpecifier type || a.GetType().IsSubclassOf(typeof(BuiltinTypeSpecifier))) return false;
             return Type == type.Type;
 		}
 
@@ -183,7 +183,7 @@ namespace DankleC.ASTObjects
 
 		public override string GetName() => $"{Inner.GetName()}[{ArraySize}]";
 
-		public override bool IsNumber() => false;
+		public override bool IsNumber() => true;
 		public override bool IsSigned() => false;
 		protected override int GetTypeSize() => ArraySize * Inner.Size;
 	}

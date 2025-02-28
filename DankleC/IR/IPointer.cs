@@ -1,4 +1,5 @@
 ﻿using Dankle.Components.CodeGen;
+using Dankle.Components.Instructions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,6 +17,8 @@ namespace DankleC.IR
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>;
 		public IPointer Get(int offset);
 		public IPointer Get(int offset, int size);
+
+		public bool UsingRegister(int reg);
 	}
 
 	// public readonly struct Pointer(CGPointer pointer) : IPointer
@@ -37,11 +40,13 @@ namespace DankleC.IR
 		}
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
-        public IPointer Get(int offset, int size)
-        {
-        	if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
+		public IPointer Get(int offset, int size)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("StackPointer goes out of bounds");
 			return new StackPointer(Offset + offset, size);
-        }
+		}
+
+		public bool UsingRegister(int reg) => false;
     }
 
 	public readonly struct TempStackPointer(int offset, int size) : IPointer
@@ -63,7 +68,9 @@ namespace DankleC.IR
         	if (Size - offset <= 0) throw new InvalidOperationException("TempStackPointer goes out of bounds");
 			return new TempStackPointer(Offset + offset, Size - offset);
 		}
-	}
+
+		public bool UsingRegister(int reg) => false;
+    }
 
 	public readonly struct RegisterPointer(int r1, int r2, int offset, int size) : IPointer
 	{
@@ -84,5 +91,20 @@ namespace DankleC.IR
         	if (Size - offset <= 0) throw new InvalidOperationException("RegisterPointer goes out of bounds");
 			return new RegisterPointer(Reg1, Reg2, Offset + offset, Size - offset);
 		}
+
+		public bool UsingRegister(int reg) => reg == Reg1 || reg == Reg2;
+    }
+
+	public readonly struct LiteralPointer(uint addr, int size) : IPointer
+	{
+		public readonly uint Address = addr;
+		public int Size => size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T> => CGPointer<T>.Make(Address);
+
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+		public IPointer Get(int offset, int size) => new LiteralPointer(Address + (uint)offset, size);
+
+		public bool UsingRegister(int reg) => false;
 	}
 }

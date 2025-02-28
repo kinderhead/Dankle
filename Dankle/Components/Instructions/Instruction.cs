@@ -139,6 +139,11 @@ namespace Dankle.Components.Instructions
 			Register<LessThanOrEq32>();
 			Register<GreaterThan32>();
 			Register<GreaterThanOrEq32>();
+			Register<UnsignedLessThan32>();
+			Register<UnsignedLessThanOrEq32>();
+			Register<UnsignedGreaterThan32>();
+			Register<UnsignedGreaterThanOrEq32>();
+			Register<FlipCompare>();
 		}
 	}
 

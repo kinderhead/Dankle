@@ -19,12 +19,6 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly EqualityOperation Op = op;
 		public readonly IExpression Right = right;
 
-        public override void PrepScope(IRScope scope)
-        {
-            Left.PrepScope(scope);
-			Right.PrepScope(scope);
-        }
-
         public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
         {
             var left = Left.Resolve(builder, func, scope);
@@ -46,13 +40,15 @@ namespace DankleC.ASTObjects.Expressions
 					_ => throw new NotImplementedException(),
                 };
 
-                return new ConstantExpression(type, res);
+                return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), res);
             }
 
-            if (type.Size == 1 && type.IsSigned() && Op != EqualityOperation.Equals && Op != EqualityOperation.NotEquals) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
+            //if (type.Size == 1 && type.IsSigned() && Op != EqualityOperation.Equals && Op != EqualityOperation.NotEquals) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
 
             left = left.Cast(type);
             right = right.Cast(type);
+
+            //if (type.Size == 4 && (Op == EqualityOperation.Equals || Op == EqualityOperation.NotEquals)) return new 
 
             return new ResolvedEqualityExpression(left, Op, right, type);
         }
@@ -61,174 +57,61 @@ namespace DankleC.ASTObjects.Expressions
     public class ResolvedEqualityExpression(ResolvedExpression left, EqualityOperation op, ResolvedExpression right, TypeSpecifier type) : ResolvedExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar))
     {
         public readonly ResolvedExpression Left = left;
-		public readonly EqualityOperation Op = op;
-		public readonly ResolvedExpression Right = right;
+        public readonly EqualityOperation Op = op;
+        public readonly ResolvedExpression Right = right;
         public readonly TypeSpecifier SourceType = type;
+
+        public override bool IsSimpleExpression => false;
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedEqualityExpression(Left, Op, Right, SourceType);
 
-        public override void PrepScope(IRScope scope)
+        public override IValue Execute(IRBuilder builder, IRScope scope)
         {
-            Left.PrepScope(scope);
-			Right.PrepScope(scope);
+            Compare(builder, scope, Op, true);
+            return ReturnValue();
         }
 
-        public void Compute(int[] leftregs, int[] rightregs, int output, IRBuilder builder)
+        public override void Conditional(IRBuilder builder, IRScope scope, bool negate = false)
         {
-            if (SourceType.Size <= 2)
-            {
-                switch (Op)
-                {
-                    case EqualityOperation.Equals:
-                        builder.Add(new CmpRegs(leftregs[0], rightregs[0]));
-                        builder.Add(new GetC(output));
-                        break;
-                    case EqualityOperation.NotEquals:
-                        builder.Add(new CmpRegs(leftregs[0], rightregs[0]));
-                        builder.Add(new GetNC(output));
-                        break;
-                    case EqualityOperation.LessThan:
-                        if (SourceType.IsSigned()) builder.Add(new LTRegs(leftregs[0], rightregs[0]));
-                        else builder.Add(new ULTRegs(leftregs[0], rightregs[0]));
-                        builder.Add(new GetC(output));
-                        break;
-                    case EqualityOperation.LessThanOrEqual:
-                        if (SourceType.IsSigned()) builder.Add(new LTERegs(leftregs[0], rightregs[0]));
-                        else builder.Add(new ULTERegs(leftregs[0], rightregs[0]));
-                        builder.Add(new GetC(output));
-                        break;
-                    case EqualityOperation.GreaterThan:
-                        if (SourceType.IsSigned()) builder.Add(new GTRegs(leftregs[0], rightregs[0]));
-                        else builder.Add(new UGTRegs(leftregs[0], rightregs[0]));
-                        builder.Add(new GetC(output));
-                        break;
-                    case EqualityOperation.GreaterThanOrEqual:
-                        if (SourceType.IsSigned()) builder.Add(new GTERegs(leftregs[0], rightregs[0]));
-                        else builder.Add(new UGTERegs(leftregs[0], rightregs[0]));
-                        builder.Add(new GetC(output));
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
-            }
-            else if (SourceType.Size == 4)
-            {
-                var zeroLabel = builder.GetLogicLabel();
-                var oneLabel = builder.GetLogicLabel();
-                switch (Op)
-                {
-                    case EqualityOperation.Equals:
-                        builder.Add(new CmpRegs(leftregs[0], rightregs[0]));
-                        builder.Add(new JumpIfNotTrue(zeroLabel.Name));
-                        builder.Add(new CmpRegs(leftregs[1], rightregs[1]));
-                        builder.Add(new JumpIfNotTrue(zeroLabel.Name));
-                        builder.Add(new LoadImmToReg(output, 1));
-                        builder.Add(new JumpTo(oneLabel.Name));
-                        builder.Add(zeroLabel);
-                        builder.Add(new LoadImmToReg(output, 0));
-                        builder.Add(oneLabel);
-                        break;
-                    case EqualityOperation.NotEquals:
-                        builder.Add(new CmpRegs(leftregs[0], rightregs[0]));
-                        builder.Add(new JumpIfTrue(zeroLabel.Name));
-                        builder.Add(new CmpRegs(leftregs[1], rightregs[1]));
-                        builder.Add(new JumpIfTrue(zeroLabel.Name));
-                        builder.Add(new LoadImmToReg(output, 1));
-                        builder.Add(new JumpTo(oneLabel.Name));
-                        builder.Add(zeroLabel);
-                        builder.Add(new LoadImmToReg(output, 0));
-                        builder.Add(oneLabel);
-                        break;
-                    case EqualityOperation.LessThan:
-                    case EqualityOperation.LessThanOrEqual:
-                    case EqualityOperation.GreaterThan:
-                    case EqualityOperation.GreaterThanOrEqual:
-                        if (SourceType.IsSigned())
-                        {
-                            builder.Add(Op switch
-                            {
-                                EqualityOperation.LessThan => new LT32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
-                                EqualityOperation.LessThanOrEqual => new LTE32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
-                                EqualityOperation.GreaterThan => new GT32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
-                                EqualityOperation.GreaterThanOrEqual => new GTE32(leftregs[0], leftregs[1], rightregs[0], rightregs[1]),
-                                _ => throw new InvalidOperationException()
-                            });
-                            builder.Add(new GetC(output));
-                        }
-                        else
-                        {
-                            IRInsn cmp1;
-                            IRInsn cmp2;
-
-                            if (Op == EqualityOperation.LessThan)
-                            {
-                                cmp1 = new ULTRegs(leftregs[0], rightregs[0]);
-                                cmp2 = new ULTRegs(leftregs[1], rightregs[1]);
-                            }
-                            else if (Op == EqualityOperation.LessThanOrEqual)
-                            {
-                                cmp1 = new ULTERegs(leftregs[0], rightregs[0]);
-                                cmp2 = new ULTERegs(leftregs[1], rightregs[1]);
-                            }
-                            else if (Op == EqualityOperation.GreaterThan)
-                            {
-                                cmp1 = new UGTRegs(leftregs[0], rightregs[0]);
-                                cmp2 = new UGTRegs(leftregs[1], rightregs[1]);
-                            }
-                            else if (Op == EqualityOperation.GreaterThanOrEqual)
-                            {
-                                cmp1 = new UGTERegs(leftregs[0], rightregs[0]);
-                                cmp2 = new UGTERegs(leftregs[1], rightregs[1]);
-                            }
-                            else throw new InvalidOperationException();
-
-                            builder.Add(cmp1);
-                            builder.Add(new JumpIfNotTrue(zeroLabel.Name));
-                            builder.Add(cmp2);
-                            builder.Add(new JumpIfNotTrue(zeroLabel.Name));
-                            builder.Add(new LoadImmToReg(output, 1));
-                            builder.Add(new JumpTo(oneLabel.Name));
-                            builder.Add(zeroLabel);
-                            builder.Add(new LoadImmToReg(output, 0));
-                            builder.Add(oneLabel);
-                        }
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
-            }
-            else throw new NotImplementedException();
+            Compare(builder, scope, negate ? Invert(Op) : Op, false);
         }
 
-        public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
+        private void Compare(IRBuilder builder, IRScope scope, EqualityOperation op, bool ret)
         {
-            using var tmp1 = builder.CurrentScope.AllocTempRegs(SourceType.Size, usedRegs);
-            var leftRegs = Left.GetOrWriteToRegisters(tmp1.Registers, builder);
-            using var tmp2 = builder.CurrentScope.AllocTempRegs(SourceType.Size, [.. leftRegs, .. usedRegs]);
-            var rightRegs = Right.GetOrWriteToRegisters(tmp2.Registers, builder);
-            Compute(leftRegs, rightRegs, tmp1.Registers[0], builder);
-            builder.Add(new LoadRegToPtr8(pointer, tmp1.Registers[0]));
-        }
-
-        public override void WriteToRegisters(int[] regs, IRBuilder builder)
-        {
-            if (regs.Length != 1) throw new InvalidOperationException();
-
-            if (SourceType.Size <= 2)
+            switch (op)
             {
-                var leftRegs = Left.GetOrWriteToRegisters(regs, builder);
-                using var tmp = builder.CurrentScope.AllocTempRegs(SourceType.Size, regs);
-                var rightRegs = Right.GetOrWriteToRegisters(tmp.Registers, builder);
-                Compute(leftRegs, rightRegs, regs[0], builder);
-            }
-            else
-            {
-                using var tmp1 = builder.CurrentScope.AllocTempRegs(SourceType.Size - 2, regs);
-                var leftRegs = Left.GetOrWriteToRegisters([.. regs, .. tmp1.Registers], builder);
-                using var tmp2 = builder.CurrentScope.AllocTempRegs(SourceType.Size, [.. leftRegs, .. regs]);
-                var rightRegs = Right.GetOrWriteToRegisters(tmp2.Registers, builder);
-                Compute(leftRegs, rightRegs, regs[0], builder);
+                case EqualityOperation.Equals:
+                    builder.Add(new IREq(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    break;
+                case EqualityOperation.NotEquals:
+                    builder.Add(new IRNeq(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    break;
+                case EqualityOperation.LessThan:
+                    builder.Add(new IRLt(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    break;
+                case EqualityOperation.LessThanOrEqual:
+                    builder.Add(new IRLte(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    break;
+                case EqualityOperation.GreaterThan:
+                    builder.Add(new IRGt(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    break;
+                case EqualityOperation.GreaterThanOrEqual:
+                    builder.Add(new IRGte(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
         }
+
+        public static EqualityOperation Invert(EqualityOperation op) => op switch
+        {
+            EqualityOperation.Equals => EqualityOperation.NotEquals,
+            EqualityOperation.NotEquals => EqualityOperation.Equals,
+            EqualityOperation.LessThan => EqualityOperation.GreaterThanOrEqual,
+            EqualityOperation.LessThanOrEqual => EqualityOperation.GreaterThan,
+            EqualityOperation.GreaterThan => EqualityOperation.LessThanOrEqual,
+            EqualityOperation.GreaterThanOrEqual => EqualityOperation.LessThan,
+            _ => op
+        };
     }
 }

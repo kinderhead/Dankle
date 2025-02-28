@@ -11,77 +11,46 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly object Value = value;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
+        public override bool IsSimpleExpression => true;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
 		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
 
-		public override void WriteToRegisters(int[] regs, IRBuilder builder)
+		public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
-			if (Math.Ceiling(Type.Size / 2.0) != regs.Length) throw new InvalidOperationException("Mismatched expression write");
-
-			var words = GetWords();
-			for (int i = 0; i < words.Length; i++)
-			{
-				builder.Add(new LoadImmToReg(regs[i], words[i]));
-			}
-		}
-
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
-		{
-			if (pointer.Size != Type.Size) throw new InvalidOperationException();
-
-			using var regs = builder.CurrentScope.AllocTempRegs(2, usedRegs);
-
-			var words = GetWords();
-			for (int i = 0; i < words.Length; i++)
-			{
-				builder.Add(new LoadImmToReg(regs.Registers[0], words[i]));
-				if (Type.Size == 1) builder.Add(new LoadRegToPtr8(pointer.Get(i * 2), regs.Registers[0]));
-				else builder.Add(new LoadRegToPtr(pointer.Get(i * 2), regs.Registers[0]));
-			}
-		}
-
-		public ushort[] GetWords()
-		{
-			var words = new List<ushort>();
 			var t = (BuiltinTypeSpecifier)Type;
 
 			if (t.Type == BuiltinType.UnsignedInt)
 			{
 				var val = Convert.ToUInt32(Value);
-				words.Add((ushort)(val >>> 16));
-				words.Add((ushort)(val & 0xFFFF));
+				return new Immediate32(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedInt)
 			{
 				var val = Convert.ToInt32(Value);
-				words.Add((ushort)(val >>> 16));
-				words.Add((ushort)(val & 0xFFFF));
+				return new Immediate32((uint)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.UnsignedShort)
 			{
 				var val = Convert.ToUInt16(Value);
-				words.Add(val);
+				return new Immediate(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedShort)
 			{
 				var val = Convert.ToInt16(Value);
-				words.Add((ushort)val);
+				return new Immediate((ushort)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedChar)
 			{
 				var val = Convert.ToSByte(Value);
-				words.Add((ushort)((ushort)val & 0xFF)); // Silly C# sign extension
+				return new Immediate((ushort)((ushort)val & 0xFF), t.Type); // Silly C# sign extension
 			}
 			else if (t.Type == BuiltinType.UnsignedChar)
 			{
 				var val = Convert.ToByte(Value);
-				words.Add(val);
+				return new Immediate(val, t.Type);
 			}
 			else throw new NotImplementedException();
-
-			return [.. words];
 		}
-
-		public override void PrepScope(IRScope scope) { }
-	}
+    }
 }

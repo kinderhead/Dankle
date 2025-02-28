@@ -1,8 +1,9 @@
 short main()
 {
-    short x = 5;
-    short y = 3;
-    short z = x && y;
+    for (short i = 0; i < 10; i++)
+    {
+        short x = i;
+    }
 
     return 0;
 }

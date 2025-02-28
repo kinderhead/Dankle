@@ -10,8 +10,10 @@ namespace Dankle.Components.CodeGen
 {
 	public class CGInsn
 	{
-		public readonly Instruction Insn;
-		public readonly ICGArg[] Args;
+		public Instruction Insn;
+		public ICGArg[] Args;
+
+		public string? Comment = null;
 
 		private CGInsn(Instruction insn, ICGArg[] args)
 		{
@@ -30,6 +32,8 @@ namespace Dankle.Components.CodeGen
 			}
 
 			if (Args.Length > 0) builder.Length -= 2;
+
+			if (Comment is not null) builder.Append($" ; {Comment}");
 
 			return builder.ToString();
 		}

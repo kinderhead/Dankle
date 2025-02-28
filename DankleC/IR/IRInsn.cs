@@ -15,617 +15,267 @@ namespace DankleC.IR
 		public IRScope Scope;
 #pragma warning restore CS8618
 
+		private readonly List<int> usedRegs = [];
+
+		public readonly List<InsnDef> Insns = [];
+
 		public abstract void Compile(CodeGen gen);
+		public virtual void PostCompile(CodeGen gen) { }
+
+		public int Alloc()
+		{
+			var reg = OneTimeAlloc();
+			usedRegs.Add(reg);
+			return reg;
+		}
+
+		public int[] Alloc(int bytes)
+		{
+			List<int> ret = [];
+
+			for (int i = 0; i < IRBuilder.NumRegForBytes(bytes); i++)
+			{
+				var reg = OneTimeAlloc();
+				usedRegs.Add(reg);
+				ret.Add(reg);
+			}
+
+			return [.. ret];
+		}
+
+		public int OneTimeAlloc()
+		{
+			for (int i = 8; i < 12; i++)
+			{
+				if (!usedRegs.Contains(i))
+				{
+					return i;
+				}
+			}
+
+			throw new InvalidOperationException();
+		}
+
+		public void Free(int reg) => usedRegs.Remove(reg);
+
+		public void Free(int[] regs)
+		{
+			foreach (var i in regs)
+			{
+				Free(i);
+			}
+		}
+
+		public void Add(CGInsn insn)
+		{
+			Insns.Add(new(insn));
+			insn.Comment = GetType().Name;
+		}
+		
+		public void Add(string label) => Insns.Add(new(label));
+
+		public void MoveRegsToPtr(int[] regs, IPointer ptr)
+		{
+			if (regs.Length != IRBuilder.NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
+			else if (ptr.Size == 1) Add(CGInsn.Build<Store8>(ptr.Build<byte>(Scope), new CGRegister(regs[0])));
+			else if (ptr.Size % 2 == 0)
+			{
+				for (var i = 0; i < ptr.Size; i += 2)
+				{
+					Add(CGInsn.Build<Store>(ptr.Get(i).Build<ushort>(Scope), new CGRegister(regs[i / 2])));
+				}
+			}
+			else throw new InvalidOperationException();
+		}
+
+		public void MovePtrToPtr(IPointer src, IPointer dest)
+		{
+			if (src.Size > dest.Size) throw new InvalidOperationException();
+			else
+			{
+				var reg = OneTimeAlloc();
+				for (var i = 0; i < IRBuilder.NumRegForBytes(src.Size); i++)
+				{
+					if ((i + 1) * 2 > src.Size)
+					{
+
+						Add(CGInsn.Build<Load8>(new CGRegister(reg), src.Get(i * 2).Build<byte>(Scope)));
+						Add(CGInsn.Build<Store8>(dest.Get(i * 2).Build<byte>(Scope), new CGRegister(reg)));
+					}
+					else
+					{
+						Add(CGInsn.Build<Load>(new CGRegister(reg), src.Get(i * 2).Build<ushort>(Scope)));
+						Add(CGInsn.Build<Store>(dest.Get(i * 2).Build<ushort>(Scope), new CGRegister(reg)));
+					}
+				}
+			}
+		}
+
+		public void MovePtrToRegs(IPointer ptr, int[] regs)
+		{
+			if (regs.Length != IRBuilder.NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
+			else if (ptr.Size == 1) Add(CGInsn.Build<Load8>(new CGRegister(regs[0]), ptr.Build<byte>(Scope)));
+			else if (ptr.Size % 2 == 0)
+			{
+				List<(int, int)> temps = [];
+				for (var i = 0; i < ptr.Size; i += 2)
+				{
+					var reg = regs[i / 2];
+					if (ptr.UsingRegister(reg) && i != ptr.Size - 2)
+					{
+						reg = Alloc();
+						temps.Add((reg, regs[i / 2]));
+					}
+					Add(CGInsn.Build<Load>(new CGRegister(reg), ptr.Get(i).Build<ushort>(Scope)));
+				}
+
+				foreach (var i in temps)
+				{
+					Add(CGInsn.Build<Move>(new CGRegister(i.Item2), new CGRegister(i.Item1)));
+				}
+			}
+			else throw new InvalidOperationException();
+		}
+
+		public void MoveRegsToRegs(int[] src, int[] dest)
+		{
+			if (src.Length != dest.Length) throw new InvalidOperationException();
+
+			for (int i = 0; i < src.Length; i++)
+			{
+				Add(CGInsn.Build<Move>(new CGRegister(dest[i]), new CGRegister(src[i])));
+			}
+		}
+
+		public void MoveRegsToRegsReversed(int[] src, int[] dest)
+		{
+			if (src.Length != dest.Length) throw new InvalidOperationException();
+
+			for (int i = src.Length - 1; i >= 0; i--)
+			{
+				Add(CGInsn.Build<Move>(new CGRegister(dest[i]), new CGRegister(src[i])));
+			}
+		}
+
+		protected void Return(IValue value)
+		{
+			var regs = FitRetRegs(value.Type.Size);
+			value.WriteTo(this, regs);
+		}
+
+		public static int[] FitRetRegs(int bytes)
+		{
+			var regs = IRBuilder.NumRegForBytes(bytes);
+			if (regs == 1) return [4];
+			if (regs == 2) return [4, 5];
+			if (regs == 3) return [4, 5, 6];
+			if (regs == 4) return [4, 5, 6, 7];
+			throw new InvalidOperationException();
+		}
+
+		public static SimpleRegisterValue GetReturn(TypeSpecifier type) => new(FitRetRegs(type.Size), type);
 	}
 
-	public class ReturnInsn : IRInsn
+	public class IRStorePtr(IPointer ptr, IValue value) : IRInsn
 	{
+		public readonly IPointer Ptr = ptr;
+		public readonly IValue Value = value;
+
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<Return>());
+			Value.WriteTo(this, Ptr);
 		}
 	}
 
-	public class LoadImmToReg(int reg, ushort val) : IRInsn
+	public class IRStoreRegs(int[] regs, IValue value) : IRInsn
 	{
-		public readonly int Register = reg;
-		public readonly ushort Val = val;
+		public readonly int[] Registers = regs;
+		public readonly IValue Value = value;
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Register == -1) return;
-			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), new CGImmediate<ushort>(Val)));
+			Value.WriteTo(this, Registers);
 		}
 	}
 
-	public class LoadPtrToReg(int reg, IPointer pointer) : IRInsn
+	public class IRSetReturn(IValue value) : IRInsn
 	{
-		public readonly int Register = reg;
-		public readonly IPointer Pointer = pointer;
+		public readonly IValue Value = value;
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Register == -1) return;
-			gen.Add(CGInsn.Build<Load>(new CGRegister(Register), Pointer.Build<ushort>(Scope)));
+			Return(Value);
 		}
 	}
 
-	public class LoadPtrToReg8(int reg, IPointer pointer) : IRInsn
+	public class IRReturnFunc : IRInsn
 	{
-		public readonly int Register = reg;
-		public readonly IPointer Pointer = pointer;
-
 		public override void Compile(CodeGen gen)
 		{
-			if (Register == -1) return;
-			gen.Add(CGInsn.Build<Load8>(new CGRegister(Register), Pointer.Build<byte>(Scope)));
+			Add(CGInsn.Build<Return>());
 		}
 	}
 
-	public class LoadRegToPtr(IPointer pointer, int reg) : IRInsn
+	public class IRDynLoadPtr(IValue ptr, TypeSpecifier type) : IRInsn
 	{
-		public readonly int Register = reg;
-		public readonly IPointer Pointer = pointer;
+		public readonly IValue Pointer = ptr;
+		public readonly TypeSpecifier Type = type;
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Register == -1) return;
-			gen.Add(CGInsn.Build<Store>(Pointer.Build<ushort>(Scope), new CGRegister(Register)));
+			var regs = GetReturn(Type);
+			var ptrRegs = Pointer.ToRegisters(this);
+			MovePtrToRegs(new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Type.Size), regs.Registers);
 		}
 	}
 
-	public class LoadRegToPtr8(IPointer pointer, int reg) : IRInsn
+	public class IRDynStorePtr(IValue ptr, IValue value) : IRInsn
 	{
-		public readonly int Register = reg;
-		public readonly IPointer Pointer = pointer;
+		public readonly IValue Pointer = ptr;
+		public readonly IValue Value = value;
 
 		public override void Compile(CodeGen gen)
 		{
-			if (Register == -1) return;
-			gen.Add(CGInsn.Build<Store8>(Pointer.Build<byte>(Scope), new CGRegister(Register)));
+			if (Pointer is Immediate32 i)
+			{
+				Value.WriteTo(this, new LiteralPointer(i.Value, Value.Type.Size));
+			}
+			else
+			{
+				var ptrRegs = Pointer.ToRegisters(this);
+				Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Value.Type.Size));
+			}
 		}
 	}
 
-	public class MoveReg(int dest, int src) : IRInsn
+	public class IRLoadPtrAddress(IPointer ptr) : IRInsn
 	{
-		public readonly int Dest = dest;
-		public readonly int Src = src;
+		public readonly IPointer Pointer = ptr;
 
 		public override void Compile(CodeGen gen)
 		{
-			gen.Add(CGInsn.Build<Move>(new CGRegister(Dest), new CGRegister(Src)));
-		}
-	}
-
-	public class PushReg(int reg) : IRInsn
-	{
-		public readonly int Register = reg;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<Push>(new CGRegister(Register)));
-		}
-	}
-
-	public class PopReg(int reg) : IRInsn
-	{
-		public readonly int Register = reg;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<Pop>(new CGRegister(Register)));
-		}
-	}
-
-	public class AddRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<Add>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class SubRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<Subtract>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class AdcRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<Adc>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class SbbRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<Sbb>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class SMulRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<SignedMul>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class UMulRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<UnsignedMul>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class SDivRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<SignedDiv>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class UDivRegs(int arg1, int arg2, int dest) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-		public readonly int Dest = dest;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1 || Dest == -1) return;
-			gen.Add(CGInsn.Build<UnsignedDiv>(new CGRegister(Arg1), new CGRegister(Arg2), new CGRegister(Dest)));
-		}
-	}
-
-	public class SMul32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-		public readonly int DestHigh = desthigh;
-		public readonly int DestLow = destlow;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
-			gen.Add(CGInsn.Build<SignedMul32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
-		}
-	}
-
-	public class UMul32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-		public readonly int DestHigh = desthigh;
-		public readonly int DestLow = destlow;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
-			gen.Add(CGInsn.Build<UnsignedMul32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
-		}
-	}
-
-	public class SDiv32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-		public readonly int DestHigh = desthigh;
-		public readonly int DestLow = destlow;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
-			gen.Add(CGInsn.Build<SignedDiv32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
-		}
-	}
-
-	public class UDiv32Regs(int arg1high, int arg1low, int arg2high, int arg2low, int desthigh, int destlow) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-		public readonly int DestHigh = desthigh;
-		public readonly int DestLow = destlow;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1 || DestHigh == -1 || DestLow == -1) return;
-			gen.Add(CGInsn.Build<UnsignedDiv32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low), new CGDoubleRegister(DestHigh, DestLow)));
+			var regs = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt));
+			Add(CGInsn.Build<LoadEffectiveAddress>(Pointer.Build<ushort>(Scope), regs.MakeArg()));
 		}
 	}
 
 	public class InitFrame() : IRInsn
 	{
-		public override void Compile(CodeGen gen)
-		{
-			ushort regs = 0;
-			foreach (var i in Scope.PreservedRegs)
-			{
-				regs |= (ushort)(1 << 15 - i);
-			}
+		public override void Compile(CodeGen gen) { }
 
-			if (regs != 0) gen.Add(CGInsn.Build<PushRegisters>(new CGImmediate<ushort>(regs)));
-			if (Scope.EffectiveStackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)-Scope.EffectiveStackUsed)));
+		public override void PostCompile(CodeGen gen)
+		{
+			if (Scope.EffectiveStackUsed != 0) Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)-Scope.EffectiveStackUsed)));
 		}
 	}
 
 	public class EndFrame() : IRInsn
 	{
-		public override void Compile(CodeGen gen)
+		public override void Compile(CodeGen gen) { }
+
+		public override void PostCompile(CodeGen gen)
 		{
-			ushort regs = 0;
-			foreach (var i in Scope.PreservedRegs)
-			{
-				regs |= (ushort)(1 << 15 - i);
-			}
-
-			if (Scope.EffectiveStackUsed != 0) gen.Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.EffectiveStackUsed)));
-			if (regs != 0) gen.Add(CGInsn.Build<PopRegisters>(new CGImmediate<ushort>(regs)));
-		}
-	}
-
-	public class Memset(IPointer ptr, int size, byte b) : IRInsn
-	{
-		public readonly IPointer Ptr = ptr;
-		public readonly int Size = size;
-		public readonly byte Byte = b;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<Load>(new CGRegister(8), new CGImmediate<ushort>((ushort)(Byte & (Byte << 8)))));
-
-			for (int i = 0; i < IRBuilder.NumRegForBytes(Size); i++)
-			{
-				if ((i + 1) * 2 > Size) gen.Add(CGInsn.Build<Store8>(Ptr.Get(i * 2).Build<byte>(Scope), new CGRegister(8)));
-				else gen.Add(CGInsn.Build<Store>(Ptr.Get(i * 2).Build<ushort>(Scope), new CGRegister(8)));
-			}
-		}
-	}
-
-	public class SignExtPtr(IPointer dest, IPointer src) : IRInsn
-	{
-		public readonly IPointer Dest = dest;
-		public readonly IPointer Src = src;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<SignExtend>(Src.Build<ushort>(Scope), Dest.Build<ushort>(Scope)));
-		}
-	}
-
-	public class SignExtPtr8(IPointer dest, IPointer src) : IRInsn
-	{
-		public readonly IPointer Dest = dest;
-		public readonly IPointer Src = src;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<SignExtend8>(Src.Build<ushort>(Scope), Dest.Build<ushort>(Scope)));
-		}
-	}
-
-	public class SignExtReg(int dest, int src) : IRInsn
-	{
-		public readonly int Dest = dest;
-		public readonly int Src = src;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Dest == -1 || Src == -1) return;
-			gen.Add(CGInsn.Build<SignExtend>(new CGRegister(Src), new CGRegister(Dest)));
-		}
-	}
-
-	public class SignExtReg8(int dest, int src) : IRInsn
-	{
-		public readonly int Dest = dest;
-		public readonly int Src = src;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Dest == -1 || Src == -1) return;
-			gen.Add(CGInsn.Build<SignExtend8>(new CGRegister(Src), new CGRegister(Dest)));
-		}
-	}
-
-	public class LeaReg(int dest1, int dest2, IPointer src) : IRInsn
-	{
-		public readonly int Dest1 = dest1;
-		public readonly int Dest2 = dest2;
-		public readonly IPointer Source = src;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Dest1 == -1 || Dest2 == -1) return;
-			gen.Add(CGInsn.Build<LoadEffectiveAddress>(Source.Build<ushort>(Scope), new CGDoubleRegister(Dest1, Dest2)));
-		}
-	}
-
-	public class LeaPtr(IPointer dest, IPointer src) : IRInsn
-	{
-		public readonly IPointer Dest = dest;
-		public readonly IPointer Source = src;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<LoadEffectiveAddress>(Source.Build<ushort>(Scope), Dest.Build<uint>(Scope)));
-		}
-	}
-
-	public class CmpRegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<Compare>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class LTRegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<LessThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class ULTRegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<UnsignedLessThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class LTERegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<LessThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class ULTERegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<UnsignedLessThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class GTRegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<GreaterThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class UGTRegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<UnsignedGreaterThan>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class GTERegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<GreaterThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class UGTERegs(int arg1, int arg2) : IRInsn
-	{
-		public readonly int Arg1 = arg1;
-		public readonly int Arg2 = arg2;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1 == -1 || Arg2 == -1) return;
-			gen.Add(CGInsn.Build<UnsignedGreaterThanOrEq>(new CGRegister(Arg1), new CGRegister(Arg2)));
-		}
-	}
-
-	public class GetC(int arg) : IRInsn
-	{
-		public readonly int Arg = arg;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg == -1) return;
-			gen.Add(CGInsn.Build<GetCompare>(new CGRegister(Arg)));
-		}
-	}
-
-	public class GetNC(int arg) : IRInsn
-	{
-		public readonly int Arg = arg;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg == -1) return;
-			gen.Add(CGInsn.Build<GetNotCompare>(new CGRegister(Arg)));
-		}
-	}
-
-	public class JumpIfTrue(string label) : IRInsn
-	{
-		public readonly string Label = label;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<JumpEq>(new CGLabel<uint>(Label)));
-		}
-	}
-
-	public class JumpIfNotTrue(string label) : IRInsn
-	{
-		public readonly string Label = label;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<JumpNeq>(new CGLabel<uint>(Label)));
-		}
-	}
-
-	public class JumpTo(string label) : IRInsn
-	{
-		public readonly string Label = label;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.Add(CGInsn.Build<Jump>(new CGLabel<uint>(Label)));
-		}
-	}
-	
-	public class LT32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
-			gen.Add(CGInsn.Build<LessThan32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
-		}
-	}
-
-	public class LTE32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
-			gen.Add(CGInsn.Build<LessThanOrEq32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
-		}
-	}
-
-	public class GT32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
-			gen.Add(CGInsn.Build<GreaterThan32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
-		}
-	}
-
-	public class GTE32(int arg1high, int arg1low, int arg2high, int arg2low) : IRInsn
-	{
-		public readonly int Arg1High = arg1high;
-		public readonly int Arg1Low = arg1low;
-		public readonly int Arg2High = arg2high;
-		public readonly int Arg2Low = arg2low;
-
-		public override void Compile(CodeGen gen)
-		{
-			if (Arg1High == -1 || Arg1Low == -1 || Arg2High == -1 || Arg2Low == -1) return;
-			gen.Add(CGInsn.Build<GreaterThanOrEq32>(new CGDoubleRegister(Arg1High, Arg1Low), new CGDoubleRegister(Arg2High, Arg2Low)));
-		}
-	}
-
-	public class IRLabel(string name) : IRInsn
-	{
-		public readonly string Name = name;
-
-		public override void Compile(CodeGen gen)
-		{
-			gen.AddLabel(Name);
+			if (Scope.EffectiveStackUsed != 0) Add(CGInsn.Build<ModifyStack>(new CGImmediate<ushort>((ushort)Scope.EffectiveStackUsed)));
 		}
 	}
 }

@@ -11,12 +11,6 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly UnresolvedLValue Expr = expr;
 
-		public override void PrepScope(IRScope scope)
-		{
-			Expr.PrepScope(scope);
-			Expr.MarkReferenceable(scope);
-		}
-
 		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => new ResolvedRefExpression(Expr.Resolve<LValue>(builder, func, scope));
 	}
 
@@ -24,28 +18,16 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly LValue Expr = expr;
 
-		public override ResolvedExpression ChangeType(TypeSpecifier type)
+        public override bool IsSimpleExpression => false;
+
+        public override ResolvedExpression ChangeType(TypeSpecifier type)
 		{
 			throw new NotImplementedException();
 		}
 
-		public override void PrepScope(IRScope scope)
+        public override IValue Execute(IRBuilder builder, IRScope scope)
 		{
-			Expr.PrepScope(scope);
-		}
-
-		public override void WriteToPointer(IPointer pointer, IRBuilder builder, int[] usedRegs)
-		{
-			if (pointer.Size < 2) throw new InvalidOperationException();
-			builder.Add(new LeaPtr(pointer, Expr.GetRef(builder, out var tmp, [])));
-			tmp?.Dispose();
-		}
-
-		public override void WriteToRegisters(int[] regs, IRBuilder builder)
-		{
-			if (regs.Length != 2) throw new InvalidOperationException();
-			builder.Add(new LeaReg(regs[0], regs[1], Expr.GetRef(builder, out var tmp, regs)));
-			tmp?.Dispose();
-		}
-	}
+			return Expr.GetRef(builder, scope);
+        }
+    }
 }
