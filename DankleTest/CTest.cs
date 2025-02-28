@@ -286,46 +286,46 @@ short main()
 
 		#endregion
 
-		#region Comparison
+		#region Logic
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestCharCompare() => CTestHelper.TestComparison<sbyte>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestUCharCompare() => CTestHelper.TestComparison<byte>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestShortCompare() => CTestHelper.TestComparison<short>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestUShortCompare() => CTestHelper.TestComparison<ushort>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestIntCompare() => CTestHelper.TestComparison<int>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestUIntCompare() => CTestHelper.TestComparison<uint>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestCharLogic() => CTestHelper.TestLogic<sbyte>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestUCharLogic() => CTestHelper.TestLogic<byte>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestShortLogic() => CTestHelper.TestLogic<short>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestUShortLogic() => CTestHelper.TestLogic<ushort>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestIntLogic() => CTestHelper.TestLogic<int>();
 
-		[TestMethod, TestCategory("Comparison")]
+		[TestMethod, TestCategory("Logic")]
 		public void TestUIntLogic() => CTestHelper.TestLogic<uint>();
 		
 		[TestMethod]
-		[TestCategory("Comparison")]
+		[TestCategory("Logic")]
 		public void TestIf()
 		{
 			using var c = new CTestHelper(@"
@@ -339,6 +339,27 @@ short main()
 ");
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual(4, c.GetVariable<short>("x"));
+		}
+
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void TestIfElse()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    short x = 69;
+    if (x == 69) x = 4;
+	else x = 3;
+
+	if (x == 3) x = -9;
+	else x = 2;
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(2, c.GetVariable<short>("x"));
 		}
 
 		#endregion
