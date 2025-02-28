@@ -236,8 +236,15 @@ namespace DankleC.IR
 
 		public override void Compile(CodeGen gen)
 		{
-			var ptrRegs = Pointer.ToRegisters(this);
-			Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Value.Type.Size));
+			if (Pointer is Immediate32 i)
+			{
+				Value.WriteTo(this, new LiteralPointer(i.Value, Value.Type.Size));
+			}
+			else
+			{
+				var ptrRegs = Pointer.ToRegisters(this);
+				Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Value.Type.Size));
+			}
 		}
 	}
 

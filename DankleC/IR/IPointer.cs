@@ -94,4 +94,17 @@ namespace DankleC.IR
 
 		public bool UsingRegister(int reg) => reg == Reg1 || reg == Reg2;
     }
+
+	public readonly struct LiteralPointer(uint addr, int size) : IPointer
+	{
+		public readonly uint Address = addr;
+		public int Size => size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T> => CGPointer<T>.Make(Address);
+
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+		public IPointer Get(int offset, int size) => new LiteralPointer(Address + (uint)offset, size);
+
+		public bool UsingRegister(int reg) => false;
+	}
 }

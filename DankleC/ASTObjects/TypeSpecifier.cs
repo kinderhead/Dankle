@@ -104,7 +104,7 @@ namespace DankleC.ASTObjects
 
 		public override bool AreEqual(TypeSpecifier a)
 		{
-            if (a is not BuiltinTypeSpecifier type) return false;
+            if (a is not BuiltinTypeSpecifier type || a.GetType().IsSubclassOf(typeof(BuiltinTypeSpecifier))) return false;
             return Type == type.Type;
 		}
 

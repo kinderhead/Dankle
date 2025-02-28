@@ -22,6 +22,11 @@ namespace Dankle.Components.CodeGen
 	{
 		public override Type ArgType => typeof(Pointer<T>);
 
+		public class Ptr(uint addr) : CGPointer<T>
+		{
+			protected override string PreBuild() => $"[0x{addr:X8}]";
+		}
+
 		public class Ptr2Reg(int reg1, int reg2) : CGPointer<T>
 		{
 			protected override string PreBuild() => $"[r{reg1}, r{reg2}]";
@@ -32,6 +37,7 @@ namespace Dankle.Components.CodeGen
 			protected override string PreBuild() => $"[r{reg1}, r{reg2} + 0x{offset:X4}]";
 		}
 
+		public static Ptr Make(uint addr) => new(addr);
 		public static Ptr2Reg Make(int reg1, int reg2) => new(reg1, reg2);
 		public static Ptr2RegShortOffset Make(int reg1, int reg2, short offset) => new(reg1, reg2, offset);
 	}

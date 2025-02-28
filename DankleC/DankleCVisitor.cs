@@ -51,7 +51,10 @@ namespace DankleC
 				var text = c.GetText();
 				if (!text.Contains('.'))
 				{
-					var num = long.Parse(text);
+					long num;
+					if (text.StartsWith("0x")) num = long.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+					else num = long.Parse(text);
+
 					if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
 					else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
 					else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
@@ -82,6 +85,12 @@ namespace DankleC
 			if (context.postfixExpression() is CParser.PostfixExpressionContext pe) return Visit(pe);
 			else if (context.Star() is not null) return new DerefExpression((IExpression)Visit(context.castExpression()));
 			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
+		}
+
+		public override IASTObject VisitCastExpression([NotNull] CParser.CastExpressionContext context)
+		{
+			if (context.unaryExpression() is CParser.UnaryExpressionContext pe) return Visit(pe);
+			else return new UnresolvedCastExpression((IExpression)Visit(context.castExpression()), Visit(context.type()));
 		}
 
 		public override IASTObject VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context)
@@ -206,7 +215,7 @@ namespace DankleC
 
         public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context)
         {
-			return new IfStatement(Visit(context.expression()), Visit(context.statement()));
+			return new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
         }
 
         public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);

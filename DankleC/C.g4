@@ -66,7 +66,7 @@ declareStatement
     ;
 
 ifStatement
-    : If LeftParen expression RightParen statement
+    : If LeftParen expression RightParen statement (Else statement)?
     ;
 
 relationalExpression
@@ -107,7 +107,8 @@ expression
     ;
     
 castExpression
-    : unaryExpression
+    : LeftParen type RightParen castExpression
+    | unaryExpression
     ;
 
 unaryExpression

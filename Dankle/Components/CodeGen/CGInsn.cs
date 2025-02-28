@@ -10,8 +10,8 @@ namespace Dankle.Components.CodeGen
 {
 	public class CGInsn
 	{
-		public readonly Instruction Insn;
-		public readonly ICGArg[] Args;
+		public Instruction Insn;
+		public ICGArg[] Args;
 
 		public string? Comment = null;
 

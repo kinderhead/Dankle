@@ -1,3 +1,4 @@
+using Dankle.Components.Instructions;
 using System;
 
 namespace Dankle.Components.CodeGen
@@ -25,7 +26,10 @@ namespace Dankle.Components.CodeGen
             int i = 0;
 
             InsnDef? next() => i + 1 < defs.Count ? defs[i + 1] : null;
-            void remove()
+            string? nextIsLabel() => next() is InsnDef d && d.Label is string label ? label : null;
+            CGInsn? nextIsInsn() => next() is InsnDef d && d.Insn is CGInsn insn ? insn : null;
+
+			void remove()
             {
                 defs.RemoveAt(i);
                 i--;
@@ -37,8 +41,23 @@ namespace Dankle.Components.CodeGen
                 {
                     if (insn.Insn is IJumpInsn jmp)
                     {
-                        if (next() is InsnDef d && d.Label is string label && insn.Args[jmp.JumpArgIndex].Equals(new CGLabel<uint>(label))) remove();
+                        if (nextIsLabel() is string label && insn.Args[jmp.JumpArgIndex].Equals(new CGLabel<uint>(label))) remove();
                     }
+                    else if (insn.Insn is FlipCompare)
+                    {
+                        var e = nextIsInsn();
+
+                        if (e?.Insn is JumpEq)
+                        {
+                            e.Insn = new JumpNeq();
+                            remove();
+                        }
+                        else if (e?.Insn is JumpNeq)
+                        {
+                            e.Insn = new JumpEq();
+							remove();
+						}
+					}
                 }
             }
         }
