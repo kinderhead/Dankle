@@ -3,46 +3,46 @@ using System.Text;
 
 namespace DankleC.ASTObjects
 {
-    public abstract class TypeSpecifier : IASTObject
-    {
-        public bool IsConst = false;
+	public abstract class TypeSpecifier : IASTObject
+	{
+		public bool IsConst = false;
 
-        public int Size { get => GetTypeSize(); }
+		public int Size { get => GetTypeSize(); }
 
-        public abstract bool AreEqual(TypeSpecifier a);
-        public abstract string GetName();
-        public abstract bool IsNumber();
-        public abstract bool IsSigned();
-        public PointerTypeSpecifier AsPointer() => new(this);
+		public abstract bool AreEqual(TypeSpecifier a);
+		public abstract string GetName();
+		public abstract bool IsNumber();
+		public abstract bool IsSigned();
+		public PointerTypeSpecifier AsPointer() => new(this);
 
-        public static bool operator==(TypeSpecifier a, TypeSpecifier b) => a.Equals(b);
-        public static bool operator!=(TypeSpecifier a, TypeSpecifier b) => !a.Equals(b);
-        protected abstract int GetTypeSize();
+		public static bool operator ==(TypeSpecifier a, TypeSpecifier b) => a.Equals(b);
+		public static bool operator !=(TypeSpecifier a, TypeSpecifier b) => !a.Equals(b);
+		protected abstract int GetTypeSize();
 
 		//public override string ToString()
 		//{
-  //          var builder = new StringBuilder();
+		//          var builder = new StringBuilder();
 
-  //          if (IsConst) builder.Append("const ");
-  //          builder.Append(GetName());
+		//          if (IsConst) builder.Append("const ");
+		//          builder.Append(GetName());
 
-  //          if (PointerType == PointerType.Pointer) builder.Append("* ");
-  //          else if (PointerType == PointerType.ConstPointer) builder.Append("* const");
+		//          if (PointerType == PointerType.Pointer) builder.Append("* ");
+		//          else if (PointerType == PointerType.ConstPointer) builder.Append("* const");
 
-  //          return builder.ToString();
+		//          return builder.ToString();
 		//}
 
 		public override bool Equals(object? obj)
 		{
 			if (ReferenceEquals(this, obj)) return true;
-            if (obj is null) return false;
+			if (obj is null) return false;
 			if (obj is TypeSpecifier type)
-            {
-                if (type.IsConst != IsConst) return false;
-                return AreEqual(type);
-            }
+			{
+				if (type.IsConst != IsConst) return false;
+				return AreEqual(type);
+			}
 
-            return false;
+			return false;
 		}
 
 		public override int GetHashCode()
@@ -50,7 +50,7 @@ namespace DankleC.ASTObjects
 			return base.GetHashCode();
 		}
 
-        public static TypeSpecifier GetBigger(TypeSpecifier a, TypeSpecifier b) => a.Size >= b.Size ? a : b;
+		public static TypeSpecifier GetBigger(TypeSpecifier a, TypeSpecifier b) => a.Size >= b.Size ? a : b;
 
 		public static BuiltinTypeSpecifier GetGenericForSize(int size) => size switch
 		{
@@ -76,41 +76,41 @@ namespace DankleC.ASTObjects
 		}
 	}
 
-    public enum BuiltinType
-    {
-        UnsignedChar,
-        SignedChar,
-        UnsignedShort,
-        SignedShort,
-        UnsignedInt,
-        SignedInt,
-        UnsignedLong,
-        SignedLong,
-        UnsignedLongLong,
-        SignedLongLong,
-        Float,
-        Double,
-        LongDouble,
+	public enum BuiltinType
+	{
+		UnsignedChar,
+		SignedChar,
+		UnsignedShort,
+		SignedShort,
+		UnsignedInt,
+		SignedInt,
+		UnsignedLong,
+		SignedLong,
+		UnsignedLongLong,
+		SignedLongLong,
+		Float,
+		Double,
+		LongDouble,
 
-        Void,
-        Bool,
+		Void,
+		Bool,
 
-        String
-    }
+		String
+	}
 
-    public class BuiltinTypeSpecifier(BuiltinType type) : TypeSpecifier
-    {
-        public readonly BuiltinType Type = type;
+	public class BuiltinTypeSpecifier(BuiltinType type) : TypeSpecifier
+	{
+		public readonly BuiltinType Type = type;
 
 		public override bool AreEqual(TypeSpecifier a)
 		{
-            if (a is not BuiltinTypeSpecifier type || a.GetType().IsSubclassOf(typeof(BuiltinTypeSpecifier))) return false;
-            return Type == type.Type;
+			if (a is not BuiltinTypeSpecifier type || a.GetType().IsSubclassOf(typeof(BuiltinTypeSpecifier))) return false;
+			return Type == type.Type;
 		}
 
 		public override string GetName() => Enum.GetName(Type) ?? "<err>";
 
-        public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool && Type != BuiltinType.String;
+		public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool && Type != BuiltinType.String;
 
 		public override bool IsSigned()
 		{
@@ -148,8 +148,8 @@ namespace DankleC.ASTObjects
 
 		public override string GetName() => Type;
 
-        public override bool IsNumber() => false;
-        public override bool IsSigned() => false;
+		public override bool IsNumber() => false;
+		public override bool IsSigned() => false;
 
 		protected override int GetTypeSize()
 		{
@@ -187,4 +187,29 @@ namespace DankleC.ASTObjects
 		public override bool IsSigned() => false;
 		protected override int GetTypeSize() => ArraySize * Inner.Size;
 	}
+
+	public class FunctionTypeSpecifier : TypeSpecifier
+	{
+		public readonly TypeSpecifier ReturnType;
+		public readonly List<TypeSpecifier> Parameters;
+
+		public FunctionTypeSpecifier(TypeSpecifier ret, List<TypeSpecifier> parameters) : base()
+		{
+			if (ret is ArrayTypeSpecifier) throw new InvalidOperationException("Array type cannot be function return type");
+			ReturnType = ret;
+			Parameters = parameters;
+		}
+
+        public override bool AreEqual(TypeSpecifier a)
+        {
+            if (a is not FunctionTypeSpecifier type) return false;
+			return ReturnType == type.ReturnType;
+        }
+
+		public override string GetName() => $"{ReturnType.GetName()} (*)()";
+		public override bool IsNumber() => false;
+		public override bool IsSigned() => false;
+
+		protected override int GetTypeSize() => 4;
+    }
 }

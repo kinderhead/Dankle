@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Dankle.Components.CodeGen;
 using Dankle.Components.Instructions;
 using DankleC.ASTObjects;
@@ -12,6 +13,8 @@ namespace DankleC.IR
         public Type CGType => Type.Size == 1 ? typeof(CGImmediate<byte>) : typeof(CGImmediate<ushort>);
 
         public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
+
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
 
 		public ICGArg MakeArg() => Type.Size == 1 ? new CGImmediate<byte>((byte)Value) : new CGImmediate<ushort>(Value);
 
@@ -53,7 +56,9 @@ namespace DankleC.IR
 
 		public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
 
-		public ICGArg MakeArg() => new CGImmediate<uint>(Value);
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => CGPointer<T>.Make(Value);
+
+        public ICGArg MakeArg() => new CGImmediate<uint>(Value);
         
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {

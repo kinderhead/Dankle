@@ -20,16 +20,17 @@ namespace DankleC.ASTObjects
 		public static readonly Random IDRandomizer = new();
 	}
 
-	public class ReturnStatement(IExpression expression) : Statement
+	public class ReturnStatement(IExpression? expression) : Statement
 	{
-		public readonly IExpression Expression = expression;
+		public readonly IExpression? Expression = expression;
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = Expression.Resolve(builder, func, Scope);
-			var value = expr.Execute(builder, Scope);
+			var expr = Expression?.Resolve(builder, func, Scope);
+			var value = expr?.Cast(func.ReturnType).Execute(builder, Scope);
 
-			builder.Add(new IRSetReturn(value));
+			if (value is not null) builder.Add(new IRSetReturn(value));
+			else if (func.ReturnType != new BuiltinTypeSpecifier(BuiltinType.Void)) throw new InvalidOperationException($"Function \"{func.Name}\" must return a value");
 			builder.Add(new EndFrame());
 			builder.Add(new IRReturnFunc());
 		}

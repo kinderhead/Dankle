@@ -45,7 +45,7 @@ namespace DankleC.IR
 
 		public int OneTimeAlloc()
 		{
-			for (int i = 8; i < 12; i++)
+			for (int i = 4; i < 12; i++)
 			{
 				if (!usedRegs.Contains(i))
 				{
@@ -166,10 +166,10 @@ namespace DankleC.IR
 		public static int[] FitRetRegs(int bytes)
 		{
 			var regs = IRBuilder.NumRegForBytes(bytes);
-			if (regs == 1) return [4];
-			if (regs == 2) return [4, 5];
-			if (regs == 3) return [4, 5, 6];
-			if (regs == 4) return [4, 5, 6, 7];
+			if (regs == 1) return [0];
+			if (regs == 2) return [0, 1];
+			if (regs == 3) return [0, 1, 2];
+			if (regs == 4) return [0, 1, 2, 3];
 			throw new InvalidOperationException();
 		}
 

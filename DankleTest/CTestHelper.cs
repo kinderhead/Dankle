@@ -364,5 +364,26 @@ short main()
 			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
 			Assert.AreEqual(x + T.One, c.GetVariable<T>("y"));
 		}
+
+		public static void TestSimpleFunction<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var x = T.MaxValue;
+
+			using var c = new CTestHelper(@$"
+{type} test()
+{{
+	return {x};
+}}
+
+short main()
+{{
+    {type} x = test();
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+		}
 	}
 }

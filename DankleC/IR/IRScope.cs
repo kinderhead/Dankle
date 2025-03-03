@@ -15,9 +15,10 @@ namespace DankleC.IR
 
 		private readonly List<List<Variable>> Locals = [[]];
 
-		public short EffectiveStackUsed { get => (short)(StackUsed + MaxTempStackUsed); }
-		public short StackUsed { get; private set; } = 0;
-		public short MaxTempStackUsed { get; private set; } = 0;
+		public int EffectiveStackUsed { get => StackUsed + MaxTempStackUsed + MaxFuncAllocStackUsed; }
+		public int StackUsed { get; private set; } = 0;
+		public int MaxTempStackUsed { get; private set; } = 0;
+		public int MaxFuncAllocStackUsed { get; private set; } = 0;
 
 		private short tempStackUsed = 0;
 
@@ -34,6 +35,16 @@ namespace DankleC.IR
 			StackUsed = checked((short)(StackUsed + type.Size));
 			Locals.Last().Add(variable);
 			return variable;
+		}
+
+		public void ReserveFunctionCallSpace(TypeSpecifier returnType, List<ResolvedExpression> args)
+		{
+			var stack = 0;
+			foreach (var i in args)
+			{
+				stack += i.Type.Size;
+			}
+			MaxFuncAllocStackUsed = Math.Max(stack, MaxFuncAllocStackUsed);
 		}
 
 		public TempStackVariable AllocTemp(TypeSpecifier type)
@@ -59,6 +70,11 @@ namespace DankleC.IR
 				{
 					if (e.Name == name) return e;
 				}
+			}
+
+			foreach (var i in Builder.Functions)
+			{
+				if (i.Name == name) return new FunctionVariable(name, new(i.ReturnType, [.. i.Parameters.Parameters.Select(i => i.Item1)]), this);
 			}
 
 			throw new Exception($"Could not find variable with name {name}");

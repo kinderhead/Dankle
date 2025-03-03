@@ -481,7 +481,7 @@ short main()
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual(9, c.GetVariable<short>("x"));
 		}
-		
+
 		[TestMethod]
 		[TestCategory("Logic")]
 		public void ForInt()
@@ -502,6 +502,28 @@ short main()
 			Assert.AreEqual(9, c.GetVariable<int>("x"));
 		}
 
+		#endregion
+
+		#region Functions
+
+		[TestMethod, TestCategory("Functions")]
+		public void CharSimpleFunc() => CTestHelper.TestSimpleFunction<sbyte>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UCharSimpleFunc() => CTestHelper.TestSimpleFunction<byte>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ShortSimpleFunc() => CTestHelper.TestSimpleFunction<short>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UShortSimpleFunc() => CTestHelper.TestSimpleFunction<ushort>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void IntSimpleFunc() => CTestHelper.TestSimpleFunction<int>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UIntSimpleFunc() => CTestHelper.TestSimpleFunction<uint>();
+		
 		#endregion
 
 		//		#region Return

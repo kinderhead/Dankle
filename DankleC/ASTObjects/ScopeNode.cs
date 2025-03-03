@@ -28,5 +28,22 @@ namespace DankleC.ASTObjects
 
 			return stmts;
         }
+
+        public void Optimize(ProgramNode.Settings settings)
+        {
+			for (int i = 0; i < Statements.Count; i++)
+			{
+				if (Statements[i] is ReturnStatement)
+				{
+					Statements.RemoveRange(i + 1, Statements.Count - i - 1);
+					break;
+				}
+			}
+
+            foreach (var stmt in Statements)
+			{
+				if (stmt is IStatementHolder holder) holder.Optimize(settings);
+			}
+        }
     }
 }

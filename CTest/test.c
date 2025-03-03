@@ -1,9 +1,10 @@
+short test(short arg)
+{
+    return 3;
+}
+
 short main()
 {
-    for (short i = 0; i < 10; i++)
-    {
-        short x = i;
-    }
-
+    short x = test(3);
     return 0;
 }

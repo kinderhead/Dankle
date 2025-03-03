@@ -35,8 +35,8 @@ namespace DankleC.IR
 
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
 		{
-			if (Offset == 0) return CGPointer<T>.Make(12, 13);
-			else return CGPointer<T>.Make(12, 13, (short)Offset);
+			if (scope.MaxFuncAllocStackUsed + Offset == 0) return CGPointer<T>.Make(12, 13);
+			else return CGPointer<T>.Make(12, 13, (short)(scope.MaxFuncAllocStackUsed + Offset));
 		}
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
@@ -56,7 +56,7 @@ namespace DankleC.IR
 
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
 		{
-			var effectiveOffset = Offset + scope.StackUsed;
+			var effectiveOffset = scope.MaxFuncAllocStackUsed + Offset + scope.StackUsed;
 
 			if (effectiveOffset == 0) return CGPointer<T>.Make(12, 13);
 			else return CGPointer<T>.Make(12, 13, (short)effectiveOffset);
@@ -66,7 +66,53 @@ namespace DankleC.IR
         public IPointer Get(int offset, int size)
         {
         	if (Size - offset <= 0) throw new InvalidOperationException("TempStackPointer goes out of bounds");
-			return new TempStackPointer(Offset + offset, Size - offset);
+			return new TempStackPointer(Offset + offset, size);
+		}
+
+		public bool UsingRegister(int reg) => false;
+    }
+
+	public readonly struct PreArgumentPointer(int offset, int size) : IPointer
+	{
+		public readonly int Offset = offset;
+		public int Size { get; } = size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
+		{
+			var effectiveOffset = Offset;
+
+			if (effectiveOffset == 0) return CGPointer<T>.Make(12, 13);
+			else return CGPointer<T>.Make(12, 13, (short)effectiveOffset);
+		}
+
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+        public IPointer Get(int offset, int size)
+        {
+        	if (Size - offset <= 0) throw new InvalidOperationException("PreArgumentPointer goes out of bounds");
+			return new TempStackPointer(Offset + offset, size);
+		}
+
+		public bool UsingRegister(int reg) => false;
+    }
+
+	public readonly struct PostArgumentPointer(int offset, int size) : IPointer
+	{
+		public readonly int Offset = offset;
+		public int Size { get; } = size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
+		{
+			var effectiveOffset = scope.EffectiveStackUsed + Offset;
+
+			if (effectiveOffset == 0) return CGPointer<T>.Make(12, 13);
+			else return CGPointer<T>.Make(12, 13, (short)effectiveOffset);
+		}
+
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+        public IPointer Get(int offset, int size)
+        {
+        	if (Size - offset <= 0) throw new InvalidOperationException("PostArgumentPointer goes out of bounds");
+			return new TempStackPointer(Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => false;
@@ -86,14 +132,14 @@ namespace DankleC.IR
 		}
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
-        public IPointer Get(int offset, int size)
-        {
-        	if (Size - offset <= 0) throw new InvalidOperationException("RegisterPointer goes out of bounds");
+		public IPointer Get(int offset, int size)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("RegisterPointer goes out of bounds");
 			return new RegisterPointer(Reg1, Reg2, Offset + offset, Size - offset);
 		}
 
 		public bool UsingRegister(int reg) => reg == Reg1 || reg == Reg2;
-    }
+	}
 
 	public readonly struct LiteralPointer(uint addr, int size) : IPointer
 	{

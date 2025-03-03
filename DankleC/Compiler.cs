@@ -25,13 +25,16 @@ namespace DankleC
             return this;
         }
 
-        public Compiler GenAST()
+        public Compiler GenAST(ProgramNode.Settings? settings = null)
         {
+            settings ??= new();
+
             var lexer = new CLexer(Stream);
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new CParser(tokenStream);
             var visitor = new DankleCVisitor();
             _AST = (ProgramNode)visitor.Visit(parser.root());
+            _AST.Optimize(settings.Value);
             return this;
         }
 

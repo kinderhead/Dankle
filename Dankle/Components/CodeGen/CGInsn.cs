@@ -32,6 +32,7 @@ namespace Dankle.Components.CodeGen
 			}
 
 			if (Args.Length > 0) builder.Length -= 2;
+			else builder.Length -= 1;
 
 			if (Comment is not null) builder.Append($" ; {Comment}");
 

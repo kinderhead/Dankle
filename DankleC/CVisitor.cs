@@ -45,6 +45,18 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunction([NotNull] CParser.FunctionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.parameterList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitParameterList([NotNull] CParser.ParameterListContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.argumentList"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitArgumentList([NotNull] CParser.ArgumentListContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.scope"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

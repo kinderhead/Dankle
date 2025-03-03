@@ -4,6 +4,7 @@ using DankleC.ASTObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,7 +23,15 @@ namespace DankleC.IR
 		public abstract void WriteTo(IRInsn insn, IPointer ptr);
 		public abstract void WriteTo(IRInsn insn, int[] regs);
 		public abstract SimpleRegisterValue ToRegisters(IRInsn insn);
-    }
+
+		public virtual ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>
+		{
+			if (Type.Size != 4) throw new InvalidOperationException();
+
+			var regs = ToRegisters(insn);
+			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
+		}
+	}
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
 	{
@@ -46,10 +55,10 @@ namespace DankleC.IR
 
 		public override SimpleRegisterValue ToRegisters(IRInsn insn) => new(Registers, Type);
 
-        public override void WriteTo(IRInsn insn, IPointer ptr)
-        {
+		public override void WriteTo(IRInsn insn, IPointer ptr)
+		{
 			insn.MoveRegsToPtr(Registers, ptr);
-        }
+		}
 
 		public override void WriteTo(IRInsn insn, int[] regs)
 		{
@@ -112,4 +121,35 @@ namespace DankleC.IR
 			GC.SuppressFinalize(this);
 		}
 	}
+
+	public class FunctionVariable(string name, FunctionTypeSpecifier type, IRScope scope) : Variable(name, type, scope)
+	{
+		public override Type CGType => typeof(CGLabel<uint>);
+
+		public override ICGArg MakeArg() => new CGLabel<uint>($"_{Name}");
+
+		public override void Store(IRBuilder builder, IValue value) => throw new InvalidOperationException();
+
+		public override SimpleRegisterValue ToRegisters(IRInsn insn)
+		{
+			var regs = insn.Alloc(Type.Size);
+
+			WriteTo(insn, regs);
+
+			return new(regs, Type);
+		}
+
+		public override void WriteTo(IRInsn insn, IPointer ptr)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void WriteTo(IRInsn insn, int[] regs)
+		{
+			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), new CGLabel<ushort>($"_{Name}#H")));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), new CGLabel<ushort>($"_{Name}#L")));
+		}
+
+		public override ICGArg AsPointer<T>(IRInsn insn) => MakeArg();
+    }
 }

@@ -45,7 +45,7 @@ namespace DankleC
 
 			foreach (var sym in CompiledSymbols)
 			{
-				builder.Append($"{sym.Key}:");
+				builder.Append($"\n{sym.Key}:");
 
 				optimizer.Optimize(sym.Value);
 				for (var i = 0; i < sym.Value.Count; i++)
@@ -53,6 +53,8 @@ namespace DankleC
 					if (sym.Value[i].Insn is not null) builder.Append($"\n    {sym.Value[i].Insn?.Generate()}");
 					else builder.Append($"\n{sym.Value[i].Label}:");
 				}
+
+				builder.Append('\n');
 			}
 
 			return builder.ToString();

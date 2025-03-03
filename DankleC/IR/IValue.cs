@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Dankle.Components.CodeGen;
 using DankleC.ASTObjects;
 
@@ -14,6 +15,9 @@ namespace DankleC.IR
         public void WriteTo(IRInsn insn, int[] regs);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn);
+
+        public ICGArg AsPointer(IRInsn insn) => AsPointer<uint>(insn);
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>;
     }
 
     public interface IImmediateValue : IValue
@@ -41,6 +45,14 @@ namespace DankleC.IR
 
         public Type CGType => Registers.Length == 1 ? typeof(CGRegister) : typeof(CGDoubleRegister);
 
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>
+		{
+			if (Type.Size != 4) throw new InvalidOperationException();
+
+			var regs = ToRegisters(insn);
+			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
+		}
+
         public ICGArg MakeArg()
         {
             if (Registers.Length == 1) return new CGRegister(Registers[0]);
@@ -66,13 +78,21 @@ namespace DankleC.IR
 			4 => typeof(CGPointer<uint>),
 			_ => typeof(CGPointer<ushort>)
 		};
+        
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>
+		{
+			if (Type.Size != 4) throw new InvalidOperationException();
+
+			var regs = ToRegisters(insn);
+			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
+		}
 
 		public ICGArg MakeArg() => Type.Size switch
-		{
-			1 => Pointer.Build<byte>(scope),
-			4 => Pointer.Build<uint>(scope),
-			_ => Pointer.Build<ushort>(scope)
-		};
+        {
+            1 => Pointer.Build<byte>(scope),
+            4 => Pointer.Build<uint>(scope),
+            _ => Pointer.Build<ushort>(scope)
+        };
 
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {

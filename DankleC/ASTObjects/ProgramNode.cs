@@ -17,5 +17,15 @@ namespace DankleC.ASTObjects
 
             return stmts;
         }
+
+        public void Optimize(Settings settings)
+        {
+            foreach (var i in Functions)
+            {
+                i.Optimize(settings);
+            }
+        }
+
+        public readonly record struct Settings();
     }
 }

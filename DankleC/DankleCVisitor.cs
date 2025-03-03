@@ -27,7 +27,7 @@ namespace DankleC
             var name = context.Identifier().GetText();
 			var scope = Visit(context.scope());
 
-            return new FunctionNode(name, type, scope);
+            return new FunctionNode(name, type, context.parameterList() is not null ? (ParameterList)Visit(context.parameterList()) : new ParameterList([]), scope);
         }
 
 		public override IASTObject VisitScope([NotNull] CParser.ScopeContext context)
@@ -36,15 +36,39 @@ namespace DankleC
 
 			foreach (var i in context.statement())
 			{
-				scope.Statements.Add((Statement)Visit(i));
+				scope.Statements.Add(Visit(i));
 			}
 
 			return scope;
 		}
 
-		#region Expressions
+		public override IASTObject VisitParameterList([NotNull] CParser.ParameterListContext context)
+		{
+			var p = new ParameterList([]);
 
-		public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
+			for (int i = 0; i < context.type().Length; i++)
+			{
+				p.Parameters.Add((Visit(context.type()[i]), context.Identifier()[i].GetText()));
+			}
+
+			return p;
+        }
+
+        public override IASTObject VisitArgumentList([NotNull] CParser.ArgumentListContext context)
+        {
+            var args = new ArgumentList([]);
+
+			for (int i = 0; i < context.expression().Length; i++)
+			{
+				args.Arguments.Add(Visit(context.expression()[i]));
+			}
+
+			return args;
+        }
+
+        #region Expressions
+
+        public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
 			if (context.Constant() is ITerminalNode c)
 			{
@@ -97,6 +121,7 @@ namespace DankleC
 		public override IASTObject VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context)
 		{
 			if (context.PlusPlus() is not null) return new PostIncrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
+			else if (context.LeftParen() is not null) return new CallExpression((IExpression)Visit(context.primaryExpression()), context.argumentList() is not null ? (ArgumentList)Visit(context.argumentList()) : new([]));
 			else return Visit(context.children[0]);
 		}
 
@@ -201,7 +226,7 @@ namespace DankleC
 
         #region Statements
 
-        public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(Visit(context.expression()));
+        public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(context.expression() is not null ? Visit(context.expression()) : null);
 		public override IASTObject VisitInitAssignmentStatement([NotNull] CParser.InitAssignmentStatementContext context)
 		{
 			var type = Visit(context.type());

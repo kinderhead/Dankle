@@ -38,5 +38,11 @@ namespace DankleC.ASTObjects
 
 			return stmts;
         }
+
+        public void Optimize(ProgramNode.Settings settings)
+        {
+            if (Statement is IStatementHolder holder) holder.Optimize(settings);
+            if (Else is IStatementHolder eholder) eholder.Optimize(settings);
+        }
     }
 }

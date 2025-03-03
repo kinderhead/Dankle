@@ -33,7 +33,15 @@ root
     ;
 
 function
-    : type Identifier LeftParen RightParen scope
+    : type Identifier LeftParen parameterList? RightParen scope
+    ;
+
+parameterList
+    : type Identifier (type Identifier Comma)*
+    ;
+
+argumentList
+    : expression (Comma expression)*
     ;
 
 scope
@@ -111,7 +119,7 @@ indexExpression
     ;
 
 returnStatement
-    : Return expression
+    : Return expression?
     ;
 
 lvalue
@@ -134,7 +142,7 @@ unaryExpression
     ;
 
 postfixExpression
-    : primaryExpression (PlusPlus)?
+    : primaryExpression (PlusPlus | (LeftParen argumentList? RightParen))?
     | indexExpression
     ;
 
