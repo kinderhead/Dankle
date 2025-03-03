@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c:/Users/Daniel/source/repos/Dankle/DankleC/C.g4 by ANTLR 4.13.1
+// Generated from /home/daniel/Documents/CSharp/Dankle/DankleC/C.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -901,8 +901,8 @@ public partial class CParser : Parser {
 
 	public partial class ForStatementContext : ParserRuleContext {
 		public SemiStatementContext stmt1;
-		public SemiStatementContext stmt2;
-		public SemiStatementContext stmt3;
+		public ExpressionStatementContext stmt3;
+		public StatementContext body;
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode For() { return GetToken(CParser.For, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LeftParen() { return GetToken(CParser.LeftParen, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode[] Semi() { return GetTokens(CParser.Semi); }
@@ -913,11 +913,14 @@ public partial class CParser : Parser {
 		[System.Diagnostics.DebuggerNonUserCode] public StatementContext statement() {
 			return GetRuleContext<StatementContext>(0);
 		}
-		[System.Diagnostics.DebuggerNonUserCode] public SemiStatementContext[] semiStatement() {
-			return GetRuleContexts<SemiStatementContext>();
+		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext expression() {
+			return GetRuleContext<ExpressionContext>(0);
 		}
-		[System.Diagnostics.DebuggerNonUserCode] public SemiStatementContext semiStatement(int i) {
-			return GetRuleContext<SemiStatementContext>(i);
+		[System.Diagnostics.DebuggerNonUserCode] public SemiStatementContext semiStatement() {
+			return GetRuleContext<SemiStatementContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ExpressionStatementContext expressionStatement() {
+			return GetRuleContext<ExpressionStatementContext>(0);
 		}
 		public ForStatementContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -959,10 +962,10 @@ public partial class CParser : Parser {
 			State = 184;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2594108851088007728L) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & 2952790017L) != 0)) {
+			if (((((_la - 45)) & ~0x3f) == 0 && ((1L << (_la - 45)) & 1548112372506625L) != 0)) {
 				{
 				State = 183;
-				_localctx.stmt2 = semiStatement();
+				expression();
 				}
 			}
 
@@ -971,17 +974,17 @@ public partial class CParser : Parser {
 			State = 188;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2594108851088007728L) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & 2952790017L) != 0)) {
+			if (((((_la - 45)) & ~0x3f) == 0 && ((1L << (_la - 45)) & 1548112372506625L) != 0)) {
 				{
 				State = 187;
-				_localctx.stmt3 = semiStatement();
+				_localctx.stmt3 = expressionStatement();
 				}
 			}
 
 			State = 190;
 			Match(RightParen);
 			State = 191;
-			statement();
+			_localctx.body = statement();
 			}
 		}
 		catch (RecognitionException re) {
@@ -3332,24 +3335,24 @@ public partial class CParser : Parser {
 		3,40,20,0,172,173,5,46,0,0,173,174,5,73,0,0,174,176,1,0,0,0,175,161,1,
 		0,0,0,175,167,1,0,0,0,176,21,1,0,0,0,177,178,5,14,0,0,178,180,5,45,0,0,
 		179,181,3,8,4,0,180,179,1,0,0,0,180,181,1,0,0,0,181,182,1,0,0,0,182,184,
-		5,73,0,0,183,185,3,8,4,0,184,183,1,0,0,0,184,185,1,0,0,0,185,186,1,0,0,
-		0,186,188,5,73,0,0,187,189,3,8,4,0,188,187,1,0,0,0,188,189,1,0,0,0,189,
-		190,1,0,0,0,190,191,5,46,0,0,191,192,3,6,3,0,192,23,1,0,0,0,193,206,3,
-		52,26,0,194,202,5,51,0,0,195,202,1,0,0,0,196,202,5,52,0,0,197,202,1,0,
-		0,0,198,202,5,53,0,0,199,202,1,0,0,0,200,202,5,54,0,0,201,194,1,0,0,0,
-		201,195,1,0,0,0,201,196,1,0,0,0,201,197,1,0,0,0,201,198,1,0,0,0,201,199,
-		1,0,0,0,201,200,1,0,0,0,202,203,1,0,0,0,203,205,3,52,26,0,204,201,1,0,
-		0,0,205,208,1,0,0,0,206,204,1,0,0,0,206,207,1,0,0,0,207,25,1,0,0,0,208,
-		206,1,0,0,0,209,218,3,24,12,0,210,214,5,86,0,0,211,214,1,0,0,0,212,214,
-		5,87,0,0,213,210,1,0,0,0,213,211,1,0,0,0,213,212,1,0,0,0,214,215,1,0,0,
-		0,215,217,3,24,12,0,216,213,1,0,0,0,217,220,1,0,0,0,218,216,1,0,0,0,218,
-		219,1,0,0,0,219,27,1,0,0,0,220,218,1,0,0,0,221,226,3,26,13,0,222,223,5,
-		66,0,0,223,225,3,26,13,0,224,222,1,0,0,0,225,228,1,0,0,0,226,224,1,0,0,
-		0,226,227,1,0,0,0,227,29,1,0,0,0,228,226,1,0,0,0,229,234,3,28,14,0,230,
-		231,5,67,0,0,231,233,3,28,14,0,232,230,1,0,0,0,233,236,1,0,0,0,234,232,
-		1,0,0,0,234,235,1,0,0,0,235,31,1,0,0,0,236,234,1,0,0,0,237,242,3,30,15,
-		0,238,239,5,92,0,0,239,240,5,75,0,0,240,242,3,32,16,0,241,237,1,0,0,0,
-		241,238,1,0,0,0,242,33,1,0,0,0,243,244,3,48,24,0,244,245,5,47,0,0,245,
+		5,73,0,0,183,185,3,40,20,0,184,183,1,0,0,0,184,185,1,0,0,0,185,186,1,0,
+		0,0,186,188,5,73,0,0,187,189,3,16,8,0,188,187,1,0,0,0,188,189,1,0,0,0,
+		189,190,1,0,0,0,190,191,5,46,0,0,191,192,3,6,3,0,192,23,1,0,0,0,193,206,
+		3,52,26,0,194,202,5,51,0,0,195,202,1,0,0,0,196,202,5,52,0,0,197,202,1,
+		0,0,0,198,202,5,53,0,0,199,202,1,0,0,0,200,202,5,54,0,0,201,194,1,0,0,
+		0,201,195,1,0,0,0,201,196,1,0,0,0,201,197,1,0,0,0,201,198,1,0,0,0,201,
+		199,1,0,0,0,201,200,1,0,0,0,202,203,1,0,0,0,203,205,3,52,26,0,204,201,
+		1,0,0,0,205,208,1,0,0,0,206,204,1,0,0,0,206,207,1,0,0,0,207,25,1,0,0,0,
+		208,206,1,0,0,0,209,218,3,24,12,0,210,214,5,86,0,0,211,214,1,0,0,0,212,
+		214,5,87,0,0,213,210,1,0,0,0,213,211,1,0,0,0,213,212,1,0,0,0,214,215,1,
+		0,0,0,215,217,3,24,12,0,216,213,1,0,0,0,217,220,1,0,0,0,218,216,1,0,0,
+		0,218,219,1,0,0,0,219,27,1,0,0,0,220,218,1,0,0,0,221,226,3,26,13,0,222,
+		223,5,66,0,0,223,225,3,26,13,0,224,222,1,0,0,0,225,228,1,0,0,0,226,224,
+		1,0,0,0,226,227,1,0,0,0,227,29,1,0,0,0,228,226,1,0,0,0,229,234,3,28,14,
+		0,230,231,5,67,0,0,231,233,3,28,14,0,232,230,1,0,0,0,233,236,1,0,0,0,234,
+		232,1,0,0,0,234,235,1,0,0,0,235,31,1,0,0,0,236,234,1,0,0,0,237,242,3,30,
+		15,0,238,239,5,92,0,0,239,240,5,75,0,0,240,242,3,32,16,0,241,237,1,0,0,
+		0,241,238,1,0,0,0,242,33,1,0,0,0,243,244,3,48,24,0,244,245,5,47,0,0,245,
 		246,3,40,20,0,246,247,5,48,0,0,247,35,1,0,0,0,248,249,5,22,0,0,249,250,
 		3,40,20,0,250,37,1,0,0,0,251,252,3,40,20,0,252,39,1,0,0,0,253,254,3,32,
 		16,0,254,41,1,0,0,0,255,256,5,45,0,0,256,257,3,58,29,0,257,258,5,46,0,

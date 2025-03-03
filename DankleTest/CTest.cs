@@ -10,7 +10,7 @@ namespace DankleTest
 		#region Variables
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void TestCharVar()
+		public void CharVar()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -25,7 +25,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void TestUCharVar()
+		public void UCharVar()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -40,7 +40,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void TestShortVar()
+		public void ShortVar()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -55,7 +55,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void TestUShortVar()
+		public void UShortVar()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -70,7 +70,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void TestIntVar()
+		public void IntVar()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -85,7 +85,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void TestUIntVar()
+		public void UIntVar()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -100,7 +100,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void Test2ShortVar()
+		public void Short2Var()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -117,7 +117,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
-		public void Test2IntVar()
+		public void Int2Var()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -137,62 +137,62 @@ short main()
 		#region Math
 
 		[TestMethod, TestCategory("Math")]
-		public void TestCharMath() => CTestHelper.TestMath<sbyte>();
+		public void CharMath() => CTestHelper.TestMath<sbyte>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUCharMath() => CTestHelper.TestMath<byte>();
+		public void UCharMath() => CTestHelper.TestMath<byte>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestShortMath() => CTestHelper.TestMath<short>();
+		public void ShortMath() => CTestHelper.TestMath<short>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUShortMath() => CTestHelper.TestMath<ushort>();
+		public void UShortMath() => CTestHelper.TestMath<ushort>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestIntMath() => CTestHelper.TestMath<int>();
+		public void IntMath() => CTestHelper.TestMath<int>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUIntMath() => CTestHelper.TestMath<uint>();
+		public void UIntMath() => CTestHelper.TestMath<uint>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestCharPostIncrement() => CTestHelper.TestPostIncrement<sbyte>();
+		public void CharPostIncrement() => CTestHelper.TestPostIncrement<sbyte>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUCharPostIncrement() => CTestHelper.TestPostIncrement<byte>();
+		public void UCharPostIncrement() => CTestHelper.TestPostIncrement<byte>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestShortPostIncrement() => CTestHelper.TestPostIncrement<short>();
+		public void ShortPostIncrement() => CTestHelper.TestPostIncrement<short>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUShortPostIncrement() => CTestHelper.TestPostIncrement<ushort>();
+		public void UShortPostIncrement() => CTestHelper.TestPostIncrement<ushort>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestIntPostIncrement() => CTestHelper.TestPostIncrement<int>();
+		public void IntPostIncrement() => CTestHelper.TestPostIncrement<int>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUIntPostIncrement() => CTestHelper.TestPostIncrement<uint>();
+		public void UIntPostIncrement() => CTestHelper.TestPostIncrement<uint>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestCharPreIncrement() => CTestHelper.TestPreIncrement<sbyte>();
+		public void CharPreIncrement() => CTestHelper.TestPreIncrement<sbyte>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUCharPreIncrement() => CTestHelper.TestPreIncrement<byte>();
+		public void UCharPreIncrement() => CTestHelper.TestPreIncrement<byte>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestShortPreIncrement() => CTestHelper.TestPreIncrement<short>();
+		public void ShortPreIncrement() => CTestHelper.TestPreIncrement<short>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUShortPreIncrement() => CTestHelper.TestPreIncrement<ushort>();
+		public void UShortPreIncrement() => CTestHelper.TestPreIncrement<ushort>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestIntPreIncrement() => CTestHelper.TestPreIncrement<int>();
+		public void IntPreIncrement() => CTestHelper.TestPreIncrement<int>();
 
 		[TestMethod, TestCategory("Math")]
-		public void TestUIntPreIncrement() => CTestHelper.TestPreIncrement<uint>();
+		public void UIntPreIncrement() => CTestHelper.TestPreIncrement<uint>();
 
 		[TestMethod]
 		[TestCategory("Math")]
-		public void TestBigIntMath()
+		public void BigIntMath()
 		{
 			using var computer = new CTestHelper(@"
 short main()
@@ -220,22 +220,22 @@ short main()
 		#region Casting
 
 		[TestMethod, TestCategory("Casting")]
-		public void TestCharCast() => CTestHelper.TestCast<sbyte>();
+		public void CharCast() => CTestHelper.TestCast<sbyte>();
 
 		[TestMethod, TestCategory("Casting")]
-		public void TestUCharCast() => CTestHelper.TestCast<byte>();
+		public void UCharCast() => CTestHelper.TestCast<byte>();
 
 		[TestMethod, TestCategory("Casting")]
-		public void TestShortCast() => CTestHelper.TestCast<short>();
+		public void ShortCast() => CTestHelper.TestCast<short>();
 
 		[TestMethod, TestCategory("Casting")]
-		public void TestUShortCast() => CTestHelper.TestCast<ushort>();
+		public void UShortCast() => CTestHelper.TestCast<ushort>();
 
 		[TestMethod, TestCategory("Casting")]
-		public void TestIntCast() => CTestHelper.TestCast<int>();
+		public void IntCast() => CTestHelper.TestCast<int>();
 
 		[TestMethod, TestCategory("Casting")]
-		public void TestUIntCast() => CTestHelper.TestCast<uint>();
+		public void UIntCast() => CTestHelper.TestCast<uint>();
 
 		#endregion
 
@@ -243,7 +243,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Pointers")]
-		public void TestShortPtrGet()
+		public void ShortPtrGet()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -261,7 +261,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Pointers")]
-		public void TestIntPtrSet()
+		public void IntPtrSet()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -278,7 +278,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Pointers")]
-		public void TestIntArrSet()
+		public void IntArrSet()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -296,7 +296,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Pointers")]
-		public void TestShortArrSetGetMath()
+		public void ShortArrSetGetMath()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -325,44 +325,44 @@ short main()
 		#region Logic
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestCharCompare() => CTestHelper.TestComparison<sbyte>();
+		public void CharCompare() => CTestHelper.TestComparison<sbyte>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestUCharCompare() => CTestHelper.TestComparison<byte>();
+		public void UCharCompare() => CTestHelper.TestComparison<byte>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestShortCompare() => CTestHelper.TestComparison<short>();
+		public void ShortCompare() => CTestHelper.TestComparison<short>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestUShortCompare() => CTestHelper.TestComparison<ushort>();
+		public void UShortCompare() => CTestHelper.TestComparison<ushort>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestIntCompare() => CTestHelper.TestComparison<int>();
+		public void IntCompare() => CTestHelper.TestComparison<int>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestUIntCompare() => CTestHelper.TestComparison<uint>();
+		public void UIntCompare() => CTestHelper.TestComparison<uint>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestCharLogic() => CTestHelper.TestLogic<sbyte>();
+		public void CharLogic() => CTestHelper.TestLogic<sbyte>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestUCharLogic() => CTestHelper.TestLogic<byte>();
+		public void UCharLogic() => CTestHelper.TestLogic<byte>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestShortLogic() => CTestHelper.TestLogic<short>();
+		public void ShortLogic() => CTestHelper.TestLogic<short>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestUShortLogic() => CTestHelper.TestLogic<ushort>();
+		public void UShortLogic() => CTestHelper.TestLogic<ushort>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestIntLogic() => CTestHelper.TestLogic<int>();
+		public void IntLogic() => CTestHelper.TestLogic<int>();
 
 		[TestMethod, TestCategory("Logic")]
-		public void TestUIntLogic() => CTestHelper.TestLogic<uint>();
+		public void UIntLogic() => CTestHelper.TestLogic<uint>();
 
 		[TestMethod]
 		[TestCategory("Logic")]
-		public void TestIf()
+		public void If()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -379,7 +379,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Logic")]
-		public void TestIfElse()
+		public void IfElse()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -400,7 +400,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Logic")]
-		public void TestWhile()
+		public void While()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -421,7 +421,7 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Logic")]
-		public void TestWhileInt()
+		public void WhileInt()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -439,10 +439,10 @@ short main()
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual(10, c.GetVariable<int>("x"));
 		}
-		
+
 		[TestMethod]
 		[TestCategory("Logic")]
-		public void TestDoWhile()
+		public void DoWhile()
 		{
 			using var c = new CTestHelper(@"
 short main()
@@ -462,13 +462,53 @@ short main()
 			Assert.AreEqual(10, c.GetVariable<short>("x"));
 		}
 
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void ForShort()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+	short x;
+    for (short i = 0; i < 10; i++)
+    {
+        x = i;
+    }
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(9, c.GetVariable<short>("x"));
+		}
+		
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void ForInt()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+	int x;
+    for (int i = 0; i < 10; i++)
+    {
+        x = i;
+    }
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(9, c.GetVariable<int>("x"));
+		}
+
 		#endregion
 
 		//		#region Return
 
 		//		[TestMethod]
 		//		[TestCategory("Return")]
-		//		public void TestReturnChar()
+		//		public void ReturnChar()
 		//		{
 		//			using var c = new CTestHelper(@"
 		//char main()

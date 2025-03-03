@@ -82,7 +82,7 @@ whileStatement
     ;
 
 forStatement
-    : For LeftParen stmt1=semiStatement? Semi stmt2=semiStatement? Semi stmt3=semiStatement? RightParen statement
+    : For LeftParen stmt1=semiStatement? Semi expression? Semi stmt3=expressionStatement? RightParen body=statement
     ;
 
 relationalExpression
