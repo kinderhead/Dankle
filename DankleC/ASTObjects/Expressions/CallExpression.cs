@@ -21,15 +21,16 @@ namespace DankleC.ASTObjects.Expressions
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
         {
-            if (Arguments.Count != ((FunctionTypeSpecifier)Function.Type).Parameters.Count) throw new InvalidOperationException("Mismatched argument count");
+            var parameters = ((FunctionTypeSpecifier)Function.Type).Parameters;
+            if (Arguments.Count != parameters.Count) throw new InvalidOperationException("Mismatched argument count");
 
-            scope.ReserveFunctionCallSpace(((FunctionTypeSpecifier)Function.Type).ReturnType, Arguments);
+            scope.ReserveFunctionCallSpace((FunctionTypeSpecifier)Function.Type);
 
             var offset = 0;
-            foreach (var i in Arguments)
+            for (int i = 0; i < Arguments.Count; i++)
             {
-                builder.Add(new IRStorePtr(new PreArgumentPointer(offset, i.Type.Size), i.Execute(builder, scope)));
-                offset += i.Type.Size;
+                builder.Add(new IRStorePtr(new PreArgumentPointer(offset, parameters[i].Size), Arguments[i].Cast(parameters[i]).Execute(builder, scope)));
+                offset += parameters[i].Size;
             }
 
             builder.Add(new IRCall(Function.Execute(builder, scope)));

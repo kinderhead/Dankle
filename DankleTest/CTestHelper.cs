@@ -385,5 +385,28 @@ short main()
 			c.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(x, c.GetVariable<T>("x"));
 		}
+
+		public static void TestFunctionOneArg<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var x = T.MaxValue - T.One;
+
+			using var c = new CTestHelper(@$"
+{type} test({type} x)
+{{
+	int _ = 0;
+	return x + 1;
+}}
+
+short main()
+{{
+	int _ = 0;
+    {type} x = test({x});
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
+		}
 	}
 }

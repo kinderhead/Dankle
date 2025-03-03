@@ -37,12 +37,12 @@ namespace DankleC.IR
 			return variable;
 		}
 
-		public void ReserveFunctionCallSpace(TypeSpecifier returnType, List<ResolvedExpression> args)
+		public void ReserveFunctionCallSpace(FunctionTypeSpecifier func)
 		{
 			var stack = 0;
-			foreach (var i in args)
+			foreach (var i in func.Parameters)
 			{
-				stack += i.Type.Size;
+				stack += i.Size;
 			}
 			MaxFuncAllocStackUsed = Math.Max(stack, MaxFuncAllocStackUsed);
 		}
@@ -61,6 +61,16 @@ namespace DankleC.IR
 		}
 
 		public void RequireStackAlloc(string name) => RequiredStackAllocVariables.Add(name);
+
+		public void SetupArguments(IRFunction func)
+		{
+			int offset = 0;
+			foreach (var i in func.Parameters.Parameters)
+			{
+				Locals[0].Add(new StackVariable(i.Item2, i.Item1, new PostArgumentPointer(offset, i.Item1.Size), this));
+				offset += i.Item1.Size;
+			}
+		}
 
 		public Variable GetVariable(string name)
 		{

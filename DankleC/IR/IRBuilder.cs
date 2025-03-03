@@ -41,6 +41,7 @@ namespace DankleC.IR
 		public void HandleScope(IRFunction func, IRScope scope)
 		{
 			CurrentScope = scope;
+			scope.SetupArguments(func);
 			scope.Start();
 			ProcessStatements(scope.Scope.Statements, func, scope);
 			// scope.End();

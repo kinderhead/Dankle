@@ -89,7 +89,7 @@ namespace DankleC.IR
         public IPointer Get(int offset, int size)
         {
         	if (Size - offset <= 0) throw new InvalidOperationException("PreArgumentPointer goes out of bounds");
-			return new TempStackPointer(Offset + offset, size);
+			return new PreArgumentPointer(Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => false;
@@ -112,7 +112,7 @@ namespace DankleC.IR
         public IPointer Get(int offset, int size)
         {
         	if (Size - offset <= 0) throw new InvalidOperationException("PostArgumentPointer goes out of bounds");
-			return new TempStackPointer(Offset + offset, size);
+			return new PostArgumentPointer(Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => false;

@@ -37,7 +37,7 @@ function
     ;
 
 parameterList
-    : type Identifier (type Identifier Comma)*
+    : type Identifier (Comma type Identifier)*
     ;
 
 argumentList

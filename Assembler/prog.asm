@@ -3,37 +3,29 @@ cmain:
 	call _main
 	hlt
 
+_test:
+    modstk 65532 ; InitFrame
+    ld r4, 0 ; IRStorePtr
+    st [SP], r4 ; IRStorePtr
+    ld r4, 0 ; IRStorePtr
+    st [SP + 0x0002], r4 ; IRStorePtr
+    ld r4, [SP + 0x0004] ; IRAdd
+    ld r5, 1 ; IRAdd
+    add r4, r5, r0 ; IRAdd
+    mov r0, r0 ; IRSetReturn
+    modstk 4 ; EndFrame
+    ret ; IRReturnFunc
+
 _main:
-    modstk 65523
-    ld r8, 32767
-    st [SP], r8
-    ld r8, 65534
-    st [SP + 0x0002], r8
-    ld r8, 32768
-    st [SP + 0x0004], r8
-    ld r8, 1
-    st [SP + 0x0006], r8
-    ld r8, 0
-    st [SP + 0x0008], r8
-    ld r8, 1
-    st [SP + 0x000A], r8
-    cmp [SP], [SP + 0x0004]
-    jne L$0
-    cmp [SP + 0x0002], [SP + 0x0006]
-L$0:
-    je L$1
-    cmp [SP + 0x0008], 0
-    je L$2
-    cmp [SP + 0x000A], 0
-L$2:
-    fcmp 
-    je L$1
-    ldb r4, 0
-    jmp L$3
-L$1:
-    ldb r4, 1
-L$3:
-    stb [SP + 0x000C], r4
-    ldb r4, 0
-    modstk 13
-    ret
+    modstk 65528 ; InitFrame
+    ld r4, 0 ; IRStorePtr
+    st [SP + 0x0002], r4 ; IRStorePtr
+    ld r4, 0 ; IRStorePtr
+    st [SP + 0x0004], r4 ; IRStorePtr
+    ld r4, 3 ; IRStorePtr
+    st [SP], r4 ; IRStorePtr
+    call _test ; IRCall
+    st [SP + 0x0006], r0 ; IRStorePtr
+    ld r0, 0 ; IRSetReturn
+    modstk 8 ; EndFrame
+    ret ; IRReturnFunc
