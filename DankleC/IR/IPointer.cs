@@ -102,7 +102,7 @@ namespace DankleC.IR
 
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T>
 		{
-			var effectiveOffset = scope.EffectiveStackUsed + Offset;
+			var effectiveOffset = scope.EffectiveStackUsed + Offset + 4;
 
 			if (effectiveOffset == 0) return CGPointer<T>.Make(12, 13);
 			else return CGPointer<T>.Make(12, 13, (short)effectiveOffset);

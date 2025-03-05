@@ -7,6 +7,6 @@ short test(short x)
 short main()
 {
     int _ = 0;
-    short x = test(3);
+    short x = test(32766);
     return 0;
 }

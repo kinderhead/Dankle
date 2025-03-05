@@ -69,7 +69,7 @@ namespace DankleTest
 			}
 			else if (v is StackVariable stackvar)
 			{
-				return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + ((StackPointer)stackvar.Pointer).Offset));
+				return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + CurrentStatement.Scope.MaxFuncAllocStackUsed + ((StackPointer)stackvar.Pointer).Offset));
 			}
 			else throw new NotImplementedException();
 		}
@@ -84,7 +84,7 @@ namespace DankleTest
 
 			if (v is StackVariable stackvar)
 			{
-				return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + ((StackPointer)stackvar.Pointer).Offset + (index * type.Size)));
+				return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + CurrentStatement.Scope.MaxFuncAllocStackUsed + ((StackPointer)stackvar.Pointer).Offset + (index * type.Size)));
 			}
 			else throw new NotImplementedException();
 		}
