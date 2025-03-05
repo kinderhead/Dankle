@@ -20,7 +20,17 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var t = (BuiltinTypeSpecifier)Type;
 
-			if (t.Type == BuiltinType.UnsignedInt)
+			if (t.Type == BuiltinType.UnsignedLong)
+			{
+				var val = Convert.ToUInt64(Value);
+				return new Immediate64(val, t.Type);
+			}
+			else if (t.Type == BuiltinType.SignedLong)
+			{
+				var val = Convert.ToInt64(Value);
+				return new Immediate64((ulong)val, t.Type);
+			}
+			else if (t.Type == BuiltinType.UnsignedInt)
 			{
 				var val = Convert.ToUInt32(Value);
 				return new Immediate32(val, t.Type);

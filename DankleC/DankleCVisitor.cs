@@ -75,9 +75,9 @@ namespace DankleC
 				var text = c.GetText();
 				if (!text.Contains('.'))
 				{
-					long num;
-					if (text.StartsWith("0x")) num = long.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
-					else num = long.Parse(text);
+					Int128 num;
+					if (text.StartsWith("0x")) num = Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+					else num = Int128.Parse(text);
 
 					if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
 					else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
@@ -85,6 +85,8 @@ namespace DankleC
 					else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
 					else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), (int)num);
 					else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)num);
+					else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
+					else if (num >= ulong.MinValue && num <= ulong.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), (ulong)num);
 					else throw new NotImplementedException();
 				}
 				else throw new NotImplementedException();

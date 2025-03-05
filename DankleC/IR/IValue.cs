@@ -42,7 +42,12 @@ namespace DankleC.IR
 
         public TypeSpecifier Type => type;
 
-        public Type CGType => Registers.Length == 1 ? typeof(CGRegister) : typeof(CGDoubleRegister);
+        public Type CGType => Registers.Length switch
+        {
+            1 => typeof(CGRegister),
+            4 => typeof(CGQuadRegister),
+			_ => typeof(CGDoubleRegister),
+		};
 
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>
 		{
@@ -56,7 +61,8 @@ namespace DankleC.IR
         {
             if (Registers.Length == 1) return new CGRegister(Registers[0]);
             else if (Registers.Length == 2) return new CGDoubleRegister(Registers[0], Registers[1]);
-            throw new NotImplementedException();
+            else if (Registers.Length == 4) return new CGQuadRegister(Registers[0], Registers[1], Registers[2], Registers[3]);
+			throw new NotImplementedException();
         }
 
         public ICGArg MakeArg(int reg) => new CGRegister(Registers[reg]);
@@ -75,6 +81,7 @@ namespace DankleC.IR
 		{
 			1 => typeof(CGPointer<byte>),
 			4 => typeof(CGPointer<uint>),
+			8 => typeof(CGPointer<ulong>),
 			_ => typeof(CGPointer<ushort>)
 		};
         
@@ -90,7 +97,8 @@ namespace DankleC.IR
         {
             1 => Pointer.Build<byte>(scope),
             4 => Pointer.Build<uint>(scope),
-            _ => Pointer.Build<ushort>(scope)
+            8 => Pointer.Build<ulong>(scope),
+			_ => Pointer.Build<ushort>(scope)
         };
 
         public ICGArg MakeArg(int arg)

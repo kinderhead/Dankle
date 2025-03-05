@@ -155,6 +155,13 @@ short main()
 		public void UIntMath() => CTestHelper.TestMath<uint>();
 
 		[TestMethod, TestCategory("Math")]
+		public void LongMath() => CTestHelper.TestMath<long>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ULongMath() => CTestHelper.TestMath<ulong>();
+
+
+		[TestMethod, TestCategory("Math")]
 		public void CharPostIncrement() => CTestHelper.TestPostIncrement<sbyte>();
 
 		[TestMethod, TestCategory("Math")]

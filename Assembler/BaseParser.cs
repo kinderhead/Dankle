@@ -5,9 +5,11 @@ namespace Assembler
 {
     public abstract class BaseParser<TToken, TType>(List<TToken> tokens) where TType: struct, Enum where TToken : IToken<TType>
     {
-        public Queue<TToken> Tokens { get; protected set; } = new(tokens);
+#pragma warning disable IDE0306
+		public Queue<TToken> Tokens { get; protected set; } = new(tokens);
+#pragma warning restore IDE0306
 
-        public abstract void Parse();
+		public abstract void Parse();
 
         public static TToken Assume(TToken token, TType expected)
 		{

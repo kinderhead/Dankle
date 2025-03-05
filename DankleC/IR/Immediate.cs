@@ -96,4 +96,55 @@ namespace DankleC.IR
 			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), new CGImmediate<ushort>((ushort)(Value & 0xFFFF))));
 		}
 	}
+
+	public class Immediate64(ulong value, BuiltinType type) : IImmediateValue
+	{
+		public readonly ulong Value = value;
+
+		public Type CGType => typeof(CGImmediate<ulong>);
+
+		public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
+
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
+
+		public ICGArg MakeArg() => new CGImmediate<ulong>(Value);
+
+		public ICGArg MakeArg(int arg)
+		{
+			if (arg == 0) return new CGImmediate<ushort>((ushort)(Value >>> 48));
+			if (arg == 1) return new CGImmediate<ushort>((ushort)(Value >>> 32));
+			if (arg == 2) return new CGImmediate<ushort>((ushort)(Value >>> 16));
+			if (arg == 3) return new CGImmediate<ushort>((ushort)(Value & 0xFFFF));
+			throw new InvalidOperationException();
+		}
+
+		public SimpleRegisterValue ToRegisters(IRInsn insn)
+		{
+			var regs = insn.Alloc(4);
+			WriteTo(insn, regs);
+			return new(regs, Type);
+		}
+
+		public void WriteTo(IRInsn insn, IPointer ptr)
+		{
+			var reg = insn.OneTimeAlloc();
+			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(0)));
+			insn.Add(CGInsn.Build<Store>(ptr.Build<ushort>(insn.Scope), new CGRegister(reg)));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(1)));
+			insn.Add(CGInsn.Build<Store>(ptr.Get(2).Build<ushort>(insn.Scope), new CGRegister(reg)));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(2)));
+			insn.Add(CGInsn.Build<Store>(ptr.Get(4).Build<ushort>(insn.Scope), new CGRegister(reg)));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(3)));
+			insn.Add(CGInsn.Build<Store>(ptr.Get(6).Build<ushort>(insn.Scope), new CGRegister(reg)));
+		}
+
+		public void WriteTo(IRInsn insn, int[] regs)
+		{
+			if (regs.Length != 4) throw new InvalidOperationException();
+			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), MakeArg(0)));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), MakeArg(1)));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[2]), MakeArg(2)));
+			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[3]), MakeArg(3)));
+		}
+	}
 }

@@ -144,6 +144,10 @@ namespace Dankle.Components.Instructions
 			Register<UnsignedGreaterThan32>();
 			Register<UnsignedGreaterThanOrEq32>();
 			Register<FlipCompare>();
+			Register<SignedMul64>();
+			Register<UnsignedMul64>();
+			Register<SignedDiv64>();
+			Register<UnsignedDiv64>();
 		}
 	}
 

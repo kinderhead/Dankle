@@ -34,6 +34,7 @@ namespace Assembler
 			ArgParsers[typeof(Any16Num)] = new Any16NumParser(this);
 			ArgParsers[typeof(Any16)] = new Any16Parser(this);
 			ArgParsers[typeof(Any32)] = new Any32Parser(this);
+			ArgParsers[typeof(Any64)] = new Any64Parser(this);
 			ArgParsers[typeof(Pointer<ushort>)] = new PointerParser(this);
 			ArgParsers[typeof(Pointer<byte>)] = new PointerParser(this);
 
@@ -174,6 +175,28 @@ namespace Assembler
 			paren ??= Tokens.Dequeue();
 			Assume(paren.Value, Token.Type.OParen);
 			var ret = ParseDoubleRegister();
+			GetNextToken(Token.Type.CParen);
+			return ret;
+		}
+
+		public ushort ParseQuadRegister()
+		{
+			var reg1 = GetNextToken(Token.Type.Register);
+			GetNextToken(Token.Type.Comma);
+			var reg2 = GetNextToken(Token.Type.Register);
+			GetNextToken(Token.Type.Comma);
+			var reg3 = GetNextToken(Token.Type.Register);
+			GetNextToken(Token.Type.Comma);
+			var reg4 = GetNextToken(Token.Type.Register);
+
+			return (ushort)((ParseRegister(reg1) << 12) | (ParseRegister(reg2) << 8) | (ParseRegister(reg3) << 4) | ParseRegister(reg4));
+		}
+
+		public ushort ParseStandaloneQuadRegister(Token? paren = null)
+		{
+			paren ??= Tokens.Dequeue();
+			Assume(paren.Value, Token.Type.OParen);
+			var ret = ParseQuadRegister();
 			GetNextToken(Token.Type.CParen);
 			return ret;
 		}

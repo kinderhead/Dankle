@@ -151,6 +151,40 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class UnsignedMul64 : Instruction
+	{
+		public override ushort Opcode => 77;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64), typeof(Any64)];
+		public override string Name => "UMULLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MUL, arg2.Read()));
+		}
+	}
+
+	public class SignedMul64 : Instruction
+	{
+		public override ushort Opcode => 76;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64), typeof(Any64)];
+		public override string Name => "SMULLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write((ulong)ctx.Core.ALU.Calculate((long)arg1.Read(), Operation.MUL, (long)arg2.Read()));
+		}
+	}
+
 	public class SignedDiv : Instruction
 	{
 		public override ushort Opcode => 10;
@@ -197,6 +231,40 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any32>();
 			var arg2 = ctx.GetNextArg<Any32>();
 			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.DIV, arg2.Read()));
+		}
+	}
+
+	public class SignedDiv64 : Instruction
+	{
+		public override ushort Opcode => 78;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64), typeof(Any64)];
+		public override string Name => "SDIVLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write((ulong)ctx.Core.ALU.Calculate((long)arg1.Read(), Operation.DIV, (long)arg2.Read()));
+		}
+	}
+
+	public class UnsignedDiv64 : Instruction
+	{
+		public override ushort Opcode => 79;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64), typeof(Any64)];
+		public override string Name => "UDIVLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
 
 			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.DIV, arg2.Read()));
 		}

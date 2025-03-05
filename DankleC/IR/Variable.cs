@@ -75,6 +75,7 @@ namespace DankleC.IR
 		{
 			1 => typeof(CGPointer<byte>),
 			4 => typeof(CGPointer<uint>),
+			8 => typeof(CGPointer<ulong>),
 			_ => typeof(CGPointer<ushort>)
 		};
 
@@ -82,6 +83,7 @@ namespace DankleC.IR
 		{
 			1 => Pointer.Build<byte>(Scope),
 			4 => Pointer.Build<uint>(Scope),
+			8 => Pointer.Build<ulong>(Scope),
 			_ => Pointer.Build<ushort>(Scope)
 		};
 

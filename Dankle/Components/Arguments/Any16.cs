@@ -112,4 +112,31 @@ namespace Dankle.Components.Arguments
 			_ => throw new ArgumentException($"Invalid type {type} for 32 bit any argument"),
 		};
 	}
+
+	public class Any64 : Argument<ulong>
+	{
+		public Any64()
+		{
+		}
+
+		public Any64(Context ctx, int type) : base(ctx, type)
+		{
+		}
+
+		public override Type[] AssignableFrom => [typeof(Immediate<ulong>), typeof(QuadRegister), typeof(Pointer<ulong>)];
+
+		public override IArgument Create(Context ctx, int argnum) => new Any32(ctx, argnum);
+
+		public override string Dissassemble() => GetArg(Ctx.Data[ArgNum]).Dissassemble();
+		public override ulong Read() => GetArg(Ctx.Data[ArgNum]).Read();
+		public override void Write(ulong value) => GetArg(Ctx.Data[ArgNum]).Write(value);
+
+		private Argument<ulong> GetArg(byte type) => type switch
+		{
+			0b0000 => new Immediate<ulong>(Ctx, ArgNum),
+			0b0001 => new QuadRegister(Ctx, ArgNum),
+			0b0010 or 0b0011 or 0b0100 or 0b0101 or 0b0110 or 0b0111 or 0b1000 or 0b1001 or 0b1010 or 0b1011 or 0b1100 => new Pointer<ulong>(Ctx, ArgNum),
+			_ => throw new ArgumentException($"Invalid type {type} for 32 bit any argument"),
+		};
+	}
 }

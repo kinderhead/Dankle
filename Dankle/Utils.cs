@@ -10,6 +10,7 @@ namespace Dankle
 {
 	public static class Utils
 	{
+		public static ulong Merge(uint a, uint b) => (ulong)a << 32 | b;
 		public static uint Merge(ushort a, ushort b) => (uint)a << 16 | b;
 		public static ushort Merge(byte a, byte b) => BitConverter.ToUInt16([a, b]);
 		public static byte Merge4Bit(byte a, byte b) => (byte)((a << 4) | b);

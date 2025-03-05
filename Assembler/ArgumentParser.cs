@@ -81,6 +81,21 @@ namespace Assembler
 		}
 	}
 
+	public class Any64Parser(Parser parser) : ArgumentParser(parser)
+	{
+		public override (byte type, byte[] data) Parse()
+		{
+			var tok = Parser.Tokens.Dequeue();
+			return tok.Symbol switch
+			{
+				Token.Type.OParen => (0b0001, Utils.ToBytes(Parser.ParseStandaloneQuadRegister(tok))),
+				Token.Type.Integer or Token.Type.Text => (0b0000, Utils.ToBytes(Parser.ParseNum<ulong>(tok))),
+				Token.Type.OSquareBracket => Parser.ParsePointer(tok),
+				_ => throw new InvalidTokenException(tok),
+			};
+		}
+	}
+
 	public class PointerParser(Parser parser) : ArgumentParser(parser)
 	{
 		public override (byte type, byte[] data) Parse() => Parser.ParsePointer();

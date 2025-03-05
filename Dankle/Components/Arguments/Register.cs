@@ -66,4 +66,40 @@ namespace Dankle.Components.Arguments
 			Ctx.Core.Registers[data & 0xF] = (ushort)value;
 		}
 	}
+
+	public class QuadRegister : Argument<ulong>
+	{
+		public QuadRegister()
+		{
+		}
+
+		public QuadRegister(Context ctx, int argnum) : base(ctx, argnum)
+		{
+		}
+
+		public override Type[] AssignableFrom => [];
+
+		public override IArgument Create(Context ctx, int argnum) => new DoubleRegister(ctx, argnum);
+
+		public override string Dissassemble()
+		{
+			var data = Ctx.Core.GetNext<ushort>();
+			return $"(r{(data >>> 12) & 0xF}, r{(data >>> 8) & 0xF}, r{(data >>> 4) & 0xF}, r{data & 0xF})";
+		}
+
+		public override ulong Read()
+		{
+			var data = Ctx.Core.GetNext<ushort>();
+			return Utils.Merge(Utils.Merge(Ctx.Core.Registers[(data >>> 12) & 0xF], Ctx.Core.Registers[(data >>> 8) & 0xF]), Utils.Merge(Ctx.Core.Registers[(data >>> 4) & 0xF], Ctx.Core.Registers[data & 0xF]));
+		}
+
+		public override void Write(ulong value)
+		{
+			var data = Ctx.Core.GetNext<ushort>();
+			Ctx.Core.Registers[(data >>> 12) & 0xF] = (ushort)(value >>> 48);
+			Ctx.Core.Registers[(data >>> 8) & 0xF] = (ushort)(value >>> 32);
+			Ctx.Core.Registers[(data >>> 4) & 0xF] = (ushort)(value >>> 16);
+			Ctx.Core.Registers[data & 0xF] = (ushort)value;
+		}
+	}
 }

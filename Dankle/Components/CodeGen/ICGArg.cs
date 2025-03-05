@@ -52,6 +52,23 @@ namespace Dankle.Components.CodeGen
         public override int GetHashCode() => base.GetHashCode();
 	}
 
+	public class CGQuadRegister(int reg1, int reg2, int reg3, int reg4) : CGArg<ushort>
+	{
+		public readonly int Reg1 = reg1 >= 16 || reg1 < 0 ? throw new InvalidOperationException($"Invalid register {reg1}") : reg1;
+		public readonly int Reg2 = reg2 >= 16 || reg2 < 0 ? throw new InvalidOperationException($"Invalid register {reg2}") : reg2;
+		public readonly int Reg3 = reg3 >= 16 || reg3 < 0 ? throw new InvalidOperationException($"Invalid register {reg3}") : reg3;
+		public readonly int Reg4 = reg4 >= 16 || reg4 < 0 ? throw new InvalidOperationException($"Invalid register {reg4}") : reg4;
+		public override Type ArgType => typeof(QuadRegister);
+
+		public override string Build()
+		{
+			return $"(r{Reg1}, r{Reg2}, r{Reg3}, r{Reg4})";
+		}
+
+		public override bool Equals(object? obj) => obj is CGQuadRegister reg && reg.Reg1 == Reg1 && reg.Reg2 == Reg2 && reg.Reg3 == Reg3 && reg.Reg4 == Reg4;
+		public override int GetHashCode() => base.GetHashCode();
+	}
+
 	public class CGImmediate<T>(T val) : CGArg<T> where T : IBinaryInteger<T>
 	{
 		public readonly T Value = val;

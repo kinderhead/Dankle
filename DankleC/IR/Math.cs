@@ -21,6 +21,13 @@ namespace DankleC.IR
 				Add(CGInsn.Build<Add>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
 				Add(CGInsn.Build<Adc>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
 			}
+			else if (Left.Type.Size == 8)
+			{
+				Add(CGInsn.Build<Add>(Left.MakeArg(3), Right.MakeArg(3), ret.MakeArg(3)));
+				Add(CGInsn.Build<Adc>(Left.MakeArg(2), Right.MakeArg(2), ret.MakeArg(2)));
+				Add(CGInsn.Build<Adc>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
+				Add(CGInsn.Build<Adc>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
+			}
 			else throw new NotImplementedException();
 		}
 	}
@@ -40,6 +47,13 @@ namespace DankleC.IR
 			else if (Left.Type.Size == 4)
 			{
 				Add(CGInsn.Build<Subtract>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
+				Add(CGInsn.Build<Sbb>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
+			}
+			else if (Left.Type.Size == 8)
+			{
+				Add(CGInsn.Build<Subtract>(Left.MakeArg(3), Right.MakeArg(3), ret.MakeArg(3)));
+				Add(CGInsn.Build<Sbb>(Left.MakeArg(2), Right.MakeArg(2), ret.MakeArg(2)));
+				Add(CGInsn.Build<Sbb>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
 				Add(CGInsn.Build<Sbb>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
@@ -67,12 +81,14 @@ namespace DankleC.IR
 
 				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedMul>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedMul32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 8) Add(CGInsn.Build<SignedMul64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 			else
 			{
 				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedMul>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedMul32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 8) Add(CGInsn.Build<UnsignedMul64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 		}
@@ -98,12 +114,14 @@ namespace DankleC.IR
 
 				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedDiv>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedDiv32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 8) Add(CGInsn.Build<SignedDiv64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 			else
 			{
 				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedDiv>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedDiv32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 8) Add(CGInsn.Build<UnsignedDiv64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 		}

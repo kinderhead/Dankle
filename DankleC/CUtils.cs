@@ -17,6 +17,8 @@ namespace DankleC
 			TypeCode.UInt16 => "unsigned short",
 			TypeCode.Int32 => "int",
 			TypeCode.UInt32 => "unsigned int",
+			TypeCode.Int64 => "long",
+			TypeCode.UInt64 => "unsigned long",
 			_ => throw new InvalidOperationException()
 		};
 	}
