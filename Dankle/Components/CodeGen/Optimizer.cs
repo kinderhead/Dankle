@@ -45,6 +45,7 @@ namespace Dankle.Components.CodeGen
                 {
                     CheckRedundantJump(insn);
                     ReduceFCMP(insn);
+                    RemoveRedundantInsns(insn);
                 }
             }
         }
@@ -74,6 +75,11 @@ namespace Dankle.Components.CodeGen
                     Remove();
                 }
             }
+        }
+
+        private void RemoveRedundantInsns(CGInsn insn)
+        {
+            if (insn.Insn is Move && insn.Args[0].Equals(insn.Args[1])) Remove();
         }
 
         public readonly record struct Settings(bool Simple, bool Destructive); // Default args don't work for some reason
