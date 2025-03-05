@@ -18,6 +18,12 @@ namespace DankleC.IR
 
 		public ICGArg MakeArg() => Type.Size == 1 ? new CGImmediate<byte>((byte)Value) : new CGImmediate<ushort>(Value);
 
+        public ICGArg MakeArg(int arg)
+        {
+            if (arg != 0) throw new InvalidOperationException();
+            return new CGImmediate<ushort>(Value);
+        }
+
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var reg = insn.Alloc();
@@ -59,7 +65,14 @@ namespace DankleC.IR
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => CGPointer<T>.Make(Value);
 
         public ICGArg MakeArg() => new CGImmediate<uint>(Value);
-        
+
+        public ICGArg MakeArg(int arg)
+        {
+            if (arg == 0) return new CGImmediate<ushort>((ushort)(Value >>> 16));
+            if (arg == 1) return new CGImmediate<ushort>((ushort)(Value & 0xFFFF));
+            throw new InvalidOperationException();
+        }
+
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var regs = insn.Alloc(4);

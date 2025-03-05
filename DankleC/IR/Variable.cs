@@ -19,6 +19,7 @@ namespace DankleC.IR
 		public abstract Type CGType { get; }
 
 		public abstract ICGArg MakeArg();
+		public abstract ICGArg MakeArg(int arg);
 		public abstract void Store(IRBuilder builder, IValue value);
 		public abstract void WriteTo(IRInsn insn, IPointer ptr);
 		public abstract void WriteTo(IRInsn insn, int[] regs);
@@ -31,7 +32,7 @@ namespace DankleC.IR
 			var regs = ToRegisters(insn);
 			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
 		}
-	}
+    }
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
 	{
@@ -46,7 +47,7 @@ namespace DankleC.IR
 			throw new NotImplementedException();
 		}
 
-		public CGRegister MakeArg(int reg) => new(Registers[reg]);
+		public override ICGArg MakeArg(int reg) => new CGRegister(Registers[reg]);
 
 		public override void Store(IRBuilder builder, IValue value)
 		{
@@ -84,6 +85,12 @@ namespace DankleC.IR
 			_ => Pointer.Build<ushort>(Scope)
 		};
 
+		public override ICGArg MakeArg(int arg)
+        {
+            if (IRBuilder.NumRegForBytes(Type.Size) < arg) throw new InvalidOperationException();
+            return Pointer.Get(arg * 2).Build<ushort>(Scope);
+        }
+
 		public override void Store(IRBuilder builder, IValue value)
 		{
 			builder.Add(new IRStorePtr(Pointer, value));
@@ -111,7 +118,7 @@ namespace DankleC.IR
 			if (Type is not ArrayTypeSpecifier arr) throw new NotImplementedException();
 			return new(Name, arr.Inner, pointer.Get(offset, arr.Inner.Size), Scope);
 		}
-	}
+    }
 
 	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : StackVariable(name, type, pointer, scope), IDisposable
 	{
@@ -127,6 +134,13 @@ namespace DankleC.IR
 		public override Type CGType => typeof(CGLabel<uint>);
 
 		public override ICGArg MakeArg() => new CGLabel<uint>($"_{Name}");
+
+		public override ICGArg MakeArg(int arg)
+		{
+			if (arg == 0) return new CGLabel<ushort>($"_{Name}#H");
+			if (arg == 1) return new CGLabel<ushort>($"_{Name}#L");
+			throw new InvalidOperationException();
+        }
 
 		public override void Store(IRBuilder builder, IValue value) => throw new InvalidOperationException();
 

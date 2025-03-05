@@ -187,6 +187,17 @@ namespace DankleC.IR
 		}
 	}
 
+	public class IRMovePointer(IPointer dest, IPointer src) : IRInsn
+	{
+		public readonly IPointer Dest = dest;
+		public readonly IPointer Source = src;
+
+		public override void Compile(CodeGen gen)
+		{
+			MovePtrToPtr(Source, Dest);
+		}
+	}
+
 	public class IRStoreRegs(int[] regs, IValue value) : IRInsn
 	{
 		public readonly int[] Registers = regs;

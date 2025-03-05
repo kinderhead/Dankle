@@ -524,6 +524,7 @@ short main()
 		[TestMethod, TestCategory("Functions")]
 		public void UIntSimpleFunc() => CTestHelper.TestSimpleFunction<uint>();
 
+
 		[TestMethod, TestCategory("Functions")]
 		public void CharOneArgFunc() => CTestHelper.TestFunctionOneArg<sbyte>();
 
@@ -541,6 +542,25 @@ short main()
 
 		[TestMethod, TestCategory("Functions")]
 		public void UIntOneArgFunc() => CTestHelper.TestFunctionOneArg<uint>();
+
+
+		[TestMethod, TestCategory("Functions")]
+		public void CharTwoArgFunc() => CTestHelper.TestFunctionTwoArg<sbyte>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UCharTwoArgFunc() => CTestHelper.TestFunctionTwoArg<byte>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ShortTwoArgFunc() => CTestHelper.TestFunctionTwoArg<short>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UShortTwoArgFunc() => CTestHelper.TestFunctionTwoArg<ushort>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void IntTwoArgFunc() => CTestHelper.TestFunctionTwoArg<int>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UIntTwoArgFunc() => CTestHelper.TestFunctionTwoArg<uint>();
 		
 		#endregion
 

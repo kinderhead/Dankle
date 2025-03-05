@@ -9,48 +9,9 @@ namespace DankleC.IR
     {
         public static void LargeOp32<TCompare, TJump>(IRInsn insn, IValue left, IValue right, string zero) where TCompare : Instruction, new() where TJump : Instruction, new()
         {
-            IValue part1Arg1;
-            IValue part2Arg1;
-            IValue part1Arg2;
-            IValue part2Arg2;
-
-            if (left is Immediate32 imm1)
-            {
-                part1Arg1 = new Immediate((ushort)(imm1.Value >> 16), BuiltinType.UnsignedShort);
-                part2Arg1 = new Immediate((ushort)(imm1.Value & 0xFFFF), BuiltinType.UnsignedShort);
-            }
-            else if (left is IRegisterValue reg1)
-            {
-                part1Arg1 = new SimpleRegisterValue([reg1.Registers[0]], new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
-                part2Arg1 = new SimpleRegisterValue([reg1.Registers[1]], new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
-            }
-            else if (left is IPointerValue ptr1)
-            {
-                part1Arg1 = new SimplePointerValue(ptr1.Pointer.Get(0, 2), new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), insn.Scope);
-                part2Arg1 = new SimplePointerValue(ptr1.Pointer.Get(2, 2), new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), insn.Scope);
-            }
-            else throw new NotImplementedException();
-
-            if (right is Immediate32 imm2)
-            {
-                part1Arg2 = new Immediate((ushort)(imm2.Value >> 16), BuiltinType.UnsignedShort);
-                part2Arg2 = new Immediate((ushort)(imm2.Value & 0xFFFF), BuiltinType.UnsignedShort);
-            }
-            else if (right is IRegisterValue reg2)
-            {
-                part1Arg2 = new SimpleRegisterValue([reg2.Registers[0]], new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
-                part2Arg2 = new SimpleRegisterValue([reg2.Registers[1]], new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
-            }
-            else if (right is IPointerValue ptr2)
-            {
-                part1Arg2 = new SimplePointerValue(ptr2.Pointer.Get(0, 2), new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), insn.Scope);
-                part2Arg2 = new SimplePointerValue(ptr2.Pointer.Get(2, 2), new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), insn.Scope);
-            }
-            else throw new NotImplementedException();
-
-            insn.Add(CGInsn.Build<TCompare>(part1Arg1.MakeArg(), part1Arg2.MakeArg()));
+            insn.Add(CGInsn.Build<TCompare>(left.MakeArg(0), right.MakeArg(0)));
             insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
-            insn.Add(CGInsn.Build<TCompare>(part2Arg1.MakeArg(), part2Arg2.MakeArg()));
+            insn.Add(CGInsn.Build<TCompare>(left.MakeArg(1), right.MakeArg(1)));
             insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
         }
 

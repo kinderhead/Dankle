@@ -408,5 +408,29 @@ short main()
 			c.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
 		}
+
+		public static void TestFunctionTwoArg<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var x = T.MaxValue - T.One;
+			var y = T.One;
+
+			using var c = new CTestHelper(@$"
+{type} test({type} x, {type} y)
+{{
+	int _ = 0;
+	return x + y;
+}}
+
+short main()
+{{
+	int _ = 0;
+    {type} x = test({x}, {y});
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
+		}
 	}
 }

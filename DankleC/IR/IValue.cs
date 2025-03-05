@@ -11,6 +11,7 @@ namespace DankleC.IR
         public Type CGType { get; }
 
         public ICGArg MakeArg();
+        public ICGArg MakeArg(int arg);
         public void WriteTo(IRInsn insn, IPointer ptr);
         public void WriteTo(IRInsn insn, int[] regs);
 
@@ -28,8 +29,6 @@ namespace DankleC.IR
     public interface IRegisterValue : IValue
     {
         public int[] Registers { get; }
-
-        public CGRegister MakeArg(int reg);
     }
 
     public interface IPointerValue : IValue
@@ -60,7 +59,7 @@ namespace DankleC.IR
             throw new NotImplementedException();
         }
 
-        public CGRegister MakeArg(int reg) => new(Registers[reg]);
+        public ICGArg MakeArg(int reg) => new CGRegister(Registers[reg]);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn) => this;
         public void WriteTo(IRInsn insn, IPointer ptr) => insn.MoveRegsToPtr(Registers, ptr);
@@ -93,6 +92,12 @@ namespace DankleC.IR
             4 => Pointer.Build<uint>(scope),
             _ => Pointer.Build<ushort>(scope)
         };
+
+        public ICGArg MakeArg(int arg)
+        {
+            if (IRBuilder.NumRegForBytes(Type.Size) < arg) throw new InvalidOperationException();
+            return Pointer.Get(arg * 2).Build<ushort>(scope);
+        }
 
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {

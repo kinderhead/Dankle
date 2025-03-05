@@ -64,6 +64,8 @@ namespace DankleC.ASTObjects.Expressions
                 return new ConstantExpression(type, res);
 			}
 
+			if (type.Size == 1) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
+
 			return new ResolvedArithmeticExpression(left.Cast(type), Op, right.Cast(type), type);
 		}
 	}

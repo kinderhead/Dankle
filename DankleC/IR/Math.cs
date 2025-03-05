@@ -13,15 +13,13 @@ namespace DankleC.IR
 		{
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
-			var left = Left.ToRegisters(this);
-			var right = Right.ToRegisters(this);
 			var ret = GetReturn(Left.Type);
 
-			if (Left.Type.Size <= 2) Add(CGInsn.Build<Add>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+			if (Left.Type.Size <= 2) Add(CGInsn.Build<Add>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 			else if (Left.Type.Size == 4)
 			{
-				Add(CGInsn.Build<Add>(left.MakeArg(1), right.MakeArg(1), ret.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(left.MakeArg(0), right.MakeArg(0), ret.MakeArg(0)));
+				Add(CGInsn.Build<Add>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
+				Add(CGInsn.Build<Adc>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
 		}
@@ -36,15 +34,13 @@ namespace DankleC.IR
 		{
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
-			var left = Left.ToRegisters(this);
-			var right = Right.ToRegisters(this);
 			var ret = GetReturn(Left.Type);
 
-			if (Left.Type.Size <= 2) Add(CGInsn.Build<Subtract>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+			if (Left.Type.Size <= 2) Add(CGInsn.Build<Subtract>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 			else if (Left.Type.Size == 4)
 			{
-				Add(CGInsn.Build<Subtract>(left.MakeArg(1), right.MakeArg(1), ret.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(left.MakeArg(0), right.MakeArg(0), ret.MakeArg(0)));
+				Add(CGInsn.Build<Subtract>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
+				Add(CGInsn.Build<Sbb>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
 		}
@@ -59,26 +55,24 @@ namespace DankleC.IR
 		{
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
-			var left = Left.ToRegisters(this);
-			var right = Right.ToRegisters(this);
 			var ret = GetReturn(Left.Type);
 
 			if (Left.Type.IsSigned())
 			{
 				if (Left.Type.Size == 1)
 				{
-					Add(CGInsn.Build<SignExtend8>(left.MakeArg(), left.MakeArg()));
-					Add(CGInsn.Build<SignExtend8>(right.MakeArg(), right.MakeArg()));
+					Add(CGInsn.Build<SignExtend8>(Left.MakeArg(), Left.MakeArg()));
+					Add(CGInsn.Build<SignExtend8>(Right.MakeArg(), Right.MakeArg()));
 				}
 
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedMul>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedMul32>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedMul>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedMul32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 			else
 			{
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedMul>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedMul32>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedMul>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedMul32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 		}
@@ -92,27 +86,24 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
-
-			var left = Left.ToRegisters(this);
-			var right = Right.ToRegisters(this);
 			var ret = GetReturn(Left.Type);
 
 			if (Left.Type.IsSigned())
 			{
 				if (Left.Type.Size == 1)
 				{
-					Add(CGInsn.Build<SignExtend8>(left.MakeArg(), left.MakeArg()));
-					Add(CGInsn.Build<SignExtend8>(right.MakeArg(), right.MakeArg()));
+                    Add(CGInsn.Build<SignExtend8>(Left.MakeArg(), Left.MakeArg()));
+                    Add(CGInsn.Build<SignExtend8>(Right.MakeArg(), Right.MakeArg()));
 				}
 
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedDiv>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedDiv32>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedDiv>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedDiv32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 			else
 			{
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedDiv>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedDiv32>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedDiv>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
+				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedDiv32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
 				else throw new NotImplementedException();
 			}
 		}
