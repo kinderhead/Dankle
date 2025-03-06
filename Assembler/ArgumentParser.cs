@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Assembler
 {
-    public abstract class ArgumentParser(Parser parser)
+	public abstract class ArgumentParser(Parser parser)
 	{
-        public readonly Parser Parser = parser;
+		public readonly Parser Parser = parser;
 
 		/// <summary>
 		/// Attempt to parse the instruction
@@ -99,5 +99,10 @@ namespace Assembler
 	public class PointerParser(Parser parser) : ArgumentParser(parser)
 	{
 		public override (byte type, byte[] data) Parse() => Parser.ParsePointer();
+	}
+	
+	public class DoubleRegParser(Parser parser) : ArgumentParser(parser)
+	{
+		public override (byte type, byte[] data) Parse() => (0, [Parser.ParseStandaloneDoubleRegister()]);
 	}
 }

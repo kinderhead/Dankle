@@ -27,7 +27,7 @@ namespace DankleC.IR
 			insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
 		}
 
-		public static void SmallOp<TCompareSigned, TCompareUnsigned, TCompareSigned32, TCompareUnsigned32>(IRInsn insn, IValue left, IValue right) where TCompareSigned : Instruction, new() where TCompareUnsigned : Instruction, new() where TCompareSigned32 : Instruction, new() where TCompareUnsigned32 : Instruction, new()
+		public static void SmallOp<TCompareSigned, TCompareUnsigned, TCompareSigned32, TCompareUnsigned32, TCompareSigned64, TCompareUnsigned64>(IRInsn insn, IValue left, IValue right) where TCompareSigned : Instruction, new() where TCompareUnsigned : Instruction, new() where TCompareSigned32 : Instruction, new() where TCompareUnsigned32 : Instruction, new() where TCompareSigned64 : Instruction, new() where TCompareUnsigned64 : Instruction, new()
         {
             if (left.Type.IsSigned())
             {
@@ -58,6 +58,10 @@ namespace DankleC.IR
                 {
                     insn.Add(CGInsn.Build<TCompareSigned32>(left.MakeArg(), right.MakeArg()));
                 }
+                else if (left.Type.Size == 8)
+                {
+                    insn.Add(CGInsn.Build<TCompareSigned64>(left.MakeArg(), right.MakeArg()));
+                }
                 else throw new NotImplementedException();
             }
             else
@@ -73,6 +77,10 @@ namespace DankleC.IR
                 else if (left.Type.Size == 4)
                 {
                     insn.Add(CGInsn.Build<TCompareUnsigned32>(left.MakeArg(), right.MakeArg()));
+                }
+                else if (left.Type.Size == 8)
+                {
+                    insn.Add(CGInsn.Build<TCompareUnsigned64>(left.MakeArg(), right.MakeArg()));
                 }
                 else throw new NotImplementedException();
             }
@@ -225,7 +233,7 @@ namespace DankleC.IR
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
-            LogicUtils.SmallOp<LessThan, UnsignedLessThan, LessThan32, UnsignedLessThan32>(this, Left, Right);
+            LogicUtils.SmallOp<LessThan, UnsignedLessThan, LessThan32, UnsignedLessThan32, LessThan64, UnsignedLessThan64>(this, Left, Right);
             if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
@@ -240,7 +248,7 @@ namespace DankleC.IR
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
-            LogicUtils.SmallOp<LessThanOrEq, UnsignedLessThanOrEq, LessThanOrEq32, UnsignedLessThanOrEq32>(this, Left, Right);
+            LogicUtils.SmallOp<LessThanOrEq, UnsignedLessThanOrEq, LessThanOrEq32, UnsignedLessThanOrEq32, LessThanOrEq64, UnsignedLessThanOrEq64>(this, Left, Right);
             if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
@@ -255,7 +263,7 @@ namespace DankleC.IR
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
-            LogicUtils.SmallOp<GreaterThan, UnsignedGreaterThan, GreaterThan32, UnsignedGreaterThan32>(this, Left, Right);
+            LogicUtils.SmallOp<GreaterThan, UnsignedGreaterThan, GreaterThan32, UnsignedGreaterThan32, GreaterThan64, UnsignedGreaterThan64>(this, Left, Right);
             if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }
@@ -270,7 +278,7 @@ namespace DankleC.IR
         {
             var ret = GetReturn(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar));
 
-            LogicUtils.SmallOp<GreaterThanOrEq, UnsignedGreaterThanOrEq, GreaterThanOrEq32, UnsignedGreaterThanOrEq32>(this, Left, Right);
+            LogicUtils.SmallOp<GreaterThanOrEq, UnsignedGreaterThanOrEq, GreaterThanOrEq32, UnsignedGreaterThanOrEq32, GreaterThanOrEq64, UnsignedGreaterThanOrEq64>(this, Left, Right);
             if (ShouldReturn) Add(CGInsn.Build<GetCompare>(ret.MakeArg()));
         }
     }

@@ -148,6 +148,18 @@ namespace Dankle.Components.Instructions
 			Register<UnsignedMul64>();
 			Register<SignedDiv64>();
 			Register<UnsignedDiv64>();
+			Register<LessThan64>();
+			Register<LessThanOrEq64>();
+			Register<GreaterThan64>();
+			Register<GreaterThanOrEq64>();
+			Register<UnsignedLessThan64>();
+			Register<UnsignedLessThanOrEq64>();
+			Register<UnsignedGreaterThan64>();
+			Register<UnsignedGreaterThanOrEq64>();
+			Register<Load32>();
+			Register<Store32>();
+			Register<Load64>();
+			Register<Store64>();
 		}
 	}
 

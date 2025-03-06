@@ -80,21 +80,24 @@ namespace DankleC.IR
             return new(regs, Type);
         }
 
-		public void WriteTo(IRInsn insn, IPointer ptr)
+        public void WriteTo(IRInsn insn, IPointer ptr)
         {
-            var reg = insn.OneTimeAlloc();
-            insn.Add(CGInsn.Build<Load>(new CGRegister(reg), new CGImmediate<ushort>((ushort)(Value >>> 16))));
-            insn.Add(CGInsn.Build<Store>(ptr.Build<ushort>(insn.Scope), new CGRegister(reg)));
-            insn.Add(CGInsn.Build<Load>(new CGRegister(reg), new CGImmediate<ushort>((ushort)(Value & 0xFFFF))));
-            insn.Add(CGInsn.Build<Store>(ptr.Get(2).Build<ushort>(insn.Scope), new CGRegister(reg)));
+            if (ptr.Size != 4) throw new InvalidOperationException();
+            insn.Add(CGInsn.Build<Store32>(new CGImmediate<uint>(Value), ptr.Build<uint>(insn.Scope)));
+            // var reg = insn.OneTimeAlloc();
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(reg), new CGImmediate<ushort>((ushort)(Value >>> 16))));
+            // insn.Add(CGInsn.Build<Store>(ptr.Build<ushort>(insn.Scope), new CGRegister(reg)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(reg), new CGImmediate<ushort>((ushort)(Value & 0xFFFF))));
+            // insn.Add(CGInsn.Build<Store>(ptr.Get(2).Build<ushort>(insn.Scope), new CGRegister(reg)));
         }
 
-		public void WriteTo(IRInsn insn, int[] regs)
-		{
-			if (regs.Length != 2) throw new InvalidOperationException();
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), new CGImmediate<ushort>((ushort)(Value >>> 16))));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), new CGImmediate<ushort>((ushort)(Value & 0xFFFF))));
-		}
+        public void WriteTo(IRInsn insn, int[] regs)
+        {
+            if (regs.Length != 2) throw new InvalidOperationException();
+            insn.Add(CGInsn.Build<Load32>(new CGImmediate<uint>(Value), new CGDoubleRegister(regs[0], regs[1])));
+			// insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), new CGImmediate<ushort>((ushort)(Value >>> 16))));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), new CGImmediate<ushort>((ushort)(Value & 0xFFFF))));
+        }
 	}
 
 	public class Immediate64(ulong value, BuiltinType type) : IImmediateValue
@@ -125,26 +128,30 @@ namespace DankleC.IR
 			return new(regs, Type);
 		}
 
-		public void WriteTo(IRInsn insn, IPointer ptr)
-		{
-			var reg = insn.OneTimeAlloc();
-			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(0)));
-			insn.Add(CGInsn.Build<Store>(ptr.Build<ushort>(insn.Scope), new CGRegister(reg)));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(1)));
-			insn.Add(CGInsn.Build<Store>(ptr.Get(2).Build<ushort>(insn.Scope), new CGRegister(reg)));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(2)));
-			insn.Add(CGInsn.Build<Store>(ptr.Get(4).Build<ushort>(insn.Scope), new CGRegister(reg)));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(3)));
-			insn.Add(CGInsn.Build<Store>(ptr.Get(6).Build<ushort>(insn.Scope), new CGRegister(reg)));
-		}
+        public void WriteTo(IRInsn insn, IPointer ptr)
+        {
+            if (ptr.Size != 8) throw new InvalidOperationException();
+            insn.Add(CGInsn.Build<Store64>(new CGImmediate<ulong>(Value), ptr.Build<ulong>(insn.Scope)));
+			// var reg = insn.OneTimeAlloc();
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(0)));
+            // insn.Add(CGInsn.Build<Store>(ptr.Build<ushort>(insn.Scope), new CGRegister(reg)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(1)));
+            // insn.Add(CGInsn.Build<Store>(ptr.Get(2).Build<ushort>(insn.Scope), new CGRegister(reg)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(2)));
+            // insn.Add(CGInsn.Build<Store>(ptr.Get(4).Build<ushort>(insn.Scope), new CGRegister(reg)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(reg), MakeArg(3)));
+            // insn.Add(CGInsn.Build<Store>(ptr.Get(6).Build<ushort>(insn.Scope), new CGRegister(reg)));
+        }
 
-		public void WriteTo(IRInsn insn, int[] regs)
-		{
-			if (regs.Length != 4) throw new InvalidOperationException();
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), MakeArg(0)));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), MakeArg(1)));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[2]), MakeArg(2)));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[3]), MakeArg(3)));
-		}
+        public void WriteTo(IRInsn insn, int[] regs)
+        {
+            if (regs.Length != 4) throw new InvalidOperationException();
+            insn.Add(CGInsn.Build<Load64>(new CGImmediate<ulong>(Value), new CGQuadRegister(regs[0], regs[1], regs[2], regs[3])));
+
+			// insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), MakeArg(0)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), MakeArg(1)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(regs[2]), MakeArg(2)));
+            // insn.Add(CGInsn.Build<Load>(new CGRegister(regs[3]), MakeArg(3)));
+        }
 	}
 }

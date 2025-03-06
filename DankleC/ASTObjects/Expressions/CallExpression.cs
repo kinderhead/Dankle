@@ -17,8 +17,6 @@ namespace DankleC.ASTObjects.Expressions
         public readonly List<ResolvedExpression> Arguments = args;
         public override bool IsSimpleExpression => false;
 
-        private static bool nestedCalls = false;
-
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedCallExpression(Function, Arguments);
 
         public override IValue Execute(IRBuilder builder, IRScope scope)
@@ -29,22 +27,19 @@ namespace DankleC.ASTObjects.Expressions
             scope.ReserveFunctionCallSpace((FunctionTypeSpecifier)Function.Type);
 
             var ptrs = new List<PreArgumentPointer>();
-            var temps = new TempStackVariable?[Arguments.Count];
+            var temps = new TempStackVariable[Arguments.Count];
 
             var offset = 0;
             for (int i = 0; i < Arguments.Count; i++)
             {
                 ptrs.Add(new PreArgumentPointer(offset, parameters[i].Size));
                 offset += parameters[i].Size;
-
-                if (nestedCalls) temps[i] = scope.AllocTemp(parameters[i]);
+                temps[i] = scope.AllocTemp(parameters[i]);
             }
 
             for (int i = 0; i < Arguments.Count; i++)
             {
-                nestedCalls = true;
-                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], Arguments[i].Cast(parameters[i]).Execute(builder, scope)));
-                nestedCalls = false;
+                builder.Add(new IRStorePtr(temps[i].Pointer, Arguments[i].Cast(parameters[i]).Execute(builder, scope)));
             }
 
             for (int i = 0; i < Arguments.Count; i++)

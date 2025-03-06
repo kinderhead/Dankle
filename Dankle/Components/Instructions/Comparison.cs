@@ -280,6 +280,134 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class LessThan64 : Instruction
+	{
+		public override ushort Opcode => 80;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "LTLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag((long)arg1.Read(), Comparison.LT, (long)arg2.Read());
+		}
+	}
+
+	public class LessThanOrEq64 : Instruction
+	{
+		public override ushort Opcode => 81;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "LTELL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag((long)arg1.Read(), Comparison.LTE, (long)arg2.Read());
+		}
+	}
+
+	public class GreaterThan64 : Instruction
+	{
+		public override ushort Opcode => 82;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "GTLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag((long)arg1.Read(), Comparison.GT, (long)arg2.Read());
+		}
+	}
+
+	public class GreaterThanOrEq64 : Instruction
+	{
+		public override ushort Opcode => 83;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "GTELL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag((long)arg1.Read(), Comparison.GTE, (long)arg2.Read());
+		}
+	}
+
+	public class UnsignedLessThan64 : Instruction
+	{
+		public override ushort Opcode => 84;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "ULTLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LT, arg2.Read());
+		}
+	}
+
+	public class UnsignedLessThanOrEq64 : Instruction
+	{
+		public override ushort Opcode => 85;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "ULTELL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.LTE, arg2.Read());
+		}
+	}
+
+	public class UnsignedGreaterThan64 : Instruction
+	{
+		public override ushort Opcode => 86;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "UGTLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.GT, arg2.Read());
+		}
+	}
+
+	public class UnsignedGreaterThanOrEq64 : Instruction
+	{
+		public override ushort Opcode => 87;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "UGTELL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+
+			ctx.Core.ALU.CompareAndSetFlag(arg1.Read(), Comparison.GTE, arg2.Read());
+		}
+	}
+
 	public class CompareFlags : Instruction
 	{
 		public override ushort Opcode => 42;

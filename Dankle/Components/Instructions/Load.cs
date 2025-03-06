@@ -39,6 +39,38 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class Load32 : Instruction
+	{
+		public override ushort Opcode => 88;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any32)];
+		public override string Name => "LDL";
+
+		protected override void Handle(Context ctx)
+		{
+			var src = ctx.GetNextArg<Any32>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(src.Read());
+		}
+	}
+
+	public class Load64 : Instruction
+	{
+		public override ushort Opcode => 90;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64)];
+		public override string Name => "LDLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var src = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write(src.Read());
+		}
+	}
+
 	public class LoadEffectiveAddress : Instruction
 	{
 		public override ushort Opcode => 60;

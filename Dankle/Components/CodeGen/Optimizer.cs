@@ -34,6 +34,11 @@ namespace Dankle.Components.CodeGen
             index--;
         }
 
+        private void Remove(int index)
+        {
+            currentDefs.RemoveAt(index);
+        }
+
         private void SimplePass(List<InsnDef> defs)
         {
             index = 0;
@@ -80,6 +85,14 @@ namespace Dankle.Components.CodeGen
         private void RemoveRedundantInsns(CGInsn insn)
         {
             if (insn.Insn is Move && insn.Args[0].Equals(insn.Args[1])) Remove();
+            else if (insn.Insn is Sbb && insn.Args[1].Equals(new CGImmediate<ushort>(0)))
+            {
+                while (NextIsInsn() is CGInsn i)
+                {
+                    if (i.Insn is Sbb && i.Args[1].Equals(new CGImmediate<ushort>(0)) && i.Args[0].Equals(i.Args[2])) Remove(index + 1);
+                    else break;
+                }
+            }
         }
 
         public readonly record struct Settings(bool Simple, bool Destructive); // Default args don't work for some reason

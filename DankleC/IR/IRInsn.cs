@@ -78,6 +78,8 @@ namespace DankleC.IR
 		{
 			if (regs.Length != IRBuilder.NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
 			else if (ptr.Size == 1) Add(CGInsn.Build<Store8>(ptr.Build<byte>(Scope), new CGRegister(regs[0])));
+			else if (ptr.Size == 4) Add(CGInsn.Build<Store32>(new CGDoubleRegister(regs[0], regs[1]), ptr.Build<uint>(Scope)));
+			else if (ptr.Size == 8) Add(CGInsn.Build<Store64>(new CGQuadRegister(regs[0], regs[1], regs[2], regs[3]), ptr.Build<ulong>(Scope)));
 			else if (ptr.Size % 2 == 0)
 			{
 				for (var i = 0; i < ptr.Size; i += 2)
@@ -115,6 +117,8 @@ namespace DankleC.IR
 		{
 			if (regs.Length != IRBuilder.NumRegForBytes(ptr.Size)) throw new InvalidOperationException();
 			else if (ptr.Size == 1) Add(CGInsn.Build<Load8>(new CGRegister(regs[0]), ptr.Build<byte>(Scope)));
+			else if (ptr.Size == 4) Add(CGInsn.Build<Load32>(ptr.Build<uint>(Scope), new CGDoubleRegister(regs[0], regs[1])));
+			else if (ptr.Size == 8) Add(CGInsn.Build<Load64>(ptr.Build<ulong>(Scope), new CGQuadRegister(regs[0], regs[1], regs[2], regs[3])));
 			else if (ptr.Size % 2 == 0)
 			{
 				List<(int, int)> temps = [];

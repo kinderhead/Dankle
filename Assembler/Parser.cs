@@ -30,13 +30,16 @@ namespace Assembler
 			StartAddr = startAddress;
 
 			ArgParsers[typeof(Register)] = new RegisterParser(this);
+			ArgParsers[typeof(DoubleRegister)] = new DoubleRegParser(this);
 			ArgParsers[typeof(Any8Num)] = new Any8NumParser(this);
 			ArgParsers[typeof(Any16Num)] = new Any16NumParser(this);
 			ArgParsers[typeof(Any16)] = new Any16Parser(this);
 			ArgParsers[typeof(Any32)] = new Any32Parser(this);
 			ArgParsers[typeof(Any64)] = new Any64Parser(this);
-			ArgParsers[typeof(Pointer<ushort>)] = new PointerParser(this);
 			ArgParsers[typeof(Pointer<byte>)] = new PointerParser(this);
+			ArgParsers[typeof(Pointer<ushort>)] = new PointerParser(this);
+			ArgParsers[typeof(Pointer<uint>)] = new PointerParser(this);
+			ArgParsers[typeof(Pointer<ulong>)] = new PointerParser(this);
 
 			if (computer is not null) SetVariablesForComputer(computer);
 		}
@@ -245,7 +248,7 @@ namespace Assembler
 				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [..Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
 				else throw new InvalidTokenException(second);
 			}
-			else if (first.Symbol == Token.Type.Register || (first.Text == "SP" || first.Text == "PC"))
+			else if (first.Symbol == Token.Type.Register || first.Text == "SP" || first.Text == "PC")
 			{
 				if (first.Symbol == Token.Type.Text || Tokens.Peek().Symbol == Token.Type.Comma)
 				{

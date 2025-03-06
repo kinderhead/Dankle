@@ -100,6 +100,36 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Variables")]
+		public void LongVar()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    long x = -68347455530;
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(-68347455530, c.GetVariable<long>("x"));
+		}
+
+		[TestMethod]
+		[TestCategory("Variables")]
+		public void ULongVar()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    unsigned long x = 14925734324398457938;
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(14925734324398457938, c.GetVariable<ulong>("x"));
+		}
+
+		[TestMethod]
+		[TestCategory("Variables")]
 		public void Short2Var()
 		{
 			using var c = new CTestHelper(@"
