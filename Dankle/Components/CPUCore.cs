@@ -220,8 +220,8 @@ namespace Dankle.Components
 
 			public readonly CPUCore Core = core;
 
-			private readonly ushort[] registers = Enumerable.Repeat((ushort)0, 16).ToArray();
-			private readonly RegisterState[] states = Enumerable.Repeat(RegisterState.None, 16).ToArray();
+			private readonly ushort[] registers = [.. Enumerable.Repeat((ushort)0, 16)];
+			private readonly RegisterState[] states = [.. Enumerable.Repeat(RegisterState.None, 16)];
 
 			public ushort this[int reg]
 			{

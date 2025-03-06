@@ -56,6 +56,24 @@ namespace DankleC.IR
 					{
 						Add(CGInsn.Build<SignExtend8>(new CGRegister(ret.Registers[0]), new CGRegister(ret.Registers[0])));
 					}
+					else if (Type.Size == 8 && Value.Type.Size == 1)
+					{
+						Add(CGInsn.Build<SignExtend8>(new CGRegister(ret.Registers[3]), new CGRegister(ret.Registers[3])));
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[3]), new CGRegister(ret.Registers[2])));
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[2]), new CGRegister(ret.Registers[1])));
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[1]), new CGRegister(ret.Registers[0])));
+					}
+					else if (Type.Size == 8 && Value.Type.Size == 2)
+					{
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[3]), new CGRegister(ret.Registers[2])));
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[2]), new CGRegister(ret.Registers[1])));
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[1]), new CGRegister(ret.Registers[0])));
+					}
+					else if (Type.Size == 8 && Value.Type.Size == 4)
+					{
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[2]), new CGRegister(ret.Registers[1])));
+						Add(CGInsn.Build<SignExtend>(new CGRegister(ret.Registers[1]), new CGRegister(ret.Registers[0])));
+					}
 					else throw new NotImplementedException();
 				}
 				else

@@ -244,6 +244,12 @@ short main()
 		[TestMethod, TestCategory("Casting")]
 		public void UIntCast() => CTestHelper.TestCast<uint>();
 
+		[TestMethod, TestCategory("Casting")]
+		public void LongCast() => CTestHelper.TestCast<long>();
+
+		[TestMethod, TestCategory("Casting")]
+		public void ULongCast() => CTestHelper.TestCast<ulong>();
+
 		#endregion
 
 		#region Pointers
@@ -350,6 +356,13 @@ short main()
 		public void UIntCompare() => CTestHelper.TestComparison<uint>();
 
 		[TestMethod, TestCategory("Logic")]
+		public void LongCompare() => CTestHelper.TestComparison<long>();
+
+		[TestMethod, TestCategory("Logic")]
+		public void ULongCompare() => CTestHelper.TestComparison<ulong>();
+
+
+		[TestMethod, TestCategory("Logic")]
 		public void CharLogic() => CTestHelper.TestLogic<sbyte>();
 
 		[TestMethod, TestCategory("Logic")]
@@ -366,6 +379,12 @@ short main()
 
 		[TestMethod, TestCategory("Logic")]
 		public void UIntLogic() => CTestHelper.TestLogic<uint>();
+
+		[TestMethod, TestCategory("Logic")]
+		public void LongLogic() => CTestHelper.TestLogic<long>();
+
+		[TestMethod, TestCategory("Logic")]
+		public void ULongLogic() => CTestHelper.TestLogic<ulong>();
 
 		[TestMethod]
 		[TestCategory("Logic")]
@@ -531,6 +550,12 @@ short main()
 		[TestMethod, TestCategory("Functions")]
 		public void UIntSimpleFunc() => CTestHelper.TestSimpleFunction<uint>();
 
+		[TestMethod, TestCategory("Functions")]
+		public void LongSimpleFunc() => CTestHelper.TestSimpleFunction<long>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ULongSimpleFunc() => CTestHelper.TestSimpleFunction<ulong>();
+
 
 		[TestMethod, TestCategory("Functions")]
 		public void CharOneArgFunc() => CTestHelper.TestFunctionOneArg<sbyte>();
@@ -550,6 +575,12 @@ short main()
 		[TestMethod, TestCategory("Functions")]
 		public void UIntOneArgFunc() => CTestHelper.TestFunctionOneArg<uint>();
 
+		[TestMethod, TestCategory("Functions")]
+		public void LongOneArgFunc() => CTestHelper.TestFunctionOneArg<long>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ULongOneArgFunc() => CTestHelper.TestFunctionOneArg<ulong>();
+
 
 		[TestMethod, TestCategory("Functions")]
 		public void CharTwoArgFunc() => CTestHelper.TestFunctionTwoArg<sbyte>();
@@ -568,7 +599,13 @@ short main()
 
 		[TestMethod, TestCategory("Functions")]
 		public void UIntTwoArgFunc() => CTestHelper.TestFunctionTwoArg<uint>();
-		
+
+		[TestMethod, TestCategory("Functions")]
+		public void LongTwoArgFunc() => CTestHelper.TestFunctionTwoArg<long>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ULongTwoArgFunc() => CTestHelper.TestFunctionTwoArg<ulong>();
+
 		#endregion
 
 		//		#region Return

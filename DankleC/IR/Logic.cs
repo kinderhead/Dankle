@@ -15,7 +15,19 @@ namespace DankleC.IR
             insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
         }
 
-        public static void SmallOp<TCompareSigned, TCompareUnsigned, TCompareSigned32, TCompareUnsigned32>(IRInsn insn, IValue left, IValue right) where TCompareSigned : Instruction, new() where TCompareUnsigned : Instruction, new() where TCompareSigned32 : Instruction, new() where TCompareUnsigned32 : Instruction, new()
+		public static void LargeOp64<TCompare, TJump>(IRInsn insn, IValue left, IValue right, string zero) where TCompare : Instruction, new() where TJump : Instruction, new()
+		{
+			insn.Add(CGInsn.Build<TCompare>(left.MakeArg(0), right.MakeArg(0)));
+			insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
+			insn.Add(CGInsn.Build<TCompare>(left.MakeArg(1), right.MakeArg(1)));
+			insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
+			insn.Add(CGInsn.Build<TCompare>(left.MakeArg(2), right.MakeArg(2)));
+			insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
+			insn.Add(CGInsn.Build<TCompare>(left.MakeArg(3), right.MakeArg(3)));
+			insn.Add(CGInsn.Build<TJump>(new CGLabel<uint>(zero)));
+		}
+
+		public static void SmallOp<TCompareSigned, TCompareUnsigned, TCompareSigned32, TCompareUnsigned32>(IRInsn insn, IValue left, IValue right) where TCompareSigned : Instruction, new() where TCompareUnsigned : Instruction, new() where TCompareSigned32 : Instruction, new() where TCompareUnsigned32 : Instruction, new()
         {
             if (left.Type.IsSigned())
             {
@@ -108,7 +120,28 @@ namespace DankleC.IR
                     Add(zero);
                 }
             }
-            else throw new InvalidOperationException();
+			else if (Left.Type.Size == 8)
+			{
+				var zero = gen.GetLogicLabel();
+
+				if (ShouldReturn)
+				{
+					var one = gen.GetLogicLabel();
+
+					LogicUtils.LargeOp64<Compare, JumpNeq>(this, Left, Right, zero);
+					Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
+					Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
+					Add(zero);
+					Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
+					Add(one);
+				}
+				else
+				{
+					LogicUtils.LargeOp64<Compare, JumpNeq>(this, Left, Right, zero);
+					Add(zero);
+				}
+			}
+			else throw new InvalidOperationException();
         }
     }
 
@@ -156,7 +189,29 @@ namespace DankleC.IR
                     Add(CGInsn.Build<FlipCompare>());
                 }
             }
-            else throw new InvalidOperationException();
+			else if (Left.Type.Size == 8)
+			{
+				var zero = gen.GetLogicLabel();
+
+				if (ShouldReturn)
+				{
+					var one = gen.GetLogicLabel();
+
+					LogicUtils.LargeOp64<Compare, JumpNeq>(this, Left, Right, zero);
+					Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(0)));
+					Add(CGInsn.Build<Jump>(new CGLabel<uint>(one)));
+					Add(zero);
+					Add(CGInsn.Build<Load8>(ret.MakeArg(), new CGImmediate<byte>(1)));
+					Add(one);
+				}
+				else
+				{
+					LogicUtils.LargeOp64<Compare, JumpNeq>(this, Left, Right, zero);
+					Add(zero);
+					Add(CGInsn.Build<FlipCompare>());
+				}
+			}
+			else throw new InvalidOperationException();
         }
     }
 

@@ -9,7 +9,7 @@ namespace Dankle.Components
 
         public T Calculate<T>(T left, Operation op, T right, bool skipFlags = false) where T : IBinaryInteger<T>, IShiftOperators<T, int, T>, IBitwiseOperators<T, T, T>, IComparisonOperators<T, T, bool>
 		{
-            if (!skipFlags && TypeInfo<T>.Size > 4) throw new InvalidOperationException("Long number types are not supported by ");
+            //if (!skipFlags && TypeInfo<T>.Size > 4) throw new InvalidOperationException("Long number types are not supported by ");
 
             T ret = op switch
             {
@@ -30,7 +30,7 @@ namespace Dankle.Components
                 if (TypeInfo<T>.IsUnsigned)
                 {
                     Core.Carry = ret < left;
-					Core.Overflow = Calculate(ulong.CreateTruncating(left), op, ulong.CreateTruncating(right), true) != ulong.CreateTruncating(ret);
+					Core.Overflow = Calculate(UInt128.CreateTruncating(left), op, UInt128.CreateTruncating(right), true) != UInt128.CreateTruncating(ret);
 				}
                 else throw new NotImplementedException();
                 //else Core.Overflow = Calculate(long.CreateTruncating(left), op, long.CreateTruncating(right), true) != long.CreateTruncating(ret);

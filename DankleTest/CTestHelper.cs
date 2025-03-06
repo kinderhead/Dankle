@@ -172,6 +172,8 @@ short main()
 			TestCast<T, ushort>(T.MinValue + T.CreateTruncating(1));
 			TestCast<T, int>(T.MinValue + T.CreateTruncating(1));
 			TestCast<T, uint>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, long>(T.MinValue + T.CreateTruncating(1));
+			TestCast<T, ulong>(T.MinValue + T.CreateTruncating(1));
 
 			TestCast<T, sbyte>(T.MaxValue - T.CreateTruncating(1));
 			TestCast<T, byte>(T.MaxValue - T.CreateTruncating(1));
@@ -179,6 +181,8 @@ short main()
 			TestCast<T, ushort>(T.MaxValue - T.CreateTruncating(1));
 			TestCast<T, int>(T.MaxValue - T.CreateTruncating(1));
 			TestCast<T, uint>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, long>(T.MaxValue - T.CreateTruncating(1));
+			TestCast<T, ulong>(T.MaxValue - T.CreateTruncating(1));
 		}
 
 		public static void TestCast<T, R>(T x) where T : IBinaryInteger<T> where R : IBinaryInteger<R>
