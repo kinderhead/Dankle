@@ -111,6 +111,7 @@ namespace DankleC
 			if (context.postfixExpression() is CParser.PostfixExpressionContext pe) return Visit(pe);
 			else if (context.Star() is not null) return new DerefExpression((IExpression)Visit(context.castExpression()));
 			else if (context.PlusPlus() is not null) return new PreIncrementExpression((UnresolvedLValue)Visit(context.unaryExpression()));
+			else if (context.MinusMinus() is not null) return new PreDecrementExpression((UnresolvedLValue)Visit(context.unaryExpression()));
 			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 		}
 
@@ -123,6 +124,7 @@ namespace DankleC
 		public override IASTObject VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context)
 		{
 			if (context.PlusPlus() is not null) return new PostIncrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
+			else if (context.MinusMinus() is not null) return new PostDecrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
 			else if (context.LeftParen() is not null) return new CallExpression((IExpression)Visit(context.primaryExpression()), context.argumentList() is not null ? (ArgumentList)Visit(context.argumentList()) : new([]));
 			else return Visit(context.children[0]);
 		}
@@ -192,7 +194,13 @@ namespace DankleC
 			{
 				if (i == 0) continue;
 
-				var op = context.children[i].GetText() == "*" ? ArithmeticOperation.Multiplication : ArithmeticOperation.Division;
+				var op = context.children[i].GetText() switch
+				{
+					"*" => ArithmeticOperation.Multiplication,
+					"/" => ArithmeticOperation.Division,
+					"%" => ArithmeticOperation.Modulo,
+					_ => throw new InvalidOperationException()
+				};
 				expr = new ArithmeticExpression(expr, op, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
@@ -209,9 +217,9 @@ namespace DankleC
 			return expr;
         }
 
-        public override IASTObject VisitLogicalAndExpression([NotNull] CParser.LogicalAndExpressionContext context)
+		public override IASTObject VisitLogicalAndExpression([NotNull] CParser.LogicalAndExpressionContext context)
 		{
-			IExpression expr = (IExpression)Visit(context.equalityExpression()[0]);
+			IExpression expr = (IExpression)Visit(context.inclusiveOrExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
@@ -219,6 +227,39 @@ namespace DankleC
 			}
 			return expr;
 		}
+
+        public override IASTObject VisitInclusiveOrExpression([NotNull] CParser.InclusiveOrExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.exclusiveOrExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+				expr = new ArithmeticExpression(expr, ArithmeticOperation.InclusiveOr, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
+
+        public override IASTObject VisitExclusiveOrExpression([NotNull] CParser.ExclusiveOrExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.andExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+				expr = new ArithmeticExpression(expr, ArithmeticOperation.ExclusiveOr, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
+
+        public override IASTObject VisitAndExpression([NotNull] CParser.AndExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.equalityExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+				expr = new ArithmeticExpression(expr, ArithmeticOperation.And, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
 
         public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
 

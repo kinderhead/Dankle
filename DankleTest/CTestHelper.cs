@@ -39,10 +39,11 @@ namespace DankleTest
 			CurrentStatement = Compiler.AST.FindAll<T>()[index];
 			var bp = Linker.Parsers[1].GetVariable<uint>($"stmt_{CurrentStatement.ID}");
 
-			while (Computer.MainCore.ProgramCounter != bp)
+			do
 			{
 				Computer.MainCore.Step();
 			}
+			while (Computer.MainCore.ProgramCounter != bp); // Make sure it steps at least once
 		}
 
 		public void RunUntilDone()
@@ -99,12 +100,14 @@ namespace DankleTest
 		{
 			TestMath(T.CreateTruncating(1), T.MaxValue, ArithmeticOperation.Addition);
 			TestMath(T.MinValue, T.MaxValue, ArithmeticOperation.Addition);
+			TestMath(T.MaxValue / T.CreateTruncating(2), T.MaxValue / T.CreateTruncating(4) * T.CreateTruncating(3), ArithmeticOperation.Addition);
 		}
 
 		public static void TestMathSub<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestMath(T.MinValue, T.CreateTruncating(1), ArithmeticOperation.Subtraction);
 			TestMath(T.MaxValue, T.MinValue, ArithmeticOperation.Subtraction);
+			TestMath(T.MaxValue / T.CreateTruncating(2), T.MaxValue / T.CreateTruncating(4) * T.CreateTruncating(3), ArithmeticOperation.Subtraction);
 		}
 
 		public static void TestMathMul<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
@@ -119,12 +122,40 @@ namespace DankleTest
 			TestMath(T.MinValue, T.CreateTruncating(2), ArithmeticOperation.Division);
 		}
 
+		public static void TestMathMod<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.MaxValue, T.CreateTruncating(3), ArithmeticOperation.Modulo);
+			TestMath(T.MinValue, T.CreateTruncating(3), ArithmeticOperation.Modulo);
+
+			TestMath(T.MaxValue, T.CreateTruncating(127), ArithmeticOperation.Modulo);
+			TestMath(T.MinValue, T.CreateTruncating(127), ArithmeticOperation.Modulo);
+		}
+
+		public static void TestMathInclusiveOr<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.AllBitsSet, T.AllBitsSet / T.CreateTruncating(3), ArithmeticOperation.InclusiveOr);
+		}
+
+		public static void TestMathExclusiveOr<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.AllBitsSet, T.AllBitsSet / T.CreateTruncating(3), ArithmeticOperation.ExclusiveOr);
+		}
+
+		public static void TestMathAnd<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.AllBitsSet, T.AllBitsSet / T.CreateTruncating(3), ArithmeticOperation.And);
+		}
+
 		public static void TestMath<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestMathAdd<T>();
 			TestMathSub<T>();
 			TestMathMul<T>();
 			TestMathDiv<T>();
+			TestMathMod<T>();
+			TestMathInclusiveOr<T>();
+			TestMathExclusiveOr<T>();
+			TestMathAnd<T>();
 		}
 
 		public static void TestMath<T>(T x, T y, ArithmeticOperation op) where T : IBinaryInteger<T>
@@ -135,6 +166,10 @@ namespace DankleTest
 				ArithmeticOperation.Subtraction => "-",
 				ArithmeticOperation.Multiplication => "*",
 				ArithmeticOperation.Division => "/",
+				ArithmeticOperation.Modulo => "%",
+				ArithmeticOperation.InclusiveOr => "|",
+				ArithmeticOperation.ExclusiveOr => "^",
+				ArithmeticOperation.And => "&",
 				_ => throw new InvalidOperationException(),
 			};
 
@@ -155,6 +190,10 @@ short main()
 				ArithmeticOperation.Subtraction => x - y,
 				ArithmeticOperation.Multiplication => x * y,
 				ArithmeticOperation.Division => x / y,
+				ArithmeticOperation.Modulo => x % y,
+				ArithmeticOperation.InclusiveOr => x | y,
+				ArithmeticOperation.ExclusiveOr => x ^ y,
+				ArithmeticOperation.And => x & y,
 				_ => throw new InvalidOperationException(),
 			};
 
@@ -326,47 +365,49 @@ short main()
 		public static void TestPostIncrement<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestPostIncrement<T>(false);
+			TestPostIncrement<T>(true);
 		}
 
 		public static void TestPostIncrement<T>(bool decrement) where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			var type = CUtils.NumberTypeToString<T>();
-			var x = T.MaxValue;
+			var x = decrement ? T.MinValue : T.MaxValue;
 
 			using var c = new CTestHelper(@$"
 short main()
 {{
     {type} x = {x};
-	{type} y = x++;
+	{type} y = x{(decrement ? "--" : "++")};
     return 0;
 }}
 ");
 			c.RunUntil<ReturnStatement>();
-			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
+			Assert.AreEqual(x + (decrement ? -T.One : T.One), c.GetVariable<T>("x"));
 			Assert.AreEqual(x, c.GetVariable<T>("y"));
 		}
 
 		public static void TestPreIncrement<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestPreIncrement<T>(false);
+			TestPreIncrement<T>(true);
 		}
 
 		public static void TestPreIncrement<T>(bool decrement) where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			var type = CUtils.NumberTypeToString<T>();
-			var x = T.MaxValue;
+			var x = decrement ? T.MinValue : T.MaxValue;
 
 			using var c = new CTestHelper(@$"
 short main()
 {{
     {type} x = {x};
-	{type} y = ++x;
+	{type} y = {(decrement ? "--" : "++")}x;
     return 0;
 }}
 ");
 			c.RunUntil<ReturnStatement>();
-			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
-			Assert.AreEqual(x + T.One, c.GetVariable<T>("y"));
+			Assert.AreEqual(x + (decrement ? -T.One : T.One), c.GetVariable<T>("x"));
+			Assert.AreEqual(x + (decrement ? -T.One : T.One), c.GetVariable<T>("y"));
 		}
 
 		public static void TestSimpleFunction<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
@@ -448,8 +489,8 @@ short main()
 			using var cpu = new CTestHelper(@$"
 {type} test({type} x, {type} y)
 {{
-	int _ = 0;
-	return x + y;
+	{type} ret = x + y;
+	return ret;
 }}
 
 short main()
@@ -459,6 +500,11 @@ short main()
     return 0;
 }}
 ");
+			cpu.RunUntil<ReturnStatement>(0);
+			Assert.AreEqual(a + b, cpu.GetVariable<T>("ret"));
+			cpu.RunUntil<ReturnStatement>(0);
+			Assert.AreEqual(c + d, cpu.GetVariable<T>("ret"));
+
 			cpu.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(a + b + c + d, cpu.GetVariable<T>("x"));
 		}

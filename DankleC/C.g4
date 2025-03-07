@@ -94,15 +94,27 @@ forStatement
     ;
 
 relationalExpression
-    : additiveExpression ((Less || LessEqual || Greater || GreaterEqual) additiveExpression)*
+    : additiveExpression ((Less | LessEqual | Greater | GreaterEqual) additiveExpression)*
     ;
 
 equalityExpression
-    : relationalExpression ((Equal || NotEqual) relationalExpression)*
+    : relationalExpression ((Equal | NotEqual) relationalExpression)*
+    ;
+
+andExpression
+    : equalityExpression ('&' equalityExpression)*
+    ;
+
+exclusiveOrExpression
+    : andExpression (Caret andExpression)*
+    ;
+
+inclusiveOrExpression
+    : exclusiveOrExpression (Or exclusiveOrExpression)*
     ;
 
 logicalAndExpression
-    : equalityExpression (AndAnd equalityExpression)*
+    : inclusiveOrExpression (AndAnd inclusiveOrExpression)*
     ;
 
 logicalOrExpression
@@ -138,11 +150,11 @@ castExpression
 unaryExpression
     : postfixExpression
     | (And | Star) castExpression
-    | (PlusPlus) unaryExpression
+    | (PlusPlus | MinusMinus) unaryExpression
     ;
 
 postfixExpression
-    : primaryExpression (PlusPlus | (LeftParen argumentList? RightParen))?
+    : primaryExpression (PlusPlus | MinusMinus | (LeftParen argumentList? RightParen))?
     | indexExpression
     ;
 
@@ -162,7 +174,7 @@ additiveExpression
     ;
 
 multiplicativeExpression
-    : castExpression ((Star | Div) castExpression)*
+    : castExpression ((Star | Div | Mod) castExpression)*
     ;
 
 variableExpression

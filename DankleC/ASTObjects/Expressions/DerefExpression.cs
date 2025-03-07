@@ -40,7 +40,17 @@ namespace DankleC.ASTObjects.Expressions
 			return Expr.Execute(builder);
 		}
 
+        public override IValue PostDecrement(IRBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
         public override IValue PostIncrement(IRBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IValue PreDecrement(IRBuilder builder)
         {
             throw new NotImplementedException();
         }

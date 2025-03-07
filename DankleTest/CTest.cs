@@ -210,6 +210,13 @@ short main()
 		public void UIntPostIncrement() => CTestHelper.TestPostIncrement<uint>();
 
 		[TestMethod, TestCategory("Math")]
+		public void LongPostIncrement() => CTestHelper.TestPostIncrement<long>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ULongPostIncrement() => CTestHelper.TestPostIncrement<ulong>();
+
+
+		[TestMethod, TestCategory("Math")]
 		public void CharPreIncrement() => CTestHelper.TestPreIncrement<sbyte>();
 
 		[TestMethod, TestCategory("Math")]
@@ -226,6 +233,12 @@ short main()
 
 		[TestMethod, TestCategory("Math")]
 		public void UIntPreIncrement() => CTestHelper.TestPreIncrement<uint>();
+
+		[TestMethod, TestCategory("Math")]
+		public void LongPreIncrement() => CTestHelper.TestPreIncrement<long>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ULongPreIncrement() => CTestHelper.TestPreIncrement<ulong>();
 
 		[TestMethod]
 		[TestCategory("Math")]

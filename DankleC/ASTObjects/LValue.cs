@@ -16,7 +16,10 @@ namespace DankleC.ASTObjects
 	{
 		public abstract IValue GetRef(IRBuilder builder);
 		public abstract void WriteFrom(IValue val, IRBuilder builder);
+
 		public abstract IValue PostIncrement(IRBuilder builder);
 		public abstract IValue PreIncrement(IRBuilder builder);
+		public abstract IValue PostDecrement(IRBuilder builder);
+		public abstract IValue PreDecrement(IRBuilder builder);
 	}
 }

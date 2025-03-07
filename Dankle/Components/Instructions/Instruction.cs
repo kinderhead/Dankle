@@ -160,6 +160,9 @@ namespace Dankle.Components.Instructions
 			Register<Store32>();
 			Register<Load64>();
 			Register<Store64>();
+			Register<SignedModulo>();
+			Register<SignedModulo64>();
+			Register<Modulo64>();
 		}
 	}
 

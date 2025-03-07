@@ -12,7 +12,12 @@ namespace DankleC.ASTObjects.Expressions
 		Addition,
 		Subtraction,
 		Multiplication,
-		Division
+		Division,
+		Modulo,
+
+		InclusiveOr,
+		ExclusiveOr,
+		And
 	}
 
 	public class ArithmeticExpression(IExpression left, ArithmeticOperation op, IExpression right) : UnresolvedExpression
@@ -58,13 +63,18 @@ namespace DankleC.ASTObjects.Expressions
                     ArithmeticOperation.Subtraction => (dynamic)l.Value - (dynamic)r.Value,
 					ArithmeticOperation.Multiplication => (dynamic)l.Value * (dynamic)r.Value,
 					ArithmeticOperation.Division => (dynamic)l.Value / (dynamic)r.Value,
+					ArithmeticOperation.Modulo => (dynamic)l.Value % (dynamic)r.Value,
+					ArithmeticOperation.InclusiveOr => (dynamic)l.Value | (dynamic)r.Value,
+					ArithmeticOperation.ExclusiveOr => (dynamic)l.Value ^ (dynamic)r.Value,
+					ArithmeticOperation.And => (dynamic)l.Value & (dynamic)r.Value,
 					_ => throw new NotImplementedException(),
                 };
 				
                 return new ConstantExpression(type, res);
 			}
 
-			if (type.Size == 1) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
+			if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
+			else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 
 			return new ResolvedArithmeticExpression(left.Cast(type), Op, right.Cast(type), type);
 		}
@@ -108,6 +118,18 @@ namespace DankleC.ASTObjects.Expressions
 					break;
 				case ArithmeticOperation.Division:
 					builder.Add(new IRDiv(left, right));
+					break;
+				case ArithmeticOperation.Modulo:
+					builder.Add(new IRMod(left, right));
+					break;
+				case ArithmeticOperation.InclusiveOr:
+					builder.Add(new IRInclusiveOr(left, right));
+					break;
+				case ArithmeticOperation.ExclusiveOr:
+					builder.Add(new IRExclusiveOr(left, right));
+					break;
+				case ArithmeticOperation.And:
+					builder.Add(new IRAnd(left, right));
 					break;
 				default:
 					throw new InvalidOperationException();

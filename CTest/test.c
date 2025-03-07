@@ -1,10 +1,8 @@
-long test(long x, long y)
-{
-    return x + y;
-}
-
 short main()
 {
-    long ret = test(test(1, 2), test(3, 4));
+    signed char x = -128;
+    signed char y = 3;
+    signed char z = x % y;
+
     return 0;
 }

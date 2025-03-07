@@ -40,7 +40,9 @@ namespace Dankle.Components.Instructions
 			var carry = ctx.Core.Carry;
 
 			var val = ctx.Core.ALU.Calculate(arg1.Read(), Operation.ADD, arg2.Read());
+			var didCarry = ctx.Core.Carry;
 			if (carry) val = ctx.Core.ALU.Calculate(val, Operation.ADD, (ushort)1);
+			ctx.Core.Carry = ctx.Core.Carry || didCarry;
 			dest.Write(val);
 		}
 	}
@@ -78,7 +80,9 @@ namespace Dankle.Components.Instructions
 			var carry = ctx.Core.Carry;
 
 			var val = ctx.Core.ALU.Calculate(arg1.Read(), Operation.SUB, arg2.Read());
+			var didCarry = ctx.Core.Carry;
 			if (carry) val = ctx.Core.ALU.Calculate(val, Operation.SUB, (ushort)1);
+			ctx.Core.Carry = ctx.Core.Carry || didCarry;
 			dest.Write(val);
 		}
 	}
@@ -389,6 +393,23 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class SignedModulo : Instruction
+	{
+		public override ushort Opcode => 92;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16), typeof(Any16)];
+		public override string Name => "SMOD";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any16>();
+
+			dest.Write((ushort)ctx.Core.ALU.Calculate((short)arg1.Read(), Operation.MOD, (short)arg2.Read()));
+		}
+	}
+
 	public class Modulo32 : Instruction
 	{
 		public override ushort Opcode => 41;
@@ -420,6 +441,40 @@ namespace Dankle.Components.Instructions
 			var dest = ctx.GetNextArg<Any32>();
 
 			dest.Write((uint)ctx.Core.ALU.Calculate((int)arg1.Read(), Operation.MOD, (int)arg2.Read()));
+		}
+	}
+
+	public class Modulo64 : Instruction
+	{
+		public override ushort Opcode => 94;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64), typeof(Any64)];
+		public override string Name => "UMODLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write(ctx.Core.ALU.Calculate(arg1.Read(), Operation.MOD, arg2.Read()));
+		}
+	}
+
+	public class SignedModulo64 : Instruction
+	{
+		public override ushort Opcode => 93;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any64), typeof(Any64)];
+		public override string Name => "SMODLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any64>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write((ulong)ctx.Core.ALU.Calculate((long)arg1.Read(), Operation.MOD, (long)arg2.Read()));
 		}
 	}
 

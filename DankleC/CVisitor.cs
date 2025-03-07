@@ -129,6 +129,24 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.andExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAndExpression([NotNull] CParser.AndExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.exclusiveOrExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExclusiveOrExpression([NotNull] CParser.ExclusiveOrExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.inclusiveOrExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitInclusiveOrExpression([NotNull] CParser.InclusiveOrExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.logicalAndExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
