@@ -11,7 +11,7 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly UnresolvedLValue Expr = expr;
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => new ResolvedRefExpression(Expr.Resolve<LValue>(builder, func, scope));
+		public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedRefExpression(Expr.Resolve<LValue>(builder));
 	}
 
 	public class ResolvedRefExpression(LValue expr) : ResolvedExpression(expr.Type.AsPointer())
@@ -25,9 +25,15 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-        public override IValue Execute(IRBuilder builder, IRScope scope)
+        public override IValue Execute(IRBuilder builder)
 		{
-			return Expr.GetRef(builder, scope);
+			return Expr.GetRef(builder);
         }
-    }
+
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+			cb(this);
+			Expr.Walk(cb);
+		}
+	}
 }

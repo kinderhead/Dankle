@@ -19,10 +19,10 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly EqualityOperation Op = op;
 		public readonly IExpression Right = right;
 
-        public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
-        {
-            var left = Left.Resolve(builder, func, scope);
-			var right = Right.Resolve(builder, func, scope);
+        public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+            var left = Left.Resolve(builder);
+			var right = Right.Resolve(builder);
 			if (!left.Type.IsNumber() || !right.Type.IsNumber() || left.Type is PointerTypeSpecifier || right.Type is PointerTypeSpecifier) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
 
             var type = TypeSpecifier.GetOperationType(left.Type, right.Type);
@@ -65,38 +65,38 @@ namespace DankleC.ASTObjects.Expressions
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedEqualityExpression(Left, Op, Right, SourceType);
 
-        public override IValue Execute(IRBuilder builder, IRScope scope)
-        {
-            Compare(builder, scope, Op, true);
+        public override IValue Execute(IRBuilder builder)
+		{
+            Compare(builder, Op, true);
             return ReturnValue();
         }
 
-        public override void Conditional(IRBuilder builder, IRScope scope, bool negate = false)
-        {
-            Compare(builder, scope, negate ? Invert(Op) : Op, false);
+        public override void Conditional(IRBuilder builder, bool negate = false)
+		{
+            Compare(builder, negate ? Invert(Op) : Op, false);
         }
 
-        private void Compare(IRBuilder builder, IRScope scope, EqualityOperation op, bool ret)
+        private void Compare(IRBuilder builder, EqualityOperation op, bool ret)
         {
             switch (op)
             {
                 case EqualityOperation.Equals:
-                    builder.Add(new IREq(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    builder.Add(new IREq(Left.Execute(builder), Right.Execute(builder), ret));
                     break;
                 case EqualityOperation.NotEquals:
-                    builder.Add(new IRNeq(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    builder.Add(new IRNeq(Left.Execute(builder), Right.Execute(builder), ret));
                     break;
                 case EqualityOperation.LessThan:
-                    builder.Add(new IRLt(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    builder.Add(new IRLt(Left.Execute(builder), Right.Execute(builder), ret));
                     break;
                 case EqualityOperation.LessThanOrEqual:
-                    builder.Add(new IRLte(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    builder.Add(new IRLte(Left.Execute(builder), Right.Execute(builder), ret));
                     break;
                 case EqualityOperation.GreaterThan:
-                    builder.Add(new IRGt(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    builder.Add(new IRGt(Left.Execute(builder), Right.Execute(builder), ret));
                     break;
                 case EqualityOperation.GreaterThanOrEqual:
-                    builder.Add(new IRGte(Left.Execute(builder, scope), Right.Execute(builder, scope), ret));
+                    builder.Add(new IRGte(Left.Execute(builder), Right.Execute(builder), ret));
                     break;
                 default:
                     throw new NotImplementedException();
@@ -113,5 +113,12 @@ namespace DankleC.ASTObjects.Expressions
             EqualityOperation.GreaterThanOrEqual => EqualityOperation.LessThan,
             _ => op
         };
-    }
+
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+            cb(this);
+            Left.Walk(cb);
+            Right.Walk(cb);
+		}
+	}
 }

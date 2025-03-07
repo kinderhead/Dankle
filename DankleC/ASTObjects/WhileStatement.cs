@@ -18,13 +18,13 @@ namespace DankleC.ASTObjects
             {
                 builder.Add(loop);
                 builder.ProcessStatement(Statement, func, Scope);
-                Expression.Resolve(builder, func, Scope).Conditional(builder, Scope);
+                Expression.Resolve(builder).Conditional(builder);
                 builder.Add(new IRJumpEq(loop));
             }
             else
             {
                 builder.Add(loop);
-                Expression.Resolve(builder, func, Scope).Conditional(builder, Scope);
+                Expression.Resolve(builder).Conditional(builder);
                 builder.Add(new IRJumpNeq(done));
                 builder.ProcessStatement(Statement, func, Scope);
                 builder.Add(new IRJump(loop));

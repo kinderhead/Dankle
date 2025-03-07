@@ -26,8 +26,8 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var expr = Expression?.Resolve(builder, func, Scope);
-			var value = expr?.Cast(func.ReturnType).Execute(builder, Scope);
+			var expr = Expression?.Resolve(builder);
+			var value = expr?.Cast(func.ReturnType).Execute(builder);
 
 			if (value is not null) builder.Add(new IRSetReturn(value));
 			else if (func.ReturnType != new BuiltinTypeSpecifier(BuiltinType.Void)) throw new InvalidOperationException($"Function \"{func.Name}\" must return a value");
@@ -44,7 +44,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var value = Expression.Resolve(builder, func, Scope).Cast(Type).Execute(builder, Scope);
+			var value = Expression.Resolve(builder).Cast(Type).Execute(builder);
 			var variable = Scope.AllocLocal(Name, Type);
 			variable.Store(builder, value);
 		}
@@ -57,9 +57,9 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var variable = Dest.Resolve<LValue>(builder, func, Scope);
-			var expr = Expression.Resolve(builder, func, Scope).Cast(variable.Type);
-			variable.WriteFrom(expr.Execute(builder, Scope), builder);
+			var variable = Dest.Resolve<LValue>(builder);
+			var expr = Expression.Resolve(builder).Cast(variable.Type);
+			variable.WriteFrom(expr.Execute(builder), builder);
 		}
 	}
 

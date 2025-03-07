@@ -12,9 +12,9 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly string Name = name;
 
-        public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+        public override ResolvedExpression Resolve(IRBuilder builder)
 		{
-			var variable = scope.GetVariable(Name);
+			var variable = builder.CurrentScope.GetVariable(Name);
 
 			return new ResolvedVariableExpression(variable, variable.Type);
 		}
@@ -28,9 +28,9 @@ namespace DankleC.ASTObjects.Expressions
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
 
-		public override IValue Execute(IRBuilder builder, IRScope scope) => Variable;
+		public override IValue Execute(IRBuilder builder) => Variable;
 
-		public override IValue GetRef(IRBuilder builder, IRScope scope)
+		public override IValue GetRef(IRBuilder builder)
 		{
 			if (Variable is StackVariable v)
 			{
@@ -52,7 +52,12 @@ namespace DankleC.ASTObjects.Expressions
 			return ReturnValue();
         }
 
-        public override void WriteFrom(IValue val, IRBuilder builder)
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+			cb(this);
+		}
+
+		public override void WriteFrom(IValue val, IRBuilder builder)
         {
 			Variable.Store(builder, val);
         }

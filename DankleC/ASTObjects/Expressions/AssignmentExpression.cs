@@ -8,7 +8,7 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly string Name = name;
 		public readonly IExpression Expression = expr;
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+		public override ResolvedExpression Resolve(IRBuilder builder)
 		{
 			throw new NotImplementedException();
 			// var variable = scope.GetVariable(Name);

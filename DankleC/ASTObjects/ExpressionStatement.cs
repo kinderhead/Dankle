@@ -9,7 +9,7 @@ namespace DankleC.ASTObjects
 
         public override void BuildIR(IRBuilder builder, IRFunction func)
         {
-            Expression.Resolve(builder, func, Scope).Standalone().Execute(builder, Scope);
+            Expression.Resolve(builder).Standalone().Execute(builder);
         }
     }
 }

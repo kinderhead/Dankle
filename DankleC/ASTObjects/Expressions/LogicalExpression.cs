@@ -15,10 +15,10 @@ namespace DankleC.ASTObjects.Expressions
         public readonly LogicalOperation Op = op;
         public readonly IExpression Right = right;
 
-        public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
-        {
-            var left = Left.Resolve(builder, func, scope);
-            var right = Right.Resolve(builder, func, scope);
+        public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+            var left = Left.Resolve(builder);
+            var right = Right.Resolve(builder);
             if (!left.Type.IsNumber() || !right.Type.IsNumber() || left.Type is PointerTypeSpecifier || right.Type is PointerTypeSpecifier) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
 
             if (left is ConstantExpression l && right is ConstantExpression r)
@@ -47,16 +47,16 @@ namespace DankleC.ASTObjects.Expressions
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedLogicalExpression(Left, Op, Right);
 
-        public override IValue Execute(IRBuilder builder, IRScope scope)
-        {
+        public override IValue Execute(IRBuilder builder)
+		{
             var trueLabel = new IRLogicLabel();
             var falseLabel = new IRLogicLabel();
 
             if (Op == LogicalOperation.And)
             {
-                Left.Conditional(builder, scope, true);
+                Left.Conditional(builder, true);
                 builder.Add(new IRJumpEq(falseLabel));
-                Right.Conditional(builder, scope, true);
+                Right.Conditional(builder, true);
                 builder.Add(new IRJumpEq(falseLabel));
                 builder.Add(new IRSetReturn(new Immediate(1, BuiltinType.UnsignedChar)));
                 builder.Add(new IRJump(trueLabel));
@@ -66,9 +66,9 @@ namespace DankleC.ASTObjects.Expressions
             }
             else
             {
-                Left.Conditional(builder, scope);
+                Left.Conditional(builder);
                 builder.Add(new IRJumpEq(trueLabel));
-                Right.Conditional(builder, scope);
+                Right.Conditional(builder);
                 builder.Add(new IRJumpEq(trueLabel));
                 builder.Add(new IRSetReturn(new Immediate(0, BuiltinType.UnsignedChar)));
                 builder.Add(new IRJump(falseLabel));
@@ -79,5 +79,12 @@ namespace DankleC.ASTObjects.Expressions
 
             return ReturnValue();
         }
-    }
+
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+            cb(this);
+            Left.Walk(cb);
+            Right.Walk(cb);
+		}
+	}
 }

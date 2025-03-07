@@ -21,32 +21,32 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly ArithmeticOperation Op = op;
 		public readonly IExpression Right = right;
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+		public override ResolvedExpression Resolve(IRBuilder builder)
 		{
-			var left = Left.Resolve(builder, func, scope);
-			var right = Right.Resolve(builder, func, scope);
+			var left = Left.Resolve(builder);
+			var right = Right.Resolve(builder);
 			if (!left.Type.IsNumber() || !right.Type.IsNumber() || ((left.Type is PointerTypeSpecifier || left.Type is ArrayTypeSpecifier) && (right.Type is PointerTypeSpecifier || right.Type is ArrayTypeSpecifier))) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
 
 			TypeSpecifier type;
 			if (left.Type is PointerTypeSpecifier lptr)
 			{
 				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction)) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size)).Resolve(builder, func, scope), lptr);
+				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size)).Resolve(builder), lptr);
 			}
 			else if (right.Type is PointerTypeSpecifier rptr)
 			{
 				if (Op != ArithmeticOperation.Addition) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size)).Resolve(builder, func, scope), Op, right, rptr);
+				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size)).Resolve(builder), Op, right, rptr);
 			}
 			else if (left.Type is ArrayTypeSpecifier larr)
 			{
 				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction)) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(new ResolvedRefExpression((LValue)left), Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), larr.Inner.Size)).Resolve(builder, func, scope), larr.Inner.AsPointer());
+				return new ResolvedArithmeticExpression(new ResolvedRefExpression((LValue)left), Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), larr.Inner.Size)).Resolve(builder), larr.Inner.AsPointer());
 			}
 			else if (right.Type is ArrayTypeSpecifier rarr)
 			{
 				if (Op != ArithmeticOperation.Addition) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rarr.Inner.Size)).Resolve(builder, func, scope), Op, new ResolvedRefExpression((LValue)right), rarr.Inner.AsPointer());
+				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rarr.Inner.Size)).Resolve(builder), Op, new ResolvedRefExpression((LValue)right), rarr.Inner.AsPointer());
 			}
 			else type = TypeSpecifier.GetOperationType(left.Type, right.Type);
 
@@ -80,18 +80,18 @@ namespace DankleC.ASTObjects.Expressions
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedArithmeticExpression(Left, Op, Right, type);
 
-        public override IValue Execute(IRBuilder builder, IRScope scope)
+        public override IValue Execute(IRBuilder builder)
 		{
-			var left = Left.Execute(builder, scope);
+			var left = Left.Execute(builder);
 			TempStackVariable? save = null;
 
 			if (left is SimpleRegisterValue && !Right.IsSimpleExpression)
 			{
-				save = scope.AllocTemp(Type);
+				save = builder.CurrentScope.AllocTemp(Type);
 				save.Store(builder, left);
 			}
 
-			var right = Right.Execute(builder, scope);
+			var right = Right.Execute(builder);
 
 			if (save is not null) left = save;
 
@@ -117,5 +117,12 @@ namespace DankleC.ASTObjects.Expressions
 
 			return ReturnValue();
 		}
-    }
+
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+			cb(this);
+			Left.Walk(cb);
+			Right.Walk(cb);
+		}
+	}
 }

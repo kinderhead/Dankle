@@ -93,6 +93,8 @@ namespace DankleC.IR
 		public void MovePtrToPtr(IPointer src, IPointer dest)
 		{
 			if (src.Size > dest.Size) throw new InvalidOperationException();
+			else if (src.Size == 4) Add(CGInsn.Build<Store32>(src.Build<uint>(Scope), dest.Build<uint>(Scope)));
+			else if (src.Size == 8) Add(CGInsn.Build<Store64>(src.Build<ulong>(Scope), dest.Build<ulong>(Scope)));
 			else
 			{
 				var reg = OneTimeAlloc();

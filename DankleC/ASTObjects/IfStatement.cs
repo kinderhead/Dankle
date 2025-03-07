@@ -14,7 +14,7 @@ namespace DankleC.ASTObjects
             var falseLabel = new IRLogicLabel();
             var trueLabel = new IRLogicLabel();
 
-            Conditional.Resolve(builder, func, Scope).Conditional(builder, Scope);
+            Conditional.Resolve(builder).Conditional(builder);
             builder.Add(new IRJumpNeq(falseLabel));
             builder.ProcessStatement(Statement, func, Scope);
             if (Else is not null) builder.Add(new IRJump(trueLabel));

@@ -1,10 +1,10 @@
-short test(short x, short y)
+long test(long x, long y)
 {
     return x + y;
 }
 
 short main()
 {
-    short ret = test(test(1, 2), test(3, 4));
+    long ret = test(test(1, 2), test(3, 4));
     return 0;
 }

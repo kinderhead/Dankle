@@ -436,5 +436,31 @@ short main()
 			c.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(x + T.One, c.GetVariable<T>("x"));
 		}
+
+		public static void TestFunctionTwoArgNested<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var a = T.One;
+			var b = T.MaxValue / T.CreateTruncating(4);
+			var c = T.MaxValue / T.CreateTruncating(2);
+			var d = T.MaxValue / T.CreateTruncating(4) * T.CreateTruncating(3);
+
+			using var cpu = new CTestHelper(@$"
+{type} test({type} x, {type} y)
+{{
+	int _ = 0;
+	return x + y;
+}}
+
+short main()
+{{
+	int _ = 0;
+    {type} x = test(test({a}, {b}), test({c}, {d}));
+    return 0;
+}}
+");
+			cpu.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual(a + b + c + d, cpu.GetVariable<T>("x"));
+		}
 	}
 }

@@ -12,7 +12,7 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly IExpression Expr = expr;
 		public readonly TypeSpecifier Type = type;
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => Expr.Resolve(builder, func, scope).Cast(Type);
+		public override ResolvedExpression Resolve(IRBuilder builder) => Expr.Resolve(builder).Cast(Type);
 	}
 
 	public class CastExpression(ResolvedExpression expr, TypeSpecifier type) : ResolvedExpression(type)
@@ -23,10 +23,16 @@ namespace DankleC.ASTObjects.Expressions
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new CastExpression(Expr, type);
 
-        public override IValue Execute(IRBuilder builder, IRScope scope)
+        public override IValue Execute(IRBuilder builder)
 		{
-			builder.Add(new IRCast(Expr.Execute(builder, scope), Type));
+			builder.Add(new IRCast(Expr.Execute(builder), Type));
 			return ReturnValue();
         }
-    }
+
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+			cb(this);
+			Expr.Walk(cb);
+		}
+	}
 }

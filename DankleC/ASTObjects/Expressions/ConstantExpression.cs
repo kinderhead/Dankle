@@ -16,7 +16,7 @@ namespace DankleC.ASTObjects.Expressions
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
 		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
 
-		public override IValue Execute(IRBuilder builder, IRScope scope)
+		public override IValue Execute(IRBuilder builder)
 		{
 			var t = (BuiltinTypeSpecifier)Type;
 
@@ -62,5 +62,10 @@ namespace DankleC.ASTObjects.Expressions
 			}
 			else throw new NotImplementedException();
 		}
-    }
+
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+			cb(this);
+		}
+	}
 }

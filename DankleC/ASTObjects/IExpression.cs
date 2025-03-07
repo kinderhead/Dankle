@@ -10,7 +10,7 @@ namespace DankleC.ASTObjects
 {
 	public interface IExpression : IASTObject
 	{
-		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
+		public ResolvedExpression Resolve(IRBuilder builder);
 	}
 
 	public abstract class ResolvedExpression(TypeSpecifier type) : IExpression
@@ -18,15 +18,16 @@ namespace DankleC.ASTObjects
 		public readonly TypeSpecifier Type = type;
 		public abstract bool IsSimpleExpression { get; }
 
-		public ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => this;
+		public ResolvedExpression Resolve(IRBuilder builder) => this;
 
 		public abstract ResolvedExpression ChangeType(TypeSpecifier type);
-		public abstract IValue Execute(IRBuilder builder, IRScope scope);
+		public abstract IValue Execute(IRBuilder builder);
+		public abstract void Walk(Action<ResolvedExpression> cb);
 
-		public virtual void Conditional(IRBuilder builder, IRScope scope, bool negate = false)
+		public virtual void Conditional(IRBuilder builder, bool negate = false)
 		{
 			var cond = new EqualityExpression(this, EqualityOperation.NotEquals, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)0));
-			cond.Resolve(builder, builder.CurrentFunction, scope).Conditional(builder, scope, negate);
+			cond.Resolve(builder).Conditional(builder, negate);
 		}
 
 		public virtual ResolvedExpression Standalone() => this;
@@ -51,7 +52,7 @@ namespace DankleC.ASTObjects
 
 	public abstract class UnresolvedExpression : IExpression
 	{
-		public T Resolve<T>(IRBuilder builder, IRFunction func, IRScope scope) where T : ResolvedExpression => (T)Resolve(builder, func, scope);
-		public abstract ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope);
+		public T Resolve<T>(IRBuilder builder) where T : ResolvedExpression => (T)Resolve(builder);
+		public abstract ResolvedExpression Resolve(IRBuilder builder);
 	}
 }

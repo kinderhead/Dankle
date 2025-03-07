@@ -11,7 +11,7 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly IExpression Expr = expr;
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope) => new ResolvedDerefExpression(Expr.Resolve(builder, func, scope));
+		public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedDerefExpression(Expr.Resolve(builder));
 	}
 
 	public class ResolvedDerefExpression(ResolvedExpression expr) : LValue(((PointerTypeSpecifier)expr.Type).Inner)
@@ -25,19 +25,19 @@ namespace DankleC.ASTObjects.Expressions
 			throw new NotImplementedException();
 		}
 
-		public override IValue Execute(IRBuilder builder, IRScope scope)
+		public override IValue Execute(IRBuilder builder)
 		{
 			if (!Type.IsNumber()) throw new NotImplementedException();
 
-			var ptr = Expr.Execute(builder, scope);
+			var ptr = Expr.Execute(builder);
 			builder.Add(new IRDynLoadPtr(ptr, Type));
 
 			return ReturnValue();
 		}
 
-		public override IValue GetRef(IRBuilder builder, IRScope scope)
+		public override IValue GetRef(IRBuilder builder)
 		{
-			return Expr.Execute(builder, scope);
+			return Expr.Execute(builder);
 		}
 
         public override IValue PostIncrement(IRBuilder builder)
@@ -50,7 +50,13 @@ namespace DankleC.ASTObjects.Expressions
             throw new NotImplementedException();
         }
 
-        public override void WriteFrom(IValue val, IRBuilder builder)
+		public override void Walk(Action<ResolvedExpression> cb)
+		{
+			cb(this);
+			Expr.Walk(cb);
+		}
+
+		public override void WriteFrom(IValue val, IRBuilder builder)
 		{
 			TempStackVariable? save = null;
 
@@ -61,7 +67,7 @@ namespace DankleC.ASTObjects.Expressions
 				val = save;
 			}
 
-			var ptr = Expr.Execute(builder, builder.CurrentScope);
+			var ptr = Expr.Execute(builder);
 			builder.Add(new IRDynStorePtr(ptr, val));
 			save?.Dispose();
         }

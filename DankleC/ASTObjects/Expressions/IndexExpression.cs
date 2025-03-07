@@ -12,16 +12,16 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly IExpression Source = source;
 		public readonly IExpression Expr = expr;
 
-		public override ResolvedExpression Resolve(IRBuilder builder, IRFunction func, IRScope scope)
+		public override ResolvedExpression Resolve(IRBuilder builder)
 		{
 			if (Source is VariableExpression v && Expr is ConstantExpression c)
 			{
-				var expr = (ResolvedVariableExpression)v.Resolve(builder, func, scope);
+				var expr = (ResolvedVariableExpression)v.Resolve(builder);
 				var type = ((ArrayTypeSpecifier)expr.Type).Inner;
 				var val = ((StackVariable)expr.Variable).Index((dynamic)c.Value * type.Size);
 				return new ResolvedVariableExpression(val, type);
 			}
-			return new DerefExpression(new ArithmeticExpression(Source, ArithmeticOperation.Addition, Expr)).Resolve(builder, func, scope);
+			return new DerefExpression(new ArithmeticExpression(Source, ArithmeticOperation.Addition, Expr)).Resolve(builder);
 		}
 	}
 }

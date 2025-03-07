@@ -22,7 +22,7 @@ namespace DankleC.ASTObjects
                 builder.Add(loop);
                 if (Conditional is not null)
                 {
-                    Conditional.Resolve(builder, func, Scope).Conditional(builder, Scope);
+                    Conditional.Resolve(builder).Conditional(builder);
                     builder.Add(new IRJumpNeq(done));
                 }
 

@@ -636,6 +636,31 @@ short main()
 		[TestMethod, TestCategory("Functions")]
 		public void ULongTwoArgFunc() => CTestHelper.TestFunctionTwoArg<ulong>();
 
+
+		[TestMethod, TestCategory("Functions")]
+		public void CharTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<sbyte>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UCharTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<byte>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ShortTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<short>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UShortTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<ushort>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void IntTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<int>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void UIntTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<uint>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void LongTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<long>();
+
+		[TestMethod, TestCategory("Functions")]
+		public void ULongTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<ulong>();
+
 		#endregion
 
 		//		#region Return
