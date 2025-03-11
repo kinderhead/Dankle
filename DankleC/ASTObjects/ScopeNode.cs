@@ -7,14 +7,16 @@ using DankleC.IR;
 
 namespace DankleC.ASTObjects
 {
-	public class ScopeNode : Statement, IStatementHolder
+	public class ScopeNode(bool subScope = true) : Statement, IStatementHolder
 	{
 		public readonly List<Statement> Statements = [];
+		public readonly bool SubScope = subScope;
 
-        public override void BuildIR(IRBuilder builder, IRFunction func)
-        {
-			Scope.SubScope(() => builder.ProcessStatements(Statements, func, Scope));
-        }
+		public override void BuildIR(IRBuilder builder, IRFunction func)
+		{
+			if (SubScope) Scope.SubScope(() => builder.ProcessStatements(Statements, func, Scope));
+			else builder.ProcessStatements(Statements, func, Scope);
+		}
 
         public List<T> FindAll<T>() where T : Statement
         {

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c:/Users/Daniel/source/repos/Dankle/DankleC/C.g4 by ANTLR 4.13.1
+// Generated from /home/daniel/Documents/CSharp/Dankle/DankleC/C.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -75,23 +75,41 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitSemiStatement([NotNull] CParser.SemiStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CParser.initAssignmentStatement"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitInitAssignmentStatement([NotNull] CParser.InitAssignmentStatementContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.assignmentStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CParser.declareStatement"/>.
+	/// Visit a parse tree produced by <see cref="CParser.declaration"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context);
+	Result VisitDeclaration([NotNull] CParser.DeclarationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.declarationSpecifier"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDeclarationSpecifier([NotNull] CParser.DeclarationSpecifierContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.initDeclarator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitInitDeclarator([NotNull] CParser.InitDeclaratorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.declarator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDeclarator([NotNull] CParser.DeclaratorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.directDeclarator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDirectDeclarator([NotNull] CParser.DirectDeclaratorContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.expressionStatement"/>.
 	/// </summary>

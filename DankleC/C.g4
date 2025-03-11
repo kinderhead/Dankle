@@ -58,22 +58,35 @@ statement
 
 semiStatement
     : returnStatement
-    | initAssignmentStatement
     | assignmentStatement
-    | declareStatement
+    | declaration
     | expressionStatement
-    ;
-
-initAssignmentStatement
-    : type Identifier ((LeftBracket Constant RightBracket) | (Assign expression))
     ;
 
 assignmentStatement
     : lvalue Assign expression
     ;
 
-declareStatement
-    : type Identifier (Comma Identifier)*
+declaration
+    : declarationSpecifier initDeclarator (Comma initDeclarator)*
+    ;
+
+declarationSpecifier
+    : Const? (userType | builtinType)
+    ;
+
+initDeclarator
+    : declarator (Assign expression)?
+    ;
+
+declarator
+    : (Star Const?)? directDeclarator
+    ;
+
+directDeclarator
+    : Identifier
+    | LeftParen declarator RightParen
+    | directDeclarator LeftBracket Constant RightBracket
     ;
 
 expressionStatement

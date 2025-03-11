@@ -68,7 +68,7 @@ namespace DankleC
 
         #region Expressions
 
-        public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
+		public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
 			if (context.Constant() is ITerminalNode c)
 			{
@@ -265,23 +265,18 @@ namespace DankleC
 
 		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 
-        #endregion
+		#endregion
 
-        #region Statements
+		#region Statements
 
         public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(context.expression() is not null ? Visit(context.expression()) : null);
-		public override IASTObject VisitInitAssignmentStatement([NotNull] CParser.InitAssignmentStatementContext context)
-		{
-			var type = Visit(context.type());
 
-			// Doesn't like being in the declare statement
-			if (context.Constant() is not null) return new DeclareStatement(new ArrayTypeSpecifier(type, int.Parse(context.Constant().GetText())), [context.Identifier().GetText()]);
-
-			return new InitAssignmentStatement(type, context.Identifier().GetText(), Visit(context.expression()));
-		}
+		public override IASTObject VisitDeclaration([NotNull] CParser.DeclarationContext context)
+        {
+            var baseType = Visit(context.)
+        }
 
 		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
-		public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), [.. context.Identifier().Select(i => i.GetText())]);
 		public override IASTObject VisitExpressionStatement([NotNull] CParser.ExpressionStatementContext context) => new ExpressionStatement(Visit(context.expression()));
         public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context) => new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
 		public override IASTObject VisitWhileStatement([NotNull] CParser.WhileStatementContext context) => new WhileStatement(Visit(context.expression()), Visit(context.statement()), context.Do() is not null);
@@ -307,7 +302,16 @@ namespace DankleC
 			return t;
 		}
 
-		public override IASTObject VisitUnsignedChar([NotNull] CParser.UnsignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedChar);
+		public override IASTObject VisitDeclarationSpecifier([NotNull] CParser.DeclarationSpecifierContext context)
+		{
+			TypeSpecifier t;
+			if (context.builtinType() is CParser.BuiltinTypeContext b) t = (TypeSpecifier)Visit(b);
+			else t = (TypeSpecifier)Visit(context.userType());
+			t.IsConst = context.Const() is not null;
+			return t;
+        }
+
+        public override IASTObject VisitUnsignedChar([NotNull] CParser.UnsignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedChar);
         public override IASTObject VisitSignedChar([NotNull] CParser.SignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.SignedChar);
 		public override IASTObject VisitUnsignedShort([NotNull] CParser.UnsignedShortContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 		public override IASTObject VisitSignedShort([NotNull] CParser.SignedShortContext context) => new BuiltinTypeSpecifier(BuiltinType.SignedShort);
