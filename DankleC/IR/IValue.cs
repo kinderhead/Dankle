@@ -36,7 +36,20 @@ namespace DankleC.IR
         public IPointer Pointer { get; }
     }
 
-    public class SimpleRegisterValue(int[] regs, TypeSpecifier type) : IRegisterValue
+	public class VoidValue : IValue
+	{
+		public TypeSpecifier Type => new BuiltinTypeSpecifier(BuiltinType.Void);
+
+		public Type CGType => throw new InvalidOperationException();
+        public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
+        public ICGArg MakeArg() => throw new InvalidOperationException();
+        public ICGArg MakeArg(int arg) => throw new InvalidOperationException();
+		public SimpleRegisterValue ToRegisters(IRInsn insn) => throw new InvalidOperationException();
+		public void WriteTo(IRInsn insn, IPointer ptr) => throw new InvalidOperationException();
+		public void WriteTo(IRInsn insn, int[] regs) => throw new InvalidOperationException();
+	}
+
+	public class SimpleRegisterValue(int[] regs, TypeSpecifier type) : IRegisterValue
     {
         public int[] Registers => regs;
 

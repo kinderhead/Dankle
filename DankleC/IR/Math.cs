@@ -234,22 +234,22 @@ namespace DankleC.IR
 		{
 			Return(Value);
 
-			var regs = Value.ToRegisters(this);
+			var regs = new SimpleRegisterValue(Alloc(Value.Type.Size), Value.Type);
 			if (Value.Type.Size <= 2)
 			{
-				Add(CGInsn.Build<Increment>(regs.MakeArg()));
+				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(1), regs.MakeArg()));
 			}
 			else if (Value.Type.Size == 4)
 			{
-				Add(CGInsn.Build<Add>(regs.MakeArg(1), new CGImmediate<ushort>(1), regs.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(regs.MakeArg(0), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(1), regs.MakeArg(1)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
 			else if (Value.Type.Size == 8)
 			{
-				Add(CGInsn.Build<Add>(regs.MakeArg(3), new CGImmediate<ushort>(1), regs.MakeArg(3)));
-				Add(CGInsn.Build<Adc>(regs.MakeArg(2), new CGImmediate<ushort>(0), regs.MakeArg(2)));
-				Add(CGInsn.Build<Adc>(regs.MakeArg(1), new CGImmediate<ushort>(0), regs.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(regs.MakeArg(0), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Value.Type.Size)[3]), new CGImmediate<ushort>(1), regs.MakeArg(3)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[2]), new CGImmediate<ushort>(0), regs.MakeArg(2)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(0), regs.MakeArg(1)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
 
@@ -266,22 +266,22 @@ namespace DankleC.IR
 		{
 			Return(Value);
 
-			var regs = Value.ToRegisters(this);
+			var regs = new SimpleRegisterValue(Alloc(Value.Type.Size), Value.Type);
 			if (Value.Type.Size <= 2)
 			{
-				Add(CGInsn.Build<Decrement>(regs.MakeArg()));
+				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(1), regs.MakeArg()));
 			}
 			else if (Value.Type.Size == 4)
 			{
-				Add(CGInsn.Build<Subtract>(regs.MakeArg(1), new CGImmediate<ushort>(1), regs.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(regs.MakeArg(0), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(1), regs.MakeArg(1)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
 			else if (Value.Type.Size == 8)
 			{
-				Add(CGInsn.Build<Subtract>(regs.MakeArg(3), new CGImmediate<ushort>(1), regs.MakeArg(3)));
-				Add(CGInsn.Build<Sbb>(regs.MakeArg(2), new CGImmediate<ushort>(0), regs.MakeArg(2)));
-				Add(CGInsn.Build<Sbb>(regs.MakeArg(1), new CGImmediate<ushort>(0), regs.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(regs.MakeArg(0), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Value.Type.Size)[3]), new CGImmediate<ushort>(1), regs.MakeArg(3)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[2]), new CGImmediate<ushort>(0), regs.MakeArg(2)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(0), regs.MakeArg(1)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
 

@@ -11,19 +11,20 @@ namespace DankleC.ASTObjects.Expressions
 	{
 		public readonly IExpression Expr = expr;
 
-		public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedDerefExpression(Expr.Resolve(builder));
+		public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+			var expr = Expr.Resolve(builder);
+			return new ResolvedDerefExpression(expr, ((PointerTypeSpecifier)expr.Type).Inner);
+		}
 	}
 
-	public class ResolvedDerefExpression(ResolvedExpression expr) : LValue(((PointerTypeSpecifier)expr.Type).Inner)
+	public class ResolvedDerefExpression(ResolvedExpression expr, TypeSpecifier type) : LValue(type)
 	{
 		public readonly ResolvedExpression Expr = expr;
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type)
-		{
-			throw new NotImplementedException();
-		}
+		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedDerefExpression(Expr, type);
 
 		public override IValue Execute(IRBuilder builder)
 		{
@@ -70,9 +71,9 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			TempStackVariable? save = null;
 
-			if (val is SimpleRegisterValue)
+			if (val is SimpleRegisterValue && !Expr.IsSimpleExpression)
 			{
-				save = builder.CurrentScope.AllocTemp(Expr.Type);
+				save = builder.CurrentScope.AllocTemp(val.Type);
 				save.Store(builder, val);
 				val = save;
 			}

@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Text;
 using Assembler;
 using Dankle;
 using Dankle.Components;
@@ -17,13 +18,15 @@ namespace DankleTest
 		public readonly Computer Computer;
 		public readonly Linker Linker;
 
+		public readonly StringBuilder Output = new();
+
 		private Statement? CurrentStatement;
 
 		public CTestHelper(string program)
 		{
 			Compiler = new Compiler().ReadText(program).GenAST().GenIR(true);
 			Computer = new Computer(0xF0000u);
-			Computer.AddComponent<Terminal>(0xFFFFFFF0u);
+			Computer.AddComponent<Terminal>(0xFFFFFFF0u, Output);
 			Computer.AddComponent<Debugger>(0xFFFFFFF2u);
 
 			Linker = new Linker([File.ReadAllText("cmain.asm"), Compiler.GenAssembly()]);

@@ -84,7 +84,7 @@ namespace DankleC.IR
 
 			foreach (var i in Builder.Functions)
 			{
-				if (i.Name == name) return new FunctionVariable(name, new(i.ReturnType, [.. i.Parameters.Parameters.Select(i => i.Item1)]), this);
+				if (i.Name == name) return new LabelVariable($"_{name}", new FunctionTypeSpecifier(i.ReturnType, [.. i.Parameters.Parameters.Select(i => i.Item1)]), this);
 			}
 
 			throw new Exception($"Could not find variable with name {name}");

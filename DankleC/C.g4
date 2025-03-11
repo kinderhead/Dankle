@@ -73,7 +73,7 @@ assignmentStatement
     ;
 
 declareStatement
-    : type Identifier
+    : type Identifier (Comma Identifier)*
     ;
 
 expressionStatement

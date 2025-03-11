@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace DankleC.ASTObjects
 {
@@ -63,14 +64,17 @@ namespace DankleC.ASTObjects
 		}
 	}
 
-	public class DeclareStatement(TypeSpecifier type, string name) : Statement
+	public class DeclareStatement(TypeSpecifier type, List<string> names) : Statement
 	{
 		public readonly TypeSpecifier Type = type;
-		public readonly string Name = name;
+		public readonly List<string> Names = names;
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			Scope.AllocLocal(Name, Type);
+			foreach (var i in Names)
+			{
+				Scope.AllocLocal(i, Type);
+			}
 		}
 	}
 }

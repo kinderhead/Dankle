@@ -674,6 +674,30 @@ short main()
 		[TestMethod, TestCategory("Functions")]
 		public void ULongTwoArgNestedFunc() => CTestHelper.TestFunctionTwoArgNested<ulong>();
 
+		[TestMethod]
+		[TestCategory("Functions")]
+		public void Print()
+		{
+			using var c = new CTestHelper(@"
+void print(const char* str)
+{
+    while (*str != 0)
+    {
+        *((char*) 0xFFFFFFF0) = *(str++);
+    }
+}
+
+short main()
+{
+    print(""We do a little testing"");
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual("We do a little testing", c.Output.ToString());
+		}
+
 		#endregion
 
 		//		#region Return

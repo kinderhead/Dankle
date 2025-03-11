@@ -131,16 +131,16 @@ namespace DankleC.IR
 		}
 	}
 
-	public class FunctionVariable(string name, FunctionTypeSpecifier type, IRScope scope) : Variable(name, type, scope)
+	public class LabelVariable(string name, TypeSpecifier type, IRScope scope) : Variable(name, type, scope)
 	{
 		public override Type CGType => typeof(CGLabel<uint>);
 
-		public override ICGArg MakeArg() => new CGLabel<uint>($"_{Name}");
+		public override ICGArg MakeArg() => new CGLabel<uint>(Name);
 
 		public override ICGArg MakeArg(int arg)
 		{
-			if (arg == 0) return new CGLabel<ushort>($"_{Name}#H");
-			if (arg == 1) return new CGLabel<ushort>($"_{Name}#L");
+			if (arg == 0) return new CGLabel<ushort>($"{Name}#H");
+			if (arg == 1) return new CGLabel<ushort>($"{Name}#L");
 			throw new InvalidOperationException();
         }
 
@@ -157,13 +157,14 @@ namespace DankleC.IR
 
 		public override void WriteTo(IRInsn insn, IPointer ptr)
 		{
-			throw new NotImplementedException();
+			if (ptr.Size != 4) throw new InvalidOperationException();
+			insn.Add(CGInsn.Build<Load32>(MakeArg(), ptr.Build<uint>(Scope)));
 		}
 
 		public override void WriteTo(IRInsn insn, int[] regs)
 		{
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[0]), new CGLabel<ushort>($"_{Name}#H")));
-			insn.Add(CGInsn.Build<Load>(new CGRegister(regs[1]), new CGLabel<ushort>($"_{Name}#L")));
+			if (regs.Length != 2) throw new InvalidOperationException();
+			insn.Add(CGInsn.Build<Load32>(MakeArg(), new CGDoubleRegister(regs[0], regs[1])));
 		}
 
 		public override ICGArg AsPointer<T>(IRInsn insn) => MakeArg();

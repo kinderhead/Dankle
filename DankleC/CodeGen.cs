@@ -57,6 +57,11 @@ namespace DankleC
 				builder.Append('\n');
 			}
 
+			foreach (var i in IR.Literals)
+			{
+				builder.Append($"\n{i.Label?.Name}:\n{i.Build(this)}");
+			}
+
 			return builder.ToString();
 		}
 

@@ -93,7 +93,7 @@ namespace DankleC
 			}
 			else
 			{
-				throw new NotImplementedException();
+				return new StringLiteralExpression(context.StringLiteral().GetText().Trim('"'), new PointerTypeSpecifier(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar) { IsConst = true }));
 				//var text = context.StringLiteral().GetText().Trim('"');
 				//var type = new BuiltinTypeSpecifier(BuiltinType.UnsignedChar)
 				//{
@@ -275,13 +275,13 @@ namespace DankleC
 			var type = Visit(context.type());
 
 			// Doesn't like being in the declare statement
-			if (context.Constant() is not null) return new DeclareStatement(new ArrayTypeSpecifier(type, int.Parse(context.Constant().GetText())), context.Identifier().GetText());
+			if (context.Constant() is not null) return new DeclareStatement(new ArrayTypeSpecifier(type, int.Parse(context.Constant().GetText())), [context.Identifier().GetText()]);
 
 			return new InitAssignmentStatement(type, context.Identifier().GetText(), Visit(context.expression()));
 		}
 
 		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
-		public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), context.Identifier().GetText());
+		public override IASTObject VisitDeclareStatement([NotNull] CParser.DeclareStatementContext context) => new DeclareStatement(Visit(context.type()), [.. context.Identifier().Select(i => i.GetText())]);
 		public override IASTObject VisitExpressionStatement([NotNull] CParser.ExpressionStatementContext context) => new ExpressionStatement(Visit(context.expression()));
         public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context) => new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
 		public override IASTObject VisitWhileStatement([NotNull] CParser.WhileStatementContext context) => new WhileStatement(Visit(context.expression()), Visit(context.statement()), context.Do() is not null);

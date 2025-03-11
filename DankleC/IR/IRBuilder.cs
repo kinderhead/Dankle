@@ -14,9 +14,12 @@ namespace DankleC.IR
 		public readonly bool Debug = debug;
 
 		public readonly List<IRFunction> Functions = [];
+		public readonly List<Literal> Literals = [];
 
 		public IRFunction CurrentFunction { get; private set; }
 		public IRScope CurrentScope { get; private set; }
+
+		private int literalLabels = 0;
 
 		public void Build()
 		{
@@ -66,6 +69,14 @@ namespace DankleC.IR
 		{
 			insn.Scope = CurrentScope;
 			CurrentFunction.Insns.Add(insn);
+		}
+
+		public IRLabel Add(Literal literal)
+		{
+			var label = new IRLabel($"I${literalLabels++}");
+			literal.Label = label;
+			Literals.Add(literal);
+			return label;
 		}
 
 		// public static int[] FitTempRegs(int bytes)

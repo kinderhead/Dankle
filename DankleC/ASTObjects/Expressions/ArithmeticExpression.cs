@@ -35,12 +35,12 @@ namespace DankleC.ASTObjects.Expressions
 			TypeSpecifier type;
 			if (left.Type is PointerTypeSpecifier lptr)
 			{
-				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction)) throw new InvalidOperationException("Invalid operation with pointer");
+				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction) || lptr.Inner.Size == 0) throw new InvalidOperationException("Invalid operation with pointer");
 				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size)).Resolve(builder), lptr);
 			}
 			else if (right.Type is PointerTypeSpecifier rptr)
 			{
-				if (Op != ArithmeticOperation.Addition) throw new InvalidOperationException("Invalid operation with pointer");
+				if (Op != ArithmeticOperation.Addition || rptr.Inner.Size == 0) throw new InvalidOperationException("Invalid operation with pointer");
 				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size)).Resolve(builder), Op, right, rptr);
 			}
 			else if (left.Type is ArrayTypeSpecifier larr)
