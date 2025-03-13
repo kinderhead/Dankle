@@ -13,6 +13,7 @@ namespace DankleC.ASTObjects
         public void Optimize(ProgramNode.Settings settings);
     }
 
-    public record ParameterList(List<(TypeSpecifier, string)> Parameters) : IASTObject;
+    public record ParameterList(List<DeclaratorPair> Parameters) : IASTObject;
     public record ArgumentList(List<IExpression> Arguments) : IASTObject;
+    public record DeclaratorPair(TypeSpecifier Type, string Name) : IASTObject;
 }

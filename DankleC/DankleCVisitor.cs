@@ -7,28 +7,28 @@ using DankleC.ASTObjects.Expressions;
 namespace DankleC
 {
 	public class DankleCVisitor : CBaseVisitor<IASTObject>
-    {
-        public override IASTObject VisitRoot([NotNull] CParser.RootContext context)
-        {
-            var program = new ProgramNode();
+	{
+		public override IASTObject VisitRoot([NotNull] CParser.RootContext context)
+		{
+			var program = new ProgramNode();
 
-            foreach (var i in context.children)
-            {
-                var def = Visit(i);
-                if (def is FunctionNode func) program.Functions.Add(func);
-            }
+			foreach (var i in context.children)
+			{
+				var def = Visit(i);
+				if (def is FunctionNode func) program.Functions.Add(func);
+			}
 
-            return program;
-        }
+			return program;
+		}
 
-        public override IASTObject VisitFunction([NotNull] CParser.FunctionContext context)
-        {
-            var type = Visit(context.type());
-            var name = context.Identifier().GetText();
+		public override IASTObject VisitFunction([NotNull] CParser.FunctionContext context)
+		{
+			var pair = Visit(context.declarator(), (TypeSpecifier)Visit(context.declarationSpecifier()));
+			var type = (FunctionTypeSpecifier)pair.Type;
 			var scope = Visit(context.scope());
 
-            return new FunctionNode(name, type, context.parameterList() is not null ? (ParameterList)Visit(context.parameterList()) : new ParameterList([]), scope);
-        }
+			return new FunctionNode(pair.Name, type, scope);
+		}
 
 		public override IASTObject VisitScope([NotNull] CParser.ScopeContext context)
 		{
@@ -46,17 +46,17 @@ namespace DankleC
 		{
 			var p = new ParameterList([]);
 
-			for (int i = 0; i < context.type().Length; i++)
+			foreach (var i in context.parameterDeclaration())
 			{
-				p.Parameters.Add((Visit(context.type()[i]), context.Identifier()[i].GetText()));
+				p.Parameters.Add(Visit(i.declarator(), (TypeSpecifier)Visit(i.declarationSpecifier())));
 			}
 
 			return p;
-        }
+		}
 
-        public override IASTObject VisitArgumentList([NotNull] CParser.ArgumentListContext context)
-        {
-            var args = new ArgumentList([]);
+		public override IASTObject VisitArgumentList([NotNull] CParser.ArgumentListContext context)
+		{
+			var args = new ArgumentList([]);
 
 			for (int i = 0; i < context.expression().Length; i++)
 			{
@@ -64,31 +64,24 @@ namespace DankleC
 			}
 
 			return args;
-        }
+		}
 
-        #region Expressions
+		#region Expressions
 
 		public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
 			if (context.Constant() is ITerminalNode c)
 			{
-				var text = c.GetText();
-				if (!text.Contains('.'))
-				{
-					Int128 num;
-					if (text.StartsWith("0x")) num = Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
-					else num = Int128.Parse(text);
+				var num = VisitInt(c);
 
-					if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
-					else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
-					else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
-					else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
-					else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), (int)num);
-					else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)num);
-					else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
-					else if (num >= ulong.MinValue && num <= ulong.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), (ulong)num);
-					else throw new NotImplementedException();
-				}
+				if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
+				else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
+				else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
+				else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
+				else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), (int)num);
+				else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)num);
+				else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
+				else if (num >= ulong.MinValue && num <= ulong.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), (ulong)num);
 				else throw new NotImplementedException();
 			}
 			else
@@ -141,9 +134,9 @@ namespace DankleC
 			return new AssignmentExpression(context.Identifier().GetText(), (IExpression)Visit(context.assignmentExpression()));
 		}
 
-        public override IASTObject VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context)
-        {
-            IExpression expr = (IExpression)Visit(context.relationalExpression()[0]);
+		public override IASTObject VisitEqualityExpression([NotNull] CParser.EqualityExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.relationalExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
@@ -152,11 +145,11 @@ namespace DankleC
 				expr = new EqualityExpression(expr, op, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
-        }
+		}
 
-        public override IASTObject VisitRelationalExpression([NotNull] CParser.RelationalExpressionContext context)
-        {
-            IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
+		public override IASTObject VisitRelationalExpression([NotNull] CParser.RelationalExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
@@ -172,9 +165,9 @@ namespace DankleC
 				expr = new EqualityExpression(expr, op, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
-        }
+		}
 
-        public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
+		public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
 		{
 			IExpression expr = (IExpression)Visit(context.multiplicativeExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
@@ -206,16 +199,16 @@ namespace DankleC
 			return expr;
 		}
 
-        public override IASTObject VisitLogicalOrExpression([NotNull] CParser.LogicalOrExpressionContext context)
-        {
-            IExpression expr = (IExpression)Visit(context.logicalAndExpression()[0]);
+		public override IASTObject VisitLogicalOrExpression([NotNull] CParser.LogicalOrExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.logicalAndExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
 				expr = new LogicalExpression(expr, LogicalOperation.Or, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
-        }
+		}
 
 		public override IASTObject VisitLogicalAndExpression([NotNull] CParser.LogicalAndExpressionContext context)
 		{
@@ -228,40 +221,40 @@ namespace DankleC
 			return expr;
 		}
 
-        public override IASTObject VisitInclusiveOrExpression([NotNull] CParser.InclusiveOrExpressionContext context)
-        {
-            IExpression expr = (IExpression)Visit(context.exclusiveOrExpression()[0]);
+		public override IASTObject VisitInclusiveOrExpression([NotNull] CParser.InclusiveOrExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.exclusiveOrExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
 				expr = new ArithmeticExpression(expr, ArithmeticOperation.InclusiveOr, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
-        }
+		}
 
-        public override IASTObject VisitExclusiveOrExpression([NotNull] CParser.ExclusiveOrExpressionContext context)
-        {
-            IExpression expr = (IExpression)Visit(context.andExpression()[0]);
+		public override IASTObject VisitExclusiveOrExpression([NotNull] CParser.ExclusiveOrExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.andExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
 				expr = new ArithmeticExpression(expr, ArithmeticOperation.ExclusiveOr, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
-        }
+		}
 
-        public override IASTObject VisitAndExpression([NotNull] CParser.AndExpressionContext context)
-        {
-            IExpression expr = (IExpression)Visit(context.equalityExpression()[0]);
+		public override IASTObject VisitAndExpression([NotNull] CParser.AndExpressionContext context)
+		{
+			IExpression expr = (IExpression)Visit(context.equalityExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
 				expr = new ArithmeticExpression(expr, ArithmeticOperation.And, (IExpression)Visit(context.children[++i]));
 			}
 			return expr;
-        }
+		}
 
-        public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
+		public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
 
 		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 
@@ -269,20 +262,31 @@ namespace DankleC
 
 		#region Statements
 
-        public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(context.expression() is not null ? Visit(context.expression()) : null);
+		public override IASTObject VisitReturnStatement([NotNull] CParser.ReturnStatementContext context) => new ReturnStatement(context.expression() is not null ? Visit(context.expression()) : null);
 
 		public override IASTObject VisitDeclaration([NotNull] CParser.DeclarationContext context)
-        {
-            var baseType = Visit(context.)
-        }
+		{
+			var baseType = (TypeSpecifier)Visit(context.declarationSpecifier());
+
+			var decls = new ScopeNode(false);
+			foreach (var i in context.initDeclarator())
+			{
+				var type = Visit(i.declarator(), baseType);
+				if (i.expression() is CParser.ExpressionContext expr) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, Visit(expr)));
+				else decls.Statements.Add(new DeclareStatement(type.Type, type.Name));
+			}
+
+			if (decls.Statements.Count == 1) return decls.Statements[0];
+			else return decls;
+		}
 
 		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
 		public override IASTObject VisitExpressionStatement([NotNull] CParser.ExpressionStatementContext context) => new ExpressionStatement(Visit(context.expression()));
-        public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context) => new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
+		public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context) => new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
 		public override IASTObject VisitWhileStatement([NotNull] CParser.WhileStatementContext context) => new WhileStatement(Visit(context.expression()), Visit(context.statement()), context.Do() is not null);
 		public override IASTObject VisitForStatement([NotNull] CParser.ForStatementContext context) => new ForStatement(context.stmt1 is not null ? (Statement)Visit(context.stmt1) : null, context.expression() is not null ? Visit(context.expression()) : null, context.stmt3 is not null ? (Statement)Visit(context.stmt3) : null, Visit(context.body));
 
-        public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
+		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
 
 		#endregion
 
@@ -290,16 +294,7 @@ namespace DankleC
 
 		public override IASTObject VisitType([NotNull] CParser.TypeContext context)
 		{
-			TypeSpecifier t;
-			if (context.builtinType() is CParser.BuiltinTypeContext b) t = (TypeSpecifier)Visit(b);
-			else t = (TypeSpecifier)Visit(context.userType());
-
-			t.IsConst = context.@const is not null;
-			if (context.Star() is not null) t = new PointerTypeSpecifier(t);
-			if (context.pconst is not null && t is PointerTypeSpecifier ptr) ptr.IsConst = true;
-			else if (context.pconst is not null) t.IsConst = true;
-
-			return t;
+			return Visit(context.abstractDeclarator(), (TypeSpecifier)Visit(context.declarationSpecifier()));
 		}
 
 		public override IASTObject VisitDeclarationSpecifier([NotNull] CParser.DeclarationSpecifierContext context)
@@ -309,10 +304,10 @@ namespace DankleC
 			else t = (TypeSpecifier)Visit(context.userType());
 			t.IsConst = context.Const() is not null;
 			return t;
-        }
+		}
 
-        public override IASTObject VisitUnsignedChar([NotNull] CParser.UnsignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedChar);
-        public override IASTObject VisitSignedChar([NotNull] CParser.SignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.SignedChar);
+		public override IASTObject VisitUnsignedChar([NotNull] CParser.UnsignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedChar);
+		public override IASTObject VisitSignedChar([NotNull] CParser.SignedCharContext context) => new BuiltinTypeSpecifier(BuiltinType.SignedChar);
 		public override IASTObject VisitUnsignedShort([NotNull] CParser.UnsignedShortContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 		public override IASTObject VisitSignedShort([NotNull] CParser.SignedShortContext context) => new BuiltinTypeSpecifier(BuiltinType.SignedShort);
 		public override IASTObject VisitUnsignedInt([NotNull] CParser.UnsignedIntContext context) => new BuiltinTypeSpecifier(BuiltinType.UnsignedInt);
@@ -327,14 +322,14 @@ namespace DankleC
 
 		public override IASTObject VisitBuiltinType([NotNull] CParser.BuiltinTypeContext context)
 		{
-            if (context.integerType() is CParser.IntegerTypeContext i) return Visit(i);
-            else if (context.Void() is not null) return new BuiltinTypeSpecifier(BuiltinType.Void);
-            else return new BuiltinTypeSpecifier(BuiltinType.Bool);
+			if (context.integerType() is CParser.IntegerTypeContext i) return Visit(i);
+			else if (context.Void() is not null) return new BuiltinTypeSpecifier(BuiltinType.Void);
+			else return new BuiltinTypeSpecifier(BuiltinType.Bool);
 		}
 
 		public override IASTObject VisitUserType([NotNull] CParser.UserTypeContext context)
 		{
-            return new UserTypeSpecifier(context.Identifier().GetText());
+			return new UserTypeSpecifier(context.Identifier().GetText());
 		}
 
 		#endregion
@@ -346,6 +341,52 @@ namespace DankleC
 		public IExpression Visit(CParser.ExpressionContext context) => (IExpression)Visit((IParseTree)context);
 		public UnresolvedLValue Visit(CParser.LvalueContext context) => (UnresolvedLValue)Visit((IParseTree)context);
 		public Statement Visit(CParser.StatementContext context) => (Statement)Visit((IParseTree)context);
+		public static Int128 VisitInt(ITerminalNode node)
+		{
+			var text = node.GetText();
+			if (!text.Contains('.'))
+			{
+				if (text.StartsWith("0x")) return Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+				else return Int128.Parse(text);
+			}
+			else throw new NotImplementedException();
+		}
+
+		public DeclaratorPair Visit(CParser.DeclaratorContext context, TypeSpecifier baseType)
+		{
+			DeclaratorPair pair;
+			if (context.Star() is null) pair = Visit(context.directDeclarator(), baseType);
+			else pair = Visit(context.directDeclarator(), new PointerTypeSpecifier(baseType));
+			pair.Type.IsConst = context.Const() is not null;
+			return pair;
+		}
+
+		public DeclaratorPair Visit(CParser.DirectDeclaratorContext context, TypeSpecifier baseType)
+		{
+			if (context.Identifier() is ITerminalNode name) return new(baseType, name.GetText());
+			else if (context.declarator() is CParser.DeclaratorContext decl) return Visit(decl, baseType);
+			else if (context.LeftBracket() is not null) return Visit(context.directDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant())));
+			else return Visit(context.directDeclarator(), new FunctionTypeSpecifier(baseType, (ParameterList)Visit(context.parameterList())));
+		}
+
+		public TypeSpecifier Visit(CParser.AbstractDeclaratorContext context, TypeSpecifier baseType)
+		{
+			TypeSpecifier type;
+			if (context.Star() is null) type = baseType;
+			else type = new PointerTypeSpecifier(baseType);
+
+			if (context.abstractDirectDeclarator() is CParser.AbstractDirectDeclaratorContext decl) type = Visit(decl, type);
+			type.IsConst = context.Const() is not null;
+			
+			return type;
+		}
+
+		public TypeSpecifier Visit(CParser.AbstractDirectDeclaratorContext context, TypeSpecifier baseType)
+		{
+			if (context.abstractDeclarator() is CParser.AbstractDeclaratorContext decl) return Visit(decl, baseType);
+			else if (context.LeftBracket() is not null) return Visit(context.abstractDirectDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant())));
+			else return Visit(context.abstractDirectDeclarator(), new FunctionTypeSpecifier(baseType, (ParameterList)Visit(context.parameterList())));
+		}
 
 		#endregion
 	}

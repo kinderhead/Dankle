@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
-	public class IRFunction(string name, TypeSpecifier returnType, ParameterList parameters)
+	public class IRFunction(string name, FunctionTypeSpecifier type)
 	{
 		public readonly string Name = name;
-		public readonly TypeSpecifier ReturnType = returnType;
-		public readonly ParameterList Parameters = parameters;
+		public readonly FunctionTypeSpecifier Type = type;
 		public readonly List<IRInsn> Insns = [];
 
 		public string SymbolName { get => "_" + Name; }

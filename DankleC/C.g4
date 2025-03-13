@@ -33,11 +33,15 @@ root
     ;
 
 function
-    : type Identifier LeftParen parameterList? RightParen scope
+    : declarationSpecifier declarator scope
     ;
 
 parameterList
-    : type Identifier (Comma type Identifier)*
+    : (parameterDeclaration (Comma parameterDeclaration)*)?
+    ;
+
+parameterDeclaration
+    : declarationSpecifier declarator
     ;
 
 argumentList
@@ -87,6 +91,17 @@ directDeclarator
     : Identifier
     | LeftParen declarator RightParen
     | directDeclarator LeftBracket Constant RightBracket
+    | directDeclarator LeftParen parameterList RightParen
+    ;
+
+abstractDeclarator
+    : (Star Const?)? abstractDirectDeclarator?
+    ;
+
+abstractDirectDeclarator
+    : LeftParen abstractDeclarator RightParen
+    | abstractDirectDeclarator LeftBracket Constant RightBracket
+    | abstractDirectDeclarator LeftParen parameterList RightParen
     ;
 
 expressionStatement
@@ -195,7 +210,7 @@ variableExpression
     ;
 
 type
-    : const=Const? (userType | builtinType) Star? pconst=Const?
+    : declarationSpecifier abstractDeclarator
     ;
 
 userType

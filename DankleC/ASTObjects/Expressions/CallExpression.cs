@@ -22,7 +22,7 @@ namespace DankleC.ASTObjects.Expressions
         public override IValue Execute(IRBuilder builder)
 		{
             var parameters = ((FunctionTypeSpecifier)Function.Type).Parameters;
-            if (Arguments.Count != parameters.Count) throw new InvalidOperationException("Mismatched argument count");
+            if (Arguments.Count != parameters.Parameters.Count) throw new InvalidOperationException("Mismatched argument count");
 
 			builder.CurrentScope.ReserveFunctionCallSpace((FunctionTypeSpecifier)Function.Type);
 
@@ -41,14 +41,14 @@ namespace DankleC.ASTObjects.Expressions
             var offset = 0;
             for (int i = 0; i < Arguments.Count; i++)
             {
-                ptrs.Add(new PreArgumentPointer(offset, parameters[i].Size));
-                offset += parameters[i].Size;
-                if (i < reservedParams) temps[i] = builder.CurrentScope.AllocTemp(parameters[i]);
+                ptrs.Add(new PreArgumentPointer(offset, parameters.Parameters[i].Type.Size));
+                offset += parameters.Parameters[i].Type.Size;
+                if (i < reservedParams) temps[i] = builder.CurrentScope.AllocTemp(parameters.Parameters[i].Type);
             }
 
             for (int i = 0; i < Arguments.Count; i++)
             {
-                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], Arguments[i].Cast(parameters[i]).Execute(builder)));
+                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], Arguments[i].Cast(parameters.Parameters[i].Type).Execute(builder)));
             }
 
             for (int i = 0; i < Arguments.Count; i++)

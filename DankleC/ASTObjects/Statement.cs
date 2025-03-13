@@ -28,10 +28,10 @@ namespace DankleC.ASTObjects
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
 			var expr = Expression?.Resolve(builder);
-			var value = expr?.Cast(func.ReturnType).Execute(builder);
+			var value = expr?.Cast(func.Type.ReturnType).Execute(builder);
 
 			if (value is not null) builder.Add(new IRSetReturn(value));
-			else if (func.ReturnType != new BuiltinTypeSpecifier(BuiltinType.Void)) throw new InvalidOperationException($"Function \"{func.Name}\" must return a value");
+			else if (func.Type.ReturnType != new BuiltinTypeSpecifier(BuiltinType.Void)) throw new InvalidOperationException($"Function \"{func.Name}\" must return a value");
 			builder.Add(new EndFrame());
 			builder.Add(new IRReturnFunc());
 		}
@@ -64,17 +64,14 @@ namespace DankleC.ASTObjects
 		}
 	}
 
-	public class DeclareStatement(TypeSpecifier type, List<string> names) : Statement
+	public class DeclareStatement(TypeSpecifier type, string name) : Statement
 	{
 		public readonly TypeSpecifier Type = type;
-		public readonly List<string> Names = names;
+		public readonly string Name = name;
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			foreach (var i in Names)
-			{
-				Scope.AllocLocal(i, Type);
-			}
+			Scope.AllocLocal(Name, Type);
 		}
 	}
 }

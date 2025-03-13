@@ -31,7 +31,7 @@ namespace DankleC.IR
 
 		private void HandleFunction(FunctionNode node)
 		{
-			var func = new IRFunction(node.Name, node.ReturnType, node.Parameters);
+			var func = new IRFunction(node.Name, node.Type);
 
 			CurrentFunction = func;
 

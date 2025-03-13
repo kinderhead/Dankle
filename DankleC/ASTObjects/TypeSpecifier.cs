@@ -191,9 +191,9 @@ namespace DankleC.ASTObjects
 	public class FunctionTypeSpecifier : TypeSpecifier
 	{
 		public readonly TypeSpecifier ReturnType;
-		public readonly List<TypeSpecifier> Parameters;
+		public readonly ParameterList Parameters;
 
-		public FunctionTypeSpecifier(TypeSpecifier ret, List<TypeSpecifier> parameters) : base()
+		public FunctionTypeSpecifier(TypeSpecifier ret, ParameterList parameters) : base()
 		{
 			if (ret is ArrayTypeSpecifier) throw new InvalidOperationException("Array type cannot be function return type");
 			ReturnType = ret;

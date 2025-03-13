@@ -40,9 +40,9 @@ namespace DankleC.IR
 		public void ReserveFunctionCallSpace(FunctionTypeSpecifier func)
 		{
 			var stack = 0;
-			foreach (var i in func.Parameters)
+			foreach (var i in func.Parameters.Parameters)
 			{
-				stack += i.Size;
+				stack += i.Type.Size;
 			}
 			MaxFuncAllocStackUsed = Math.Max(stack, MaxFuncAllocStackUsed);
 		}
@@ -65,10 +65,10 @@ namespace DankleC.IR
 		public void SetupArguments(IRFunction func)
 		{
 			int offset = 0;
-			foreach (var i in func.Parameters.Parameters)
+			foreach (var i in func.Type.Parameters.Parameters)
 			{
-				Locals[0].Add(new StackVariable(i.Item2, i.Item1, new PostArgumentPointer(offset, i.Item1.Size), this));
-				offset += i.Item1.Size;
+				Locals[0].Add(new StackVariable(i.Name, i.Type, new PostArgumentPointer(offset, i.Type.Size), this));
+				offset += i.Type.Size;
 			}
 		}
 
@@ -84,7 +84,7 @@ namespace DankleC.IR
 
 			foreach (var i in Builder.Functions)
 			{
-				if (i.Name == name) return new LabelVariable($"_{name}", new FunctionTypeSpecifier(i.ReturnType, [.. i.Parameters.Parameters.Select(i => i.Item1)]), this);
+				if (i.Name == name) return new LabelVariable($"_{name}", i.Type, this);
 			}
 
 			throw new Exception($"Could not find variable with name {name}");

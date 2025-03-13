@@ -51,6 +51,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParameterList([NotNull] CParser.ParameterListContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.parameterDeclaration"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitParameterDeclaration([NotNull] CParser.ParameterDeclarationContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.argumentList"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -110,6 +116,18 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitDirectDeclarator([NotNull] CParser.DirectDeclaratorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.abstractDeclarator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAbstractDeclarator([NotNull] CParser.AbstractDeclaratorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.abstractDirectDeclarator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAbstractDirectDeclarator([NotNull] CParser.AbstractDirectDeclaratorContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.expressionStatement"/>.
 	/// </summary>
