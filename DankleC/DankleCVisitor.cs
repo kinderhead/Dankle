@@ -329,14 +329,20 @@ namespace DankleC
 
 		public override IASTObject VisitUserType([NotNull] CParser.UserTypeContext context)
 		{
-			return new UserTypeSpecifier(context.Identifier().GetText());
+			if (context.Identifier() is ITerminalNode id) return new UserTypeSpecifier(id.GetText());
+			else return Visit(context.children[0]);
 		}
 
-		#endregion
+        public override IASTObject VisitStructOrUnion([NotNull] CParser.StructOrUnionContext context)
+        {
+            
+        }
 
-		#region Visit Overloads
+        #endregion
 
-		public TypeSpecifier Visit(CParser.TypeContext context) => (TypeSpecifier)Visit((IParseTree)context);
+        #region Visit Overloads
+
+        public TypeSpecifier Visit(CParser.TypeContext context) => (TypeSpecifier)Visit((IParseTree)context);
 		public ScopeNode Visit(CParser.ScopeContext context) => (ScopeNode)Visit((IParseTree)context);
 		public IExpression Visit(CParser.ExpressionContext context) => (IExpression)Visit((IParseTree)context);
 		public UnresolvedLValue Visit(CParser.LvalueContext context) => (UnresolvedLValue)Visit((IParseTree)context);
@@ -377,7 +383,7 @@ namespace DankleC
 
 			if (context.abstractDirectDeclarator() is CParser.AbstractDirectDeclaratorContext decl) type = Visit(decl, type);
 			type.IsConst = context.Const() is not null;
-			
+
 			return type;
 		}
 

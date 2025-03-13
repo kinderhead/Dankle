@@ -200,16 +200,50 @@ namespace DankleC.ASTObjects
 			Parameters = parameters;
 		}
 
-        public override bool AreEqual(TypeSpecifier a)
-        {
-            if (a is not FunctionTypeSpecifier type) return false;
+		public override bool AreEqual(TypeSpecifier a)
+		{
+			if (a is not FunctionTypeSpecifier type) return false;
 			return ReturnType == type.ReturnType;
-        }
+		}
 
 		public override string GetName() => $"{ReturnType.GetName()} (*)()";
 		public override bool IsNumber() => false;
 		public override bool IsSigned() => false;
 
 		protected override int GetTypeSize() => 4;
+	}
+
+    public class StructTypeSpecifier(string name, List<DeclaratorPair> props) : TypeSpecifier
+    {
+		public readonly string Name = name;
+		public readonly List<DeclaratorPair> Members = props;
+
+		public override bool AreEqual(TypeSpecifier a)
+		{
+			if (a is not StructTypeSpecifier type || Name != type.Name || Members.Count != type.Members.Count) return false;
+
+			for (int i = 0; i < Members.Count; i++)
+			{
+				if (Members[i].Name != type.Members[i].Name || Members[i].Type != type.Members[i].Type) return false;
+			}
+
+			return true;
+		}
+
+		public override string GetName() => $"struct {Name}";
+		public override bool IsNumber() => false;
+		public override bool IsSigned() => false;
+
+		protected override int GetTypeSize()
+		{
+			int size = 0;
+
+			foreach (var i in Members)
+			{
+				size += i.Type.Size;
+			}
+
+			return size;
+        }
     }
 }

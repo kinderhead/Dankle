@@ -129,6 +129,18 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAbstractDirectDeclarator([NotNull] CParser.AbstractDirectDeclaratorContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.structOrUnion"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructOrUnion([NotNull] CParser.StructOrUnionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.structDeclaration"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructDeclaration([NotNull] CParser.StructDeclarationContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.expressionStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

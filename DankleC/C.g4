@@ -104,6 +104,15 @@ abstractDirectDeclarator
     | abstractDirectDeclarator LeftParen parameterList RightParen
     ;
 
+structOrUnion
+    : (Struct | Union) Identifier? LeftBrace structDeclaration+ RightBracket
+    | (Struct | Union) Identifier
+    ;
+
+structDeclaration
+    : declarationSpecifier declarator (Comma declarator)* Semi
+    ;
+
 expressionStatement
     : expression
     ;
@@ -215,6 +224,7 @@ type
 
 userType
     : Identifier
+    | structOrUnion
     ;
 
 builtinType
