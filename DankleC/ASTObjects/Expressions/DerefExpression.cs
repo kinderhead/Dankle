@@ -33,7 +33,7 @@ namespace DankleC.ASTObjects.Expressions
 			var ptr = Expr.Execute(builder);
 			builder.Add(new IRDynLoadPtr(ptr, Type));
 
-			return ReturnValue();
+			return ReturnValue(builder);
 		}
 
 		public override IValue GetRef(IRBuilder builder)

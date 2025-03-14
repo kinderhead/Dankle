@@ -26,7 +26,7 @@ namespace DankleC.ASTObjects.Expressions
         public override IValue Execute(IRBuilder builder)
 		{
 			builder.Add(new IRCast(Expr.Execute(builder), Type));
-			return ReturnValue();
+			return ReturnValue(builder);
         }
 
 		public override void Walk(Action<ResolvedExpression> cb)

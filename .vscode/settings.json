@@ -4,6 +4,9 @@
         "*.asm": "asm-intel-x86-generic",
         "stdbool.h": "c",
         "printf.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "*.tcc": "c",
+        "numeric": "c",
+        "*.inc": "c"
     }
 }

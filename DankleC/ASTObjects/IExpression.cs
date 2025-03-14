@@ -47,7 +47,11 @@ namespace DankleC.ASTObjects
 
 		protected virtual ResolvedExpression AsCasted(TypeSpecifier type) => new CastExpression(this, type);
 
-		public SimpleRegisterValue ReturnValue() => new(IRInsn.FitRetRegs(Type.Size), Type);
+		public IValue ReturnValue(IRBuilder builder)
+		{
+			if (Type.IsNumber()) return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.Size), Type);
+			else return new SimplePointerValue(IRInsn.GetReturnPointer(Type.Size), Type, builder.CurrentScope);
+		}
 	}
 
 	public abstract class UnresolvedExpression : IExpression

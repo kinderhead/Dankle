@@ -63,7 +63,7 @@ namespace DankleC.ASTObjects.Expressions
             builder.Add(new IRCall(Function.Execute(builder)));
 
             if (Type.Size == 0) return new VoidValue();
-            else return ReturnValue();
+            else return ReturnValue(builder);
 		}
 
 		public override void Walk(Action<ResolvedExpression> cb)

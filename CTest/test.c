@@ -3,19 +3,17 @@ struct vec2i
     int x, y;
 };
 
-void combine(struct vec2i vec)
+struct vec2i test()
 {
-    int z = vec.x + vec.y;
+    struct vec2i t;
+    t.x = 342;
+    t.y = -1342;
+    return t;
 }
 
 short main()
 {
-    struct vec2i vec;
-
-    vec.x = 4;
-    vec.y = -3;
-
-    combine(vec);
+    int y = test().y;
 
     return 0;
 }

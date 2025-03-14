@@ -165,19 +165,26 @@ namespace DankleC.IR
 
 		protected void Return(IValue value)
 		{
-			var regs = FitRetRegs(value.Type.Size);
+			if (value.Type.IsNumber())
+			{
+				var regs = FitRetRegs(value.Type.Size);
 
-			//if (value is IPointerValue ptrval && ptrval.Pointer is RegisterPointer ptr && (regs.Contains(ptr.Reg1) || regs.Contains(ptr.Reg2)))
-			//{
-			//	var tmp = Alloc(4);
+				//if (value is IPointerValue ptrval && ptrval.Pointer is RegisterPointer ptr && (regs.Contains(ptr.Reg1) || regs.Contains(ptr.Reg2)))
+				//{
+				//	var tmp = Alloc(4);
 
-			//	MoveRegsToRegs([ptr.Reg1, ptr.Reg2], tmp);
-			//	new SimplePointerValue(new RegisterPointer())
+				//	MoveRegsToRegs([ptr.Reg1, ptr.Reg2], tmp);
+				//	new SimplePointerValue(new RegisterPointer())
 
-			//	Free(tmp);
-			//}
-			
-			value.WriteTo(this, regs);
+				//	Free(tmp);
+				//}
+
+				value.WriteTo(this, regs);
+			}
+			else
+			{
+				value.WriteTo(this, GetReturnPointer(value.Type.Size));
+			}
 		}
 
 		public static int[] FitRetRegs(int bytes)
@@ -188,6 +195,11 @@ namespace DankleC.IR
 			if (regs == 3) return [0, 1, 2];
 			if (regs == 4) return [0, 1, 2, 3];
 			throw new InvalidOperationException();
+		}
+
+		public static IPointer GetReturnPointer(int size)
+		{
+			return new LiteralPointer(0, size);
 		}
 
 		public static SimpleRegisterValue GetReturn(TypeSpecifier type) => new(FitRetRegs(type.Size), type);

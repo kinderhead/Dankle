@@ -77,7 +77,7 @@ namespace DankleC.ASTObjects.Expressions
                 builder.Add(falseLabel);
             }
 
-            return ReturnValue();
+            return ReturnValue(builder);
         }
 
 		public override void Walk(Action<ResolvedExpression> cb)

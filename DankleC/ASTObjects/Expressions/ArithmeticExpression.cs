@@ -138,7 +138,7 @@ namespace DankleC.ASTObjects.Expressions
 
 			save?.Dispose();
 
-			return ReturnValue();
+			return ReturnValue(builder);
 		}
 
 		public override void Walk(Action<ResolvedExpression> cb)

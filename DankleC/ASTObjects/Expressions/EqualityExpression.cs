@@ -68,7 +68,7 @@ namespace DankleC.ASTObjects.Expressions
         public override IValue Execute(IRBuilder builder)
 		{
             Compare(builder, Op, true);
-            return ReturnValue();
+            return ReturnValue(builder);
         }
 
         public override void Conditional(IRBuilder builder, bool negate = false)

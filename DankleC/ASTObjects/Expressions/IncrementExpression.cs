@@ -37,7 +37,7 @@ namespace DankleC.ASTObjects.Expressions
         {
 			if (!Type.IsNumber()) throw new InvalidOperationException();
             builder.Add(new IRPostIncrement(Value.GetPointer(builder), Type));
-            return ReturnValue();
+            return ReturnValue(builder);
         }
 
         public override ResolvedExpression Standalone() => new ResolvedPreIncrementExpression(Value, Type);
@@ -61,7 +61,7 @@ namespace DankleC.ASTObjects.Expressions
         {
 			if (!Type.IsNumber()) throw new InvalidOperationException();
 			builder.Add(new IRPreIncrement(Value.GetPointer(builder), Type));
-			return ReturnValue();
+			return ReturnValue(builder);
 		}
 
         public override void Walk(Action<ResolvedExpression> cb)
@@ -105,7 +105,7 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (!Type.IsNumber()) throw new InvalidOperationException();
 			builder.Add(new IRPostDecrement(Value.GetPointer(builder), Type));
-			return ReturnValue();
+			return ReturnValue(builder);
 		}
 
         public override ResolvedExpression Standalone() => new ResolvedPreDecrementExpression(Value, Type);
@@ -129,7 +129,7 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (!Type.IsNumber()) throw new InvalidOperationException();
 			builder.Add(new IRPreDecrement(Value.GetPointer(builder), Type));
-			return ReturnValue();
+			return ReturnValue(builder);
 		}
 
 		public override void Walk(Action<ResolvedExpression> cb)
