@@ -40,7 +40,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public StructTypeSpecifier StructType => (StructTypeSpecifier)Expression.Type;
 
-		public override bool IsSimpleExpression => Expression.IsSimpleExpression;
+		public override bool IsSimpleExpression => false;
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedMemberExpression(Expression, Member, type);
 
@@ -48,10 +48,10 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (Expression is LValue)
 			{
-				builder.Add(new IRSetReturn(new SimplePointerValue(GetPointer(builder), Type, builder.CurrentScope)));
+				//uilder.Add(new IRSetReturn(new SimplePointerValue(GetPointer(builder), Type, builder.CurrentScope)));
+				return new SimplePointerValue(GetPointer(builder), Type, builder.CurrentScope);
 			}
 			else throw new NotImplementedException();
-			return ReturnValue();
 		}
 
 		public override IValue GetRef(IRBuilder builder)

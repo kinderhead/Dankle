@@ -748,11 +748,7 @@ short main()
         long l;
     } funny;
 
-    struct test
-    {
-        short x, y;
-        long l;
-    }*ptr = &funny;
+    struct test *ptr = &funny;
 
     ptr->x = 34;
     ptr->y = 2314;
@@ -768,6 +764,38 @@ short main()
 			Assert.AreEqual(34, c.GetVariable<short>("x"));
 			Assert.AreEqual(2314, c.GetVariable<short>("y"));
 			Assert.AreEqual(-23474592, c.GetVariable<long>("l"));
+		}
+
+		[TestMethod]
+		[TestCategory("Structs")]
+		public void StructAsArgument()
+		{
+			using var c = new CTestHelper(@"
+struct vec2i
+{
+    int x, y;
+};
+
+int combine(struct vec2i vec)
+{
+    return vec.x + vec.y;
+}
+
+short main()
+{
+    struct vec2i vec;
+
+    vec.x = 4;
+    vec.y = -3;
+
+    int z = combine(vec);
+
+    return 0;
+}
+
+");
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual(1, c.GetVariable<int>("z"));
 		}
 
 		#endregion

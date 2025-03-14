@@ -8,6 +8,10 @@ namespace DankleC
 {
 	public class DankleCVisitor : CBaseVisitor<IASTObject>
 	{
+		// Storing structs and typedefs here makes my life easier and also helps me to follow the C standard :)
+		public readonly Dictionary<string, StructTypeSpecifier> Structs = [];
+		public readonly Dictionary<string, TypeSpecifier> UserTypes = [];
+
 		public override IASTObject VisitRoot([NotNull] CParser.RootContext context)
 		{
 			var program = new ProgramNode();
@@ -23,7 +27,7 @@ namespace DankleC
 
 		public override IASTObject VisitFunction([NotNull] CParser.FunctionContext context)
 		{
-			var pair = Visit(context.declarator(), (TypeSpecifier)Visit(context.declarationSpecifier()));
+			var pair = Visit(context.declarator(), Visit(context.declarationSpecifier()));
 			var type = (FunctionTypeSpecifier)pair.Type;
 			var scope = Visit(context.scope());
 
@@ -331,24 +335,32 @@ namespace DankleC
 
 		public override IASTObject VisitUserType([NotNull] CParser.UserTypeContext context)
 		{
-			if (context.Identifier() is ITerminalNode id) return new UserTypeSpecifier(id.GetText());
+			if (context.Identifier() is ITerminalNode id) return UserTypes[id.GetText()];
 			else return Visit(context.children[0]);
 		}
 
-        public override IASTObject VisitStructOrUnion([NotNull] CParser.StructOrUnionContext context)
-        {
-			var members = new List<DeclaratorPair>();
-
-			foreach (var i in context.structDeclaration())
+		public override IASTObject VisitStructOrUnion([NotNull] CParser.StructOrUnionContext context)
+		{
+			if (context.structDeclaration().Length != 0)
 			{
-				var baseType = Visit(i.declarationSpecifier());
-				foreach (var decl in i.declarator())
-				{
-					members.Add(Visit(decl, baseType));
-				}
-			}
+				var members = new List<DeclaratorPair>();
 
-			return new StructTypeSpecifier(context.Identifier()?.GetText() ?? "", members);
+				foreach (var i in context.structDeclaration())
+				{
+					var baseType = Visit(i.declarationSpecifier());
+					foreach (var decl in i.declarator())
+					{
+						members.Add(Visit(decl, baseType));
+					}
+				}
+
+				var s = new StructTypeSpecifier(context.Identifier()?.GetText() ?? "", members);
+
+				Structs[s.Name] = s;
+
+				return s;
+			}
+			else return Structs[context.Identifier().GetText()];
 		}
 
         #endregion

@@ -29,7 +29,7 @@
 grammar C;
 
 root
-    : (lineMarker | function)* EOF
+    : (lineMarker | function | (declaration (Semi)))* EOF
     ;
 
 function
@@ -63,8 +63,8 @@ statement
 semiStatement
     : returnStatement
     | assignmentStatement
-    | declaration
     | expressionStatement
+    | declaration
     ;
 
 assignmentStatement
@@ -72,7 +72,7 @@ assignmentStatement
     ;
 
 declaration
-    : declarationSpecifier initDeclarator (Comma initDeclarator)*
+    : declarationSpecifier (initDeclarator (Comma initDeclarator)*)?
     ;
 
 declarationSpecifier

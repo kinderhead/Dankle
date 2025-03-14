@@ -1,3 +1,9 @@
 {
-    "C_Cpp.errorSquiggles": "enabled"
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "*.asm": "asm-intel-x86-generic",
+        "stdbool.h": "c",
+        "printf.h": "c",
+        "stdint.h": "c"
+    }
 }

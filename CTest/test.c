@@ -1,22 +1,21 @@
+struct vec2i
+{
+    int x, y;
+};
+
+void combine(struct vec2i vec)
+{
+    int z = vec.x + vec.y;
+}
+
 short main()
 {
-    int _;
+    struct vec2i vec;
 
-    struct test
-    {
-        short x, y;
-        long l;
-    } funny;
+    vec.x = 4;
+    vec.y = -3;
 
-    struct test
-    {
-        short x, y;
-        long l;
-    }*ptr = &funny;
-
-    ptr->x = 34;
-    ptr->y = 2314;
-    ptr->l = -23474592;
+    combine(vec);
 
     return 0;
 }
