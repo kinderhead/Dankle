@@ -105,7 +105,7 @@ abstractDirectDeclarator
     ;
 
 structOrUnion
-    : (Struct | Union) Identifier? LeftBrace structDeclaration+ RightBracket
+    : (Struct | Union) Identifier? LeftBrace structDeclaration+ RightBrace
     | (Struct | Union) Identifier
     ;
 
@@ -191,7 +191,7 @@ unaryExpression
     ;
 
 postfixExpression
-    : primaryExpression (PlusPlus | MinusMinus | (LeftParen argumentList? RightParen))?
+    : primaryExpression (PlusPlus | MinusMinus | (LeftParen argumentList? RightParen) | (Dot Identifier))?
     | indexExpression
     ;
 

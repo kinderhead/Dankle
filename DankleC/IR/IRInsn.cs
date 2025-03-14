@@ -166,6 +166,17 @@ namespace DankleC.IR
 		protected void Return(IValue value)
 		{
 			var regs = FitRetRegs(value.Type.Size);
+
+			//if (value is IPointerValue ptrval && ptrval.Pointer is RegisterPointer ptr && (regs.Contains(ptr.Reg1) || regs.Contains(ptr.Reg2)))
+			//{
+			//	var tmp = Alloc(4);
+
+			//	MoveRegsToRegs([ptr.Reg1, ptr.Reg2], tmp);
+			//	new SimplePointerValue(new RegisterPointer())
+
+			//	Free(tmp);
+			//}
+			
 			value.WriteTo(this, regs);
 		}
 

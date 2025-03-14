@@ -15,11 +15,16 @@ namespace DankleC.ASTObjects
 	public abstract class LValue(TypeSpecifier type) : ResolvedExpression(type)
 	{
 		public abstract IValue GetRef(IRBuilder builder);
-		public abstract void WriteFrom(IValue val, IRBuilder builder);
 
-		public abstract IValue PostIncrement(IRBuilder builder);
-		public abstract IValue PreIncrement(IRBuilder builder);
-		public abstract IValue PostDecrement(IRBuilder builder);
-		public abstract IValue PreDecrement(IRBuilder builder);
+		public void WriteFrom(IValue val, IRBuilder builder) => WriteFrom(val, builder, 0, Type.Size);
+		public abstract void WriteFrom(IValue val, IRBuilder builder, int offset, int subTypeSize);
+
+		// Only valid for one IR instruction
+		public virtual IPointer GetPointer(IRBuilder builder)
+		{
+			var ptr = GetRef(builder);
+			if (ptr is SimpleRegisterValue val) return new RegisterPointer(val.Registers[0], val.Registers[1], 0, Type.Size);
+			else throw new InvalidOperationException();
+		}
 	}
 }

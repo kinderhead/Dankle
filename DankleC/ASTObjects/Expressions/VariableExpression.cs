@@ -40,37 +40,15 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new InvalidOperationException();
         }
 
-        public override IValue PostDecrement(IRBuilder builder)
-        {
-            builder.Add(new IRPostDecrement(Variable));
-			return ReturnValue();
-        }
-
-        public override IValue PostIncrement(IRBuilder builder)
-		{
-			builder.Add(new IRPostIncrement(Variable));
-			return ReturnValue();
-        }
-
-        public override IValue PreDecrement(IRBuilder builder)
-        {
-            builder.Add(new IRPreDecrement(Variable));
-			return ReturnValue();
-        }
-
-        public override IValue PreIncrement(IRBuilder builder)
-        {
-            builder.Add(new IRPreIncrement(Variable));
-			return ReturnValue();
-        }
+		public override IPointer GetPointer(IRBuilder builder) => Variable is StackVariable v ? v.Pointer : throw new InvalidOperationException();
 
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
 			cb(this);
 		}
 
-		public override void WriteFrom(IValue val, IRBuilder builder)
-        {
+		public override void WriteFrom(IValue val, IRBuilder builder, int offset, int subTypeSize)
+		{
 			Variable.Store(builder, val);
         }
     }

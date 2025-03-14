@@ -48,7 +48,7 @@ namespace DankleC
 
 			foreach (var i in context.parameterDeclaration())
 			{
-				p.Parameters.Add(Visit(i.declarator(), (TypeSpecifier)Visit(i.declarationSpecifier())));
+				p.Parameters.Add(Visit(i.declarator(), Visit(i.declarationSpecifier())));
 			}
 
 			return p;
@@ -119,6 +119,7 @@ namespace DankleC
 			if (context.PlusPlus() is not null) return new PostIncrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
 			else if (context.MinusMinus() is not null) return new PostDecrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
 			else if (context.LeftParen() is not null) return new CallExpression((IExpression)Visit(context.primaryExpression()), context.argumentList() is not null ? (ArgumentList)Visit(context.argumentList()) : new([]));
+			else if (context.Dot() is not null) return new MemberExpression((IExpression)Visit(context.primaryExpression()), context.Identifier().GetText());
 			else return Visit(context.children[0]);
 		}
 
@@ -266,7 +267,7 @@ namespace DankleC
 
 		public override IASTObject VisitDeclaration([NotNull] CParser.DeclarationContext context)
 		{
-			var baseType = (TypeSpecifier)Visit(context.declarationSpecifier());
+			var baseType = Visit(context.declarationSpecifier());
 
 			var decls = new ScopeNode(false);
 			foreach (var i in context.initDeclarator())
@@ -294,7 +295,7 @@ namespace DankleC
 
 		public override IASTObject VisitType([NotNull] CParser.TypeContext context)
 		{
-			return Visit(context.abstractDeclarator(), (TypeSpecifier)Visit(context.declarationSpecifier()));
+			return Visit(context.abstractDeclarator(), Visit(context.declarationSpecifier()));
 		}
 
 		public override IASTObject VisitDeclarationSpecifier([NotNull] CParser.DeclarationSpecifierContext context)
@@ -335,14 +336,26 @@ namespace DankleC
 
         public override IASTObject VisitStructOrUnion([NotNull] CParser.StructOrUnionContext context)
         {
-            
-        }
+			var members = new List<DeclaratorPair>();
+
+			foreach (var i in context.structDeclaration())
+			{
+				var baseType = Visit(i.declarationSpecifier());
+				foreach (var decl in i.declarator())
+				{
+					members.Add(Visit(decl, baseType));
+				}
+			}
+
+			return new StructTypeSpecifier(context.Identifier()?.GetText() ?? "", members);
+		}
 
         #endregion
 
         #region Visit Overloads
 
         public TypeSpecifier Visit(CParser.TypeContext context) => (TypeSpecifier)Visit((IParseTree)context);
+        public TypeSpecifier Visit(CParser.DeclarationSpecifierContext context) => (TypeSpecifier)Visit((IParseTree)context);
 		public ScopeNode Visit(CParser.ScopeContext context) => (ScopeNode)Visit((IParseTree)context);
 		public IExpression Visit(CParser.ExpressionContext context) => (IExpression)Visit((IParseTree)context);
 		public UnresolvedLValue Visit(CParser.LvalueContext context) => (UnresolvedLValue)Visit((IParseTree)context);

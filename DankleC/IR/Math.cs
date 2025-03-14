@@ -1,5 +1,6 @@
 using Dankle.Components.CodeGen;
 using Dankle.Components.Instructions;
+using DankleC.ASTObjects;
 using System;
 
 namespace DankleC.IR
@@ -226,87 +227,108 @@ namespace DankleC.IR
 		}
 	}
 
-	public class IRPostIncrement(IValue val) : IRInsn
+	public class IRPostIncrement(IPointer ptr, TypeSpecifier type) : IRInsn
 	{
-		public readonly IValue Value = val;
+		public readonly IPointer Pointer = ptr;
+		public readonly TypeSpecifier Type = type;
 
 		public override void Compile(CodeGen gen)
 		{
-			Return(Value);
+			var ret = GetReturn(Type);
 
-			var regs = new SimpleRegisterValue(Alloc(Value.Type.Size), Value.Type);
-			if (Value.Type.Size <= 2)
+			var ptr = Pointer;
+			if (Pointer is RegisterPointer regptr && regptr.Reg1 == ret.Registers[0])
 			{
-				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(1), regs.MakeArg()));
+				var newregs = Alloc(4);
+				MoveRegsToRegs([regptr.Reg1, regptr.Reg2], newregs);
+				ptr = new RegisterPointer(newregs[0], newregs[1], regptr.Offset, regptr.Size);
 			}
-			else if (Value.Type.Size == 4)
+
+			MovePtrToRegs(ptr, ret.Registers);
+
+			var regs = new SimpleRegisterValue(Alloc(Type.Size), Type);
+			if (Type.Size <= 2)
 			{
-				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(1), regs.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Type.Size)[0]), new CGImmediate<ushort>(1), regs.MakeArg()));
 			}
-			else if (Value.Type.Size == 8)
+			else if (Type.Size == 4)
 			{
-				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Value.Type.Size)[3]), new CGImmediate<ushort>(1), regs.MakeArg(3)));
-				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[2]), new CGImmediate<ushort>(0), regs.MakeArg(2)));
-				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(0), regs.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Type.Size)[1]), new CGImmediate<ushort>(1), regs.MakeArg(1)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+			}
+			else if (Type.Size == 8)
+			{
+				Add(CGInsn.Build<Add>(new CGRegister(FitRetRegs(Type.Size)[3]), new CGImmediate<ushort>(1), regs.MakeArg(3)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Type.Size)[2]), new CGImmediate<ushort>(0), regs.MakeArg(2)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Type.Size)[1]), new CGImmediate<ushort>(0), regs.MakeArg(1)));
+				Add(CGInsn.Build<Adc>(new CGRegister(FitRetRegs(Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
 
-			if (Value is not IPointerValue val) throw new InvalidOperationException();
-			MoveRegsToPtr(regs.Registers, val.Pointer);
+			MoveRegsToPtr(regs.Registers, ptr);
 		}
 	}
 
-	public class IRPostDecrement(IValue val) : IRInsn
+	public class IRPostDecrement(IPointer ptr, TypeSpecifier type) : IRInsn
 	{
-		public readonly IValue Value = val;
+		public readonly IPointer Pointer = ptr;
+		public readonly TypeSpecifier Type = type;
 
 		public override void Compile(CodeGen gen)
 		{
-			Return(Value);
+			var ret = GetReturn(Type);
 
-			var regs = new SimpleRegisterValue(Alloc(Value.Type.Size), Value.Type);
-			if (Value.Type.Size <= 2)
+			var ptr = Pointer;
+			if (Pointer is RegisterPointer regptr && regptr.Reg1 == ret.Registers[0])
 			{
-				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(1), regs.MakeArg()));
+				var newregs = Alloc(4);
+				MoveRegsToRegs([regptr.Reg1, regptr.Reg2], newregs);
+				ptr = new RegisterPointer(newregs[0], newregs[1], regptr.Offset, regptr.Size);
 			}
-			else if (Value.Type.Size == 4)
+
+			MovePtrToRegs(ptr, ret.Registers);
+
+			var regs = new SimpleRegisterValue(Alloc(Type.Size), Type);
+			if (Type.Size <= 2)
 			{
-				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(1), regs.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Type.Size)[0]), new CGImmediate<ushort>(1), regs.MakeArg()));
 			}
-			else if (Value.Type.Size == 8)
+			else if (Type.Size == 4)
 			{
-				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Value.Type.Size)[3]), new CGImmediate<ushort>(1), regs.MakeArg(3)));
-				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[2]), new CGImmediate<ushort>(0), regs.MakeArg(2)));
-				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[1]), new CGImmediate<ushort>(0), regs.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Value.Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Type.Size)[1]), new CGImmediate<ushort>(1), regs.MakeArg(1)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
+			}
+			else if (Type.Size == 8)
+			{
+				Add(CGInsn.Build<Subtract>(new CGRegister(FitRetRegs(Type.Size)[3]), new CGImmediate<ushort>(1), regs.MakeArg(3)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Type.Size)[2]), new CGImmediate<ushort>(0), regs.MakeArg(2)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Type.Size)[1]), new CGImmediate<ushort>(0), regs.MakeArg(1)));
+				Add(CGInsn.Build<Sbb>(new CGRegister(FitRetRegs(Type.Size)[0]), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
 			else throw new NotImplementedException();
 
-			if (Value is not IPointerValue val) throw new InvalidOperationException();
-			MoveRegsToPtr(regs.Registers, val.Pointer);
+			MoveRegsToPtr(regs.Registers, ptr);
 		}
 	}
 
-	public class IRPreIncrement(IValue val) : IRInsn
+	public class IRPreIncrement(IPointer ptr, TypeSpecifier type) : IRInsn
 	{
-		public readonly IValue Value = val;
+		public readonly IPointer Pointer = ptr;
+		public readonly TypeSpecifier Type = type;
 
 		public override void Compile(CodeGen gen)
 		{
-			var regs = Value.ToRegisters(this);
-			if (Value.Type.Size <= 2)
+			var regs = new SimplePointerValue(Pointer, Type, Scope).ToRegisters(this);
+			if (Type.Size <= 2)
 			{
 				Add(CGInsn.Build<Increment>(regs.MakeArg()));
 			}
-			else if (Value.Type.Size == 4)
+			else if (Type.Size == 4)
 			{
 				Add(CGInsn.Build<Add>(regs.MakeArg(1), new CGImmediate<ushort>(1), regs.MakeArg(1)));
 				Add(CGInsn.Build<Adc>(regs.MakeArg(0), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
-			else if (Value.Type.Size == 8)
+			else if (Type.Size == 8)
 			{
 				Add(CGInsn.Build<Add>(regs.MakeArg(3), new CGImmediate<ushort>(1), regs.MakeArg(3)));
 				Add(CGInsn.Build<Adc>(regs.MakeArg(2), new CGImmediate<ushort>(0), regs.MakeArg(2)));
@@ -315,29 +337,29 @@ namespace DankleC.IR
 			}
 			else throw new NotImplementedException();
 
-			if (Value is not IPointerValue val) throw new InvalidOperationException();
-			MoveRegsToPtr(regs.Registers, val.Pointer);
+			MoveRegsToPtr(regs.Registers, Pointer);
 			Return(regs);
 		}
 	}
 	
-	public class IRPreDecrement(IValue val) : IRInsn
+	public class IRPreDecrement(IPointer ptr, TypeSpecifier type) : IRInsn
 	{
-		public readonly IValue Value = val;
+		public readonly IPointer Pointer = ptr;
+		public readonly TypeSpecifier Type = type;
 
 		public override void Compile(CodeGen gen)
 		{
-			var regs = Value.ToRegisters(this);
-			if (Value.Type.Size <= 2)
+			var regs = new SimplePointerValue(Pointer, Type, Scope).ToRegisters(this);
+			if (Type.Size <= 2)
 			{
 				Add(CGInsn.Build<Decrement>(regs.MakeArg()));
 			}
-			else if (Value.Type.Size == 4)
+			else if (Type.Size == 4)
 			{
 				Add(CGInsn.Build<Subtract>(regs.MakeArg(1), new CGImmediate<ushort>(1), regs.MakeArg(1)));
 				Add(CGInsn.Build<Sbb>(regs.MakeArg(0), new CGImmediate<ushort>(0), regs.MakeArg(0)));
 			}
-			else if (Value.Type.Size == 8)
+			else if (Type.Size == 8)
 			{
 				Add(CGInsn.Build<Subtract>(regs.MakeArg(3), new CGImmediate<ushort>(1), regs.MakeArg(3)));
 				Add(CGInsn.Build<Sbb>(regs.MakeArg(2), new CGImmediate<ushort>(0), regs.MakeArg(2)));
@@ -346,8 +368,7 @@ namespace DankleC.IR
 			}
 			else throw new NotImplementedException();
 
-			if (Value is not IPointerValue val) throw new InvalidOperationException();
-			MoveRegsToPtr(regs.Registers, val.Pointer);
+			MoveRegsToPtr(regs.Registers, Pointer);
 			Return(regs);
 		}
 	}

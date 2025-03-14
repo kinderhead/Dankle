@@ -218,6 +218,31 @@ namespace DankleC.ASTObjects
 		public readonly string Name = name;
 		public readonly List<DeclaratorPair> Members = props;
 
+		public TypeSpecifier GetMember(string name)
+		{
+			foreach (var i in Members)
+			{
+				if (i.Name == name) return i.Type;
+			}
+
+			throw new InvalidOperationException($"Member \"{Name}\" is not in {GetName()}");
+		}
+
+		public int GetOffset(string name)
+		{
+			int offset = 0;
+
+			foreach (var i in Members)
+			{
+				if (i.Name == name) break;
+				offset += i.Type.Size;
+			}
+
+			if (offset == Size) throw new InvalidOperationException($"Member \"{Name}\" is not in {GetName()}");
+
+			return offset;
+		}
+
 		public override bool AreEqual(TypeSpecifier a)
 		{
 			if (a is not StructTypeSpecifier type || Name != type.Name || Members.Count != type.Members.Count) return false;

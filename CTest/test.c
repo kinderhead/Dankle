@@ -1,14 +1,14 @@
-void print(const char* str)
-{
-    while (*str != 0)
-    {
-        *((char*) 0xFFFFFFF0) = *(str++);
-    }
-}
-
 short main()
 {
-    print("We do a little testing");
+    int _;
+
+    struct test
+    {
+        short x, y;
+    } funny;
+
+    funny.x = 344;
+    funny.y = -13;
 
     return 0;
 }

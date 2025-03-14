@@ -41,33 +41,13 @@ namespace DankleC.ASTObjects.Expressions
 			return Expr.Execute(builder);
 		}
 
-        public override IValue PostDecrement(IRBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IValue PostIncrement(IRBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IValue PreDecrement(IRBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IValue PreIncrement(IRBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
 			cb(this);
 			Expr.Walk(cb);
 		}
 
-		public override void WriteFrom(IValue val, IRBuilder builder)
+		public override void WriteFrom(IValue val, IRBuilder builder, int offset, int subTypeSize)
 		{
 			TempStackVariable? save = null;
 

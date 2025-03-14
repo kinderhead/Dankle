@@ -7,30 +7,40 @@ namespace DankleC.ASTObjects.Expressions
     {
         public readonly UnresolvedLValue Value = val;
 
-        public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedPostIncrementExpression(Value.Resolve<LValue>(builder));
+        public override ResolvedExpression Resolve(IRBuilder builder)
+        {
+            var val = Value.Resolve<LValue>(builder);
+			return new ResolvedPostIncrementExpression(val, val.Type);
+        }
     }
 
     public class PreIncrementExpression(UnresolvedLValue val) : UnresolvedExpression
     {
         public readonly UnresolvedLValue Value = val;
 
-        public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedPreIncrementExpression(Value.Resolve<LValue>(builder));
-    }
+		public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+			var val = Value.Resolve<LValue>(builder);
+			return new ResolvedPreIncrementExpression(val, val.Type);
+		}
+	}
 
-    public class ResolvedPostIncrementExpression(LValue val) : ResolvedExpression(val.Type)
+    public class ResolvedPostIncrementExpression(LValue val, TypeSpecifier type) : ResolvedExpression(type)
     {
         public readonly LValue Value = val;
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPostIncrementExpression(Value);
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPostIncrementExpression(Value, type);
 
         public override IValue Execute(IRBuilder builder)
         {
-            return Value.PostIncrement(builder);
+			if (!Type.IsNumber()) throw new InvalidOperationException();
+            builder.Add(new IRPostIncrement(Value.GetPointer(builder), Type));
+            return ReturnValue();
         }
 
-        public override ResolvedExpression Standalone() => new ResolvedPreIncrementExpression(Value);
+        public override ResolvedExpression Standalone() => new ResolvedPreIncrementExpression(Value, Type);
 
         public override void Walk(Action<ResolvedExpression> cb)
         {
@@ -39,18 +49,20 @@ namespace DankleC.ASTObjects.Expressions
         }
     }
 
-    public class ResolvedPreIncrementExpression(LValue val) : ResolvedExpression(val.Type)
+    public class ResolvedPreIncrementExpression(LValue val, TypeSpecifier type) : ResolvedExpression(type)
     {
         public readonly LValue Value = val;
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPostIncrementExpression(Value);
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPreIncrementExpression(Value, type);
 
         public override IValue Execute(IRBuilder builder)
         {
-            return Value.PreIncrement(builder);
-        }
+			if (!Type.IsNumber()) throw new InvalidOperationException();
+			builder.Add(new IRPreIncrement(Value.GetPointer(builder), Type));
+			return ReturnValue();
+		}
 
         public override void Walk(Action<ResolvedExpression> cb)
         {
@@ -63,30 +75,40 @@ namespace DankleC.ASTObjects.Expressions
     {
         public readonly UnresolvedLValue Value = val;
 
-        public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedPostDecrementExpression(Value.Resolve<LValue>(builder));
-    }
+		public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+			var val = Value.Resolve<LValue>(builder);
+			return new ResolvedPostDecrementExpression(val, val.Type);
+		}
+	}
 
     public class PreDecrementExpression(UnresolvedLValue val) : UnresolvedExpression
     {
         public readonly UnresolvedLValue Value = val;
 
-        public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedPreDecrementExpression(Value.Resolve<LValue>(builder));
-    }
+		public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+			var val = Value.Resolve<LValue>(builder);
+			return new ResolvedPreDecrementExpression(val, val.Type);
+		}
+	}
 
-	public class ResolvedPostDecrementExpression(LValue val) : ResolvedExpression(val.Type)
+	public class ResolvedPostDecrementExpression(LValue val, TypeSpecifier type) : ResolvedExpression(type)
     {
         public readonly LValue Value = val;
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPostDecrementExpression(Value);
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPostDecrementExpression(Value, type);
 
         public override IValue Execute(IRBuilder builder)
 		{
-            return Value.PostDecrement(builder);
-        }
+			if (!Type.IsNumber()) throw new InvalidOperationException();
+			builder.Add(new IRPostDecrement(Value.GetPointer(builder), Type));
+			return ReturnValue();
+		}
 
-        public override ResolvedExpression Standalone() => new ResolvedPreDecrementExpression(Value);
+        public override ResolvedExpression Standalone() => new ResolvedPreDecrementExpression(Value, Type);
 
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
@@ -95,18 +117,20 @@ namespace DankleC.ASTObjects.Expressions
 		}
 	}
 
-    public class ResolvedPreDecrementExpression(LValue val) : ResolvedExpression(val.Type)
+    public class ResolvedPreDecrementExpression(LValue val, TypeSpecifier type) : ResolvedExpression(type)
     {
         public readonly LValue Value = val;
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPostDecrementExpression(Value);
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedPreDecrementExpression(Value, type);
 
         public override IValue Execute(IRBuilder builder)
 		{
-            return Value.PreDecrement(builder);
-        }
+			if (!Type.IsNumber()) throw new InvalidOperationException();
+			builder.Add(new IRPreDecrement(Value.GetPointer(builder), Type));
+			return ReturnValue();
+		}
 
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
