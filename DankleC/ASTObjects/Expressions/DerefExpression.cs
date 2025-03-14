@@ -59,7 +59,7 @@ namespace DankleC.ASTObjects.Expressions
 			}
 
 			var ptr = Expr.Execute(builder);
-			builder.Add(new IRDynStorePtr(ptr, val));
+			builder.Add(new IRDynStorePtr(ptr, val, offset, subTypeSize));
 			save?.Dispose();
         }
     }

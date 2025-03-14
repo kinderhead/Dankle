@@ -191,7 +191,7 @@ unaryExpression
     ;
 
 postfixExpression
-    : primaryExpression (PlusPlus | MinusMinus | (LeftParen argumentList? RightParen) | (Dot Identifier))?
+    : primaryExpression (PlusPlus | MinusMinus | (LeftParen argumentList? RightParen) | ((Dot | Arrow) Identifier))?
     | indexExpression
     ;
 

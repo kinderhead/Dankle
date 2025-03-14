@@ -20,6 +20,19 @@ namespace DankleC.ASTObjects.Expressions
 		}
 	}
 
+	public class PointerMemberExpression(IExpression expr, string member) : UnresolvedLValue
+	{
+		public readonly IExpression Expression = expr;
+		public readonly string Member = member;
+
+		public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+			var expr = Expression.Resolve(builder);
+
+			return new MemberExpression(new DerefExpression(expr).Resolve(builder), Member).Resolve(builder);
+		}
+	}
+
 	public class ResolvedMemberExpression(ResolvedExpression expr, string member, TypeSpecifier type) : LValue(type)
 	{
 		public readonly ResolvedExpression Expression = expr;
@@ -61,7 +74,8 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteFrom(IValue val, IRBuilder builder, int offset, int subTypeSize)
 		{
-			throw new NotImplementedException();
+			if (Expression is LValue l) l.WriteFrom(val, builder, StructType.GetOffset(Member) + offset, subTypeSize);
+			else throw new InvalidOperationException();
 		}
 	}
 }

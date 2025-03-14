@@ -5,10 +5,18 @@ short main()
     struct test
     {
         short x, y;
+        long l;
     } funny;
 
-    funny.x = 344;
-    funny.y = -13;
+    struct test
+    {
+        short x, y;
+        long l;
+    }*ptr = &funny;
+
+    ptr->x = 34;
+    ptr->y = 2314;
+    ptr->l = -23474592;
 
     return 0;
 }

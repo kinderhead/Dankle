@@ -120,6 +120,7 @@ namespace DankleC
 			else if (context.MinusMinus() is not null) return new PostDecrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
 			else if (context.LeftParen() is not null) return new CallExpression((IExpression)Visit(context.primaryExpression()), context.argumentList() is not null ? (ArgumentList)Visit(context.argumentList()) : new([]));
 			else if (context.Dot() is not null) return new MemberExpression((IExpression)Visit(context.primaryExpression()), context.Identifier().GetText());
+			else if (context.Arrow() is not null) return new PointerMemberExpression((IExpression)Visit(context.primaryExpression()), context.Identifier().GetText());
 			else return Visit(context.children[0]);
 		}
 

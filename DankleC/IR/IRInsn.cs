@@ -257,21 +257,23 @@ namespace DankleC.IR
 		}
 	}
 
-	public class IRDynStorePtr(IValue ptr, IValue value) : IRInsn
+	public class IRDynStorePtr(IValue ptr, IValue value, int offset, int size) : IRInsn
 	{
 		public readonly IValue Pointer = ptr;
 		public readonly IValue Value = value;
+		public readonly int Offset = offset;
+		public readonly int Size = size;
 
 		public override void Compile(CodeGen gen)
 		{
 			if (Pointer is Immediate32 i)
 			{
-				Value.WriteTo(this, new LiteralPointer(i.Value, Value.Type.Size));
+				Value.WriteTo(this, new LiteralPointer(i.Value + (uint)Offset, Size));
 			}
 			else
 			{
 				var ptrRegs = Pointer.ToRegisters(this);
-				Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], 0, Value.Type.Size));
+				Value.WriteTo(this, new RegisterPointer(ptrRegs.Registers[0], ptrRegs.Registers[1], Offset, Size));
 			}
 		}
 	}

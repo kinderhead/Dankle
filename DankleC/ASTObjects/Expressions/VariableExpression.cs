@@ -49,7 +49,9 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteFrom(IValue val, IRBuilder builder, int offset, int subTypeSize)
 		{
-			Variable.Store(builder, val);
+			if (Variable is not StackVariable v) throw new InvalidOperationException();
+
+			builder.Add(new IRStorePtr(v.Pointer.Get(offset, subTypeSize), val));
         }
     }
 }

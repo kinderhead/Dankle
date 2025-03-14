@@ -700,23 +700,76 @@ short main()
 
 		#endregion
 
-		//		#region Return
+		#region Structs
 
-		//		[TestMethod]
-		//		[TestCategory("Return")]
-		//		public void ReturnChar()
-		//		{
-		//			using var c = new CTestHelper(@"
-		//char main()
-		//{
-		//    char x = 10;
-		//    return x;
-		//}
-		//");
-		//			c.RunUntilDone();
-		//			Assert.AreEqual(10, c.Computer.MainCore.Registers[0]);
-		//		}
+		[TestMethod]
+		[TestCategory("Structs")]
+		public void SimpleStruct()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    int _;
 
-		//		#endregion
+    struct test
+    {
+        short x, y;
+        long l;
+    } funny;
+
+    funny.x = 3242;
+	funny.y = -12;
+	funny.l = 23872985;
+
+	short x = funny.x, y = funny.y;
+	long l = funny.l;
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(3242, c.GetVariable<short>("x"));
+			Assert.AreEqual(-12, c.GetVariable<short>("y"));
+			Assert.AreEqual(23872985, c.GetVariable<long>("l"));
+		}
+
+		[TestMethod]
+		[TestCategory("Structs")]
+		public void StructPointer()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+    int _;
+
+    struct test
+    {
+        short x, y;
+        long l;
+    } funny;
+
+    struct test
+    {
+        short x, y;
+        long l;
+    }*ptr = &funny;
+
+    ptr->x = 34;
+    ptr->y = 2314;
+    ptr->l = -23474592;
+
+	short x = funny.x, y = funny.y;
+	long l = funny.l;
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(34, c.GetVariable<short>("x"));
+			Assert.AreEqual(2314, c.GetVariable<short>("y"));
+			Assert.AreEqual(-23474592, c.GetVariable<long>("l"));
+		}
+
+		#endregion
 	}
 }
