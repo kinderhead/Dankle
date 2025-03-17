@@ -239,6 +239,32 @@ short main()
 
 		[TestMethod, TestCategory("Math")]
 		public void ULongPreIncrement() => CTestHelper.TestPreIncrement<ulong>();
+		
+		
+		[TestMethod, TestCategory("Math")]
+		public void CharNegate() => CTestHelper.TestNegate<sbyte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void UCharNegate() => CTestHelper.TestNegate<byte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ShortNegate() => CTestHelper.TestNegate<short>();
+
+		[TestMethod, TestCategory("Math")]
+		public void UShortNegate() => CTestHelper.TestNegate<ushort>();
+
+		[TestMethod, TestCategory("Math")]
+		public void IntNegate() => CTestHelper.TestNegate<int>();
+
+		[TestMethod, TestCategory("Math")]
+		public void UIntNegate() => CTestHelper.TestNegate<uint>();
+
+		[TestMethod, TestCategory("Math")]
+		public void LongNegate() => CTestHelper.TestNegate<long>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ULongNegate() => CTestHelper.TestNegate<ulong>();
+		
 
 		[TestMethod]
 		[TestCategory("Math")]
@@ -792,10 +818,61 @@ short main()
 
     return 0;
 }
-
 ");
 			c.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(1, c.GetVariable<int>("z"));
+		}
+
+		[TestMethod]
+		[TestCategory("Structs")]
+		public void ReturnStruct()
+		{
+			using var c = new CTestHelper(@"
+struct vec2i
+{
+    int x, y;
+};
+
+struct vec2i test()
+{
+    struct vec2i t;
+    t.x = 342;
+    t.y = 1342;
+    return t;
+}
+
+short main()
+{
+	int x = test().x;
+    int y = test().y;
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual(342, c.GetVariable<int>("x"));
+			Assert.AreEqual(1342, c.GetVariable<int>("y"));
+		}
+
+		#endregion
+
+		#region Preprocessor
+
+		[TestMethod]
+		[TestCategory("Variables")]
+		public void SimpleDefine()
+		{
+			using var c = new CTestHelper(@"
+#define TEST 3476
+		
+short main()
+{
+    short x = TEST;
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(3476, c.GetVariable<short>("x"));
 		}
 
 		#endregion

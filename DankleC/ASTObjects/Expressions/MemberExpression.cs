@@ -46,12 +46,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override IValue Execute(IRBuilder builder)
 		{
-			if (Expression is LValue)
-			{
-				//uilder.Add(new IRSetReturn(new SimplePointerValue(GetPointer(builder), Type, builder.CurrentScope)));
-				return new SimplePointerValue(GetPointer(builder), Type, builder.CurrentScope);
-			}
-			else throw new NotImplementedException();
+			return new SimplePointerValue(GetPointer(builder), Type, builder.CurrentScope);
 		}
 
 		public override IValue GetRef(IRBuilder builder)
@@ -63,7 +58,11 @@ namespace DankleC.ASTObjects.Expressions
 		public override IPointer GetPointer(IRBuilder builder)
 		{
 			if (Expression is LValue l) return l.GetPointer(builder).Get(StructType.GetOffset(Member), Type.Size);
-			else throw new NotImplementedException();
+			else
+			{
+				if (Expression.Execute(builder) is SimplePointerValue val) return val.Pointer.Get(StructType.GetOffset(Member), Type.Size);
+				else throw new InvalidOperationException();
+			}
 		}
 
 		public override void Walk(Action<ResolvedExpression> cb)

@@ -60,14 +60,14 @@ namespace DankleC.ASTObjects.Expressions
 			{
                 dynamic res = Op switch
                 {
-                    ArithmeticOperation.Addition => (dynamic)l.Value + (dynamic)r.Value,
-                    ArithmeticOperation.Subtraction => (dynamic)l.Value - (dynamic)r.Value,
-					ArithmeticOperation.Multiplication => (dynamic)l.Value * (dynamic)r.Value,
-					ArithmeticOperation.Division => (dynamic)l.Value / (dynamic)r.Value,
-					ArithmeticOperation.Modulo => (dynamic)l.Value % (dynamic)r.Value,
-					ArithmeticOperation.InclusiveOr => (dynamic)l.Value | (dynamic)r.Value,
-					ArithmeticOperation.ExclusiveOr => (dynamic)l.Value ^ (dynamic)r.Value,
-					ArithmeticOperation.And => (dynamic)l.Value & (dynamic)r.Value,
+                    ArithmeticOperation.Addition => (Int128)(dynamic)l.Value + (dynamic)r.Value, // Silly longs
+                    ArithmeticOperation.Subtraction => (Int128)(dynamic)l.Value - (dynamic)r.Value,
+					ArithmeticOperation.Multiplication => (Int128)(dynamic)l.Value * (dynamic)r.Value,
+					ArithmeticOperation.Division => (Int128)(dynamic)l.Value / (dynamic)r.Value,
+					ArithmeticOperation.Modulo => (Int128)(dynamic)l.Value % (dynamic)r.Value,
+					ArithmeticOperation.InclusiveOr => (Int128)(dynamic)l.Value | (dynamic)r.Value,
+					ArithmeticOperation.ExclusiveOr => (Int128)(dynamic)l.Value ^ (dynamic)r.Value,
+					ArithmeticOperation.And => (Int128)(dynamic)l.Value & (dynamic)r.Value,
 					_ => throw new NotImplementedException(),
                 };
 				

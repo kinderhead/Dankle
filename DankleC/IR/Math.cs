@@ -341,7 +341,7 @@ namespace DankleC.IR
 			Return(regs);
 		}
 	}
-	
+
 	public class IRPreDecrement(IPointer ptr, TypeSpecifier type) : IRInsn
 	{
 		public readonly IPointer Pointer = ptr;
@@ -370,6 +370,21 @@ namespace DankleC.IR
 
 			MoveRegsToPtr(regs.Registers, Pointer);
 			Return(regs);
+		}
+	}
+	
+	public class IRNegate(IValue val) : IRInsn
+	{
+		public readonly IValue Value = val;
+
+		public override void Compile(CodeGen gen)
+		{
+			var ret = GetReturn(Value.Type);
+
+			for (int i = 0; i < IRBuilder.NumRegForBytes(Value.Type.Size); i++)
+			{
+				Add(CGInsn.Build<Xor>(Value.MakeArg(i), new CGImmediate<ushort>(0xFFFF), ret.MakeArg(i)));
+			}
 		}
 	}
 }

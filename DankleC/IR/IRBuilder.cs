@@ -14,6 +14,7 @@ namespace DankleC.IR
 		public readonly bool Debug = debug;
 
 		public readonly List<IRFunction> Functions = [];
+		public Dictionary<string, TypeSpecifier> Externs = [];
 		public readonly List<Literal> Literals = [];
 
 		public IRFunction CurrentFunction { get; private set; }
@@ -23,6 +24,8 @@ namespace DankleC.IR
 
 		public void Build()
 		{
+			Externs = AST.Externs;
+
 			foreach (var i in AST.Functions)
 			{
 				HandleFunction(i);

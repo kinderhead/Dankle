@@ -5,6 +5,7 @@ namespace DankleC.ASTObjects
     public class ProgramNode : IStatementHolder
     {
         public readonly List<FunctionNode> Functions = [];
+        public readonly Dictionary<string, TypeSpecifier> Externs = [];
 
         public List<T> FindAll<T>() where T : Statement
         {

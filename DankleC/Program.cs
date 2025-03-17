@@ -13,7 +13,7 @@ namespace DankleC
         static void Main(string[] _)
         {
             var compiler = new Compiler();
-			var asm = compiler.ReadFile("../../../../CTest/test.c").GenAST().GenIR().GenAssembly();
+			var asm = compiler.ReadFileAndPreprocess("../../../../CTest/test.c").GenAST().GenIR().GenAssembly();
 
 			Console.WriteLine(asm + "\n-----------------------------");
 

@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using Antlr4.Runtime;
 using Dankle;
 using DankleC.ASTObjects;
@@ -13,10 +15,27 @@ namespace DankleC
         public ProgramNode AST { get => _AST ?? throw new InvalidOperationException(); }
         public IRBuilder? IR { get; private set; }
 
+        public Compiler ReadFileAndPreprocess(string path) => ReadText(Preprocess(path));
         public Compiler ReadFile(string path)
         {
             Stream = new AntlrFileStream(path);
             return this;
+        }
+
+        public Compiler ReadTextAndPreprocess(string program)
+        {
+            var filename = $"tmp_{TempFileNameGen.Next()}.c";
+            File.WriteAllText(filename, program);
+
+            try
+            {
+                var newProg = Preprocess(filename);
+                return ReadText(newProg);
+            }
+            finally
+            {
+                File.Delete(filename);
+            }
         }
 
         public Compiler ReadText(string program)
@@ -48,5 +67,34 @@ namespace DankleC
         public string GenAssembly() => new CodeGen(IR ?? throw new InvalidOperationException()).Compile();
 
         public string Compile() => GenAST().GenIR().GenAssembly();
+
+        public static string Preprocess(string filepath)
+        {
+            var output = ExecuteProgram(GetPreprocessorPath(), filepath);
+            if (output.Item2.Trim() != "") throw new Exception($"Error preprocessing file \"{filepath}\":\n{output.Item2}");
+            return output.Item1;
+        }
+
+        public static string GetPreprocessorPath() => Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new FileNotFoundException("Could not get path"), "simplecpp", "simplecpp");
+
+        public static (string, string) ExecuteProgram(string program, string args)
+        {
+            var p = new Process();
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.FileName = program;
+            p.StartInfo.Arguments = args;
+
+            p.Start();
+            p.WaitForExit();
+
+            var stderr = p.StandardError.ReadToEnd();
+            var stdout = p.StandardOutput.ReadToEnd();
+
+            return (stdout, stderr);
+        }
+
+        public static readonly Random TempFileNameGen = new();
     }
 }

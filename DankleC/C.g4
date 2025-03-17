@@ -76,7 +76,7 @@ declaration
     ;
 
 declarationSpecifier
-    : Const? (userType | builtinType)
+    : (Const | Extern)* (userType | builtinType)
     ;
 
 initDeclarator
@@ -163,10 +163,6 @@ assignmentExpression
     | Identifier Assign assignmentExpression
     ;
 
-indexExpression
-    : primaryExpression LeftBracket expression RightBracket
-    ;
-
 returnStatement
     : Return expression?
     ;
@@ -186,13 +182,20 @@ castExpression
 
 unaryExpression
     : postfixExpression
-    | (And | Star) castExpression
+    | (And | Star | Minus) castExpression
     | (PlusPlus | MinusMinus) unaryExpression
     ;
 
 postfixExpression
-    : primaryExpression (PlusPlus | MinusMinus | (LeftParen argumentList? RightParen) | ((Dot | Arrow) Identifier))?
-    | indexExpression
+    : primaryExpression partialPostfixExpression*
+    ;
+
+partialPostfixExpression
+    : PlusPlus
+    | MinusMinus
+    | LeftParen argumentList? RightParen
+    | (Dot | Arrow) Identifier
+    | LeftBracket expression RightBracket
     ;
 
 primaryExpression
@@ -238,8 +241,6 @@ integerType
     | signedChar
     | unsignedShort
     | signedShort
-    | unsignedInt
-    | signedInt
     | unsignedLong
     | signedLong
     | unsignedLongLong
@@ -247,6 +248,8 @@ integerType
     | float
     | double
     | longDouble
+    | unsignedInt
+    | signedInt
     ;
 
 unsignedChar
@@ -271,14 +274,14 @@ signedShort
     ;
 
 unsignedInt
-    : Unsigned
-    | Unsigned Int
+    : Unsigned Int
+    | Unsigned
     ;
 
 signedInt
     : Int
-    | Signed
     | Signed Int
+    | Signed
     ;
 
 unsignedLong

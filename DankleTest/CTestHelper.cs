@@ -24,7 +24,7 @@ namespace DankleTest
 
 		public CTestHelper(string program)
 		{
-			Compiler = new Compiler().ReadText(program).GenAST().GenIR(true);
+			Compiler = new Compiler().ReadTextAndPreprocess(program).GenAST().GenIR(true);
 			Computer = new Computer(0xF0000u);
 			Computer.AddComponent<Terminal>(0xFFFFFFF0u, Output);
 			Computer.AddComponent<Debugger>(0xFFFFFFF2u);
@@ -411,6 +411,24 @@ short main()
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual(x + (decrement ? -T.One : T.One), c.GetVariable<T>("x"));
 			Assert.AreEqual(x + (decrement ? -T.One : T.One), c.GetVariable<T>("y"));
+		}
+
+		public static void TestNegate<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+			var x = T.MaxValue / T.CreateTruncating(4) * T.CreateTruncating(3);
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+    {type} x = {x};
+	{type} y = -x;
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+			Assert.AreEqual(-x, c.GetVariable<T>("y"));
 		}
 
 		public static void TestSimpleFunction<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>

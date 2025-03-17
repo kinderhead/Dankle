@@ -20,6 +20,16 @@ namespace DankleC
 			{
 				var def = Visit(i);
 				if (def is FunctionNode func) program.Functions.Add(func);
+				else if (def is ScopeNode decls)
+				{
+					foreach (var decl in decls.Statements)
+					{
+						if (decl is DeclareStatement d)
+						{
+							if (d.Type.IsExtern || d.Type is FunctionTypeSpecifier) program.Externs[d.Name] = d.Type;
+						}
+					}
+				}
 			}
 
 			return program;
@@ -70,9 +80,14 @@ namespace DankleC
 			return args;
 		}
 
-		#region Expressions
+        public override IASTObject VisitErrorNode(IErrorNode node)
+        {
+			throw new Exception($"Invalid symbol \"{node.GetText()}\" at {node.Symbol.Line}:{node.Symbol.Column}");
+        }
 
-		public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
+        #region Expressions
+
+        public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
 			if (context.Constant() is ITerminalNode c)
 			{
@@ -109,7 +124,9 @@ namespace DankleC
 			else if (context.Star() is not null) return new DerefExpression((IExpression)Visit(context.castExpression()));
 			else if (context.PlusPlus() is not null) return new PreIncrementExpression((UnresolvedLValue)Visit(context.unaryExpression()));
 			else if (context.MinusMinus() is not null) return new PreDecrementExpression((UnresolvedLValue)Visit(context.unaryExpression()));
-			else return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
+			else if (context.And() is not null) return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
+			else if (context.Minus() is not null) return new ArithmeticExpression(new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), 0), ArithmeticOperation.Subtraction, (IExpression)Visit(context.castExpression()));
+			else throw new NotImplementedException();
 		}
 
 		public override IASTObject VisitCastExpression([NotNull] CParser.CastExpressionContext context)
@@ -120,12 +137,20 @@ namespace DankleC
 
 		public override IASTObject VisitPostfixExpression([NotNull] CParser.PostfixExpressionContext context)
 		{
-			if (context.PlusPlus() is not null) return new PostIncrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
-			else if (context.MinusMinus() is not null) return new PostDecrementExpression((UnresolvedLValue)Visit(context.primaryExpression()));
-			else if (context.LeftParen() is not null) return new CallExpression((IExpression)Visit(context.primaryExpression()), context.argumentList() is not null ? (ArgumentList)Visit(context.argumentList()) : new([]));
-			else if (context.Dot() is not null) return new MemberExpression((IExpression)Visit(context.primaryExpression()), context.Identifier().GetText());
-			else if (context.Arrow() is not null) return new PointerMemberExpression((IExpression)Visit(context.primaryExpression()), context.Identifier().GetText());
-			else return Visit(context.children[0]);
+			var expr = (IExpression)Visit(context.primaryExpression());
+
+			foreach (var i in context.partialPostfixExpression())
+			{
+				if (i.PlusPlus() is not null) expr = new PostIncrementExpression((UnresolvedLValue)expr);
+				else if (i.MinusMinus() is not null) expr = new PostDecrementExpression((UnresolvedLValue)expr);
+				else if (i.LeftParen() is not null) expr = new CallExpression(expr, i.argumentList() is not null ? (ArgumentList)Visit(i.argumentList()) : new([]));
+				else if (i.Dot() is not null) expr = new MemberExpression(expr, i.Identifier().GetText());
+				else if (i.Arrow() is not null) expr = new PointerMemberExpression(expr, i.Identifier().GetText());
+				else if (i.LeftBracket() is not null) expr = new IndexExpression(expr, Visit(i.expression()));
+				else throw new NotImplementedException();
+			}
+
+			return expr;
 		}
 
 		public override IASTObject VisitPrimaryExpression([NotNull] CParser.PrimaryExpressionContext context)
@@ -260,8 +285,6 @@ namespace DankleC
 			return expr;
 		}
 
-		public override IASTObject VisitIndexExpression([NotNull] CParser.IndexExpressionContext context) => new IndexExpression((UnresolvedLValue)Visit(context.primaryExpression()), Visit(context.expression()));
-
 		public override IASTObject VisitLvalue([NotNull] CParser.LvalueContext context) => Visit(context.children[0]);
 
 		#endregion
@@ -282,8 +305,7 @@ namespace DankleC
 				else decls.Statements.Add(new DeclareStatement(type.Type, type.Name));
 			}
 
-			if (decls.Statements.Count == 1) return decls.Statements[0];
-			else return decls;
+			return decls;
 		}
 
 		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
@@ -306,9 +328,12 @@ namespace DankleC
 		public override IASTObject VisitDeclarationSpecifier([NotNull] CParser.DeclarationSpecifierContext context)
 		{
 			TypeSpecifier t;
+
 			if (context.builtinType() is CParser.BuiltinTypeContext b) t = (TypeSpecifier)Visit(b);
 			else t = (TypeSpecifier)Visit(context.userType());
-			t.IsConst = context.Const() is not null;
+
+			t.IsConst = context.Const().Length != 0;
+			t.IsExtern = context.Extern().Length != 0;
 			return t;
 		}
 

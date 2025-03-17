@@ -6,6 +6,7 @@ namespace DankleC.ASTObjects
 	public abstract class TypeSpecifier : IASTObject
 	{
 		public bool IsConst = false;
+		public bool IsExtern = false;
 
 		public int Size { get => GetTypeSize(); }
 
