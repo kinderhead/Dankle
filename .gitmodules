@@ -1,0 +1,3 @@
+[submodule "DankleC/simplecpp"]
+	path = DankleC/simplecpp
+	url = https://github.com/danmar/simplecpp.git
