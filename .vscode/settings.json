@@ -8,5 +8,6 @@
         "*.tcc": "c",
         "numeric": "c",
         "*.inc": "c"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }

@@ -1,7 +1,8 @@
+#include <dankle.h>
+
 short main()
 {
-    int x = 5;
-    int y = -x;
+    println("Testing");
 
     return 0;
 }

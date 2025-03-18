@@ -26,7 +26,11 @@ namespace DankleC
 					{
 						if (decl is DeclareStatement d)
 						{
-							if (d.Type.IsExtern || d.Type is FunctionTypeSpecifier) program.Externs[d.Name] = d.Type;
+							if (d.Type.IsExtern || d.Type is FunctionTypeSpecifier)
+							{
+								d.Type.IsExtern = true;
+								program.Externs[d.Name] = d.Type;
+							}
 						}
 					}
 				}

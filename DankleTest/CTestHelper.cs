@@ -29,7 +29,7 @@ namespace DankleTest
 			Computer.AddComponent<Terminal>(0xFFFFFFF0u, Output);
 			Computer.AddComponent<Debugger>(0xFFFFFFF2u);
 
-			Linker = new Linker([File.ReadAllText("cmain.asm"), Compiler.GenAssembly()]);
+			Linker = new Linker([File.ReadAllText("cmain.asm"), Compiler.GenAssembly(), ..LibC]);
 			Computer.WriteMem(0x10000u, Linker.AssembleAndLink(0x10000u, Computer));
 			Computer.GetComponent<CPUCore>().ProgramCounter = Linker.Symbols["cmain"];
 
@@ -528,6 +528,12 @@ short main()
 
 			cpu.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(a + b + c + d, cpu.GetVariable<T>("x"));
+		}
+
+		private static List<string> LibC = [];
+		public static void Setup()
+		{
+			LibC = Compiler.CompileLibC();
 		}
 	}
 }

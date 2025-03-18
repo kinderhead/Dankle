@@ -68,14 +68,27 @@ namespace DankleC
 
         public string Compile() => GenAST().GenIR().GenAssembly();
 
+        public static List<string> CompileLibC()
+        {
+            var libc = new List<string>();
+
+            foreach (var i in new List<string> { "dankle.c" })
+            {
+                libc.Add(new Compiler().ReadFileAndPreprocess(Path.Join(GetExecutableFolder(), "libc", "src", i)).Compile());
+            }
+
+            return libc;
+        }
+
         public static string Preprocess(string filepath)
         {
-            var output = ExecuteProgram(GetPreprocessorPath(), filepath);
+            var output = ExecuteProgram(GetPreprocessorPath(), $"{filepath} -I\"{Path.Join(GetExecutableFolder(), "libc", "include")}\"");
             if (output.Item2.Trim() != "") throw new Exception($"Error preprocessing file \"{filepath}\":\n{output.Item2}");
             return output.Item1;
         }
 
-        public static string GetPreprocessorPath() => Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new FileNotFoundException("Could not get path"), "simplecpp", "simplecpp");
+        public static string GetExecutableFolder() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new FileNotFoundException("Could not get path");
+        public static string GetPreprocessorPath() => Path.Join(GetExecutableFolder(), "simplecpp", "simplecpp");
 
         public static (string, string) ExecuteProgram(string program, string args)
         {

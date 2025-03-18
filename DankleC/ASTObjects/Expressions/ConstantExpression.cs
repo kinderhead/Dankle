@@ -22,49 +22,49 @@ namespace DankleC.ASTObjects.Expressions
 
 			if (t.Type == BuiltinType.UnsignedLong)
 			{
-				//if (Value is Int128 i) return new Immediate64(ulong.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate64(ulong.CreateTruncating(i), t.Type);
 				var val = Convert.ToUInt64(Value);
 				return new Immediate64(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedLong)
 			{
-				//if (Value is Int128 i) return new Immediate64((ulong)long.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate64((ulong)long.CreateTruncating(i), t.Type);
 				var val = Convert.ToInt64(Value);
 				return new Immediate64((ulong)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.UnsignedInt)
 			{
-				//if (Value is Int128 i) return new Immediate32(uint.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate32(uint.CreateTruncating(i), t.Type);
 				var val = Convert.ToUInt32(Value);
 				return new Immediate32(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedInt)
 			{
-				//if (Value is Int128 i) return new Immediate32((uint)int.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate32((uint)int.CreateTruncating(i), t.Type);
 				var val = Convert.ToInt32(Value);
 				return new Immediate32((uint)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.UnsignedShort)
 			{
-				//if (Value is Int128 i) return new Immediate(ushort.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate(ushort.CreateTruncating(i), t.Type);
 				var val = Convert.ToUInt16(Value);
 				return new Immediate(val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedShort)
 			{
-				//if (Value is Int128 i) return new Immediate((ushort)short.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate((ushort)short.CreateTruncating(i), t.Type);
 				var val = Convert.ToInt16(Value);
 				return new Immediate((ushort)val, t.Type);
 			}
 			else if (t.Type == BuiltinType.SignedChar)
 			{
-				//if (Value is Int128 i) return new Immediate((ushort)((ushort)sbyte.CreateTruncating(i) & 0xFF), t.Type);
+				if (Value is Int128 i) return new Immediate((ushort)((ushort)sbyte.CreateTruncating(i) & 0xFF), t.Type);
 				var val = Convert.ToSByte(Value);
 				return new Immediate((ushort)((ushort)val & 0xFF), t.Type); // Silly C# sign extension
 			}
 			else if (t.Type == BuiltinType.UnsignedChar)
 			{
-				//if (Value is Int128 i) return new Immediate(byte.CreateTruncating(i), t.Type);
+				if (Value is Int128 i) return new Immediate(byte.CreateTruncating(i), t.Type);
 				var val = Convert.ToByte(Value);
 				return new Immediate(val, t.Type);
 			}

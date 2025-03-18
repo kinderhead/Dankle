@@ -21,7 +21,7 @@ namespace DankleC
 			computer.AddComponent<Terminal>(0xFFFFFFF0u);
 			computer.AddComponent<Debugger>(0xFFFFFFF2u);
 
-			var linker = new Linker([File.ReadAllText("cmain.asm"), asm]);
+			var linker = new Linker([File.ReadAllText("cmain.asm"), asm, ..Compiler.CompileLibC()]);
 			computer.WriteMem(0x10000u, linker.AssembleAndLink(0x10000u, computer));
 			computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["cmain"];
 

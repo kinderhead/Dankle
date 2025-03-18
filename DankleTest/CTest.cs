@@ -7,7 +7,14 @@ namespace DankleTest
 	[TestClass]
 	public class CTest
 	{
+		[TestInitialize]
+		public void TestInitialize()
+		{
+			CTestHelper.Setup();
+		}
+
 		#region Variables
+
 		[TestMethod]
 		[TestCategory("Variables")]
 		public void CharVar()
@@ -239,8 +246,8 @@ short main()
 
 		[TestMethod, TestCategory("Math")]
 		public void ULongPreIncrement() => CTestHelper.TestPreIncrement<ulong>();
-		
-		
+
+
 		[TestMethod, TestCategory("Math")]
 		public void CharNegate() => CTestHelper.TestNegate<sbyte>();
 
@@ -264,7 +271,7 @@ short main()
 
 		[TestMethod, TestCategory("Math")]
 		public void ULongNegate() => CTestHelper.TestNegate<ulong>();
-		
+
 
 		[TestMethod]
 		[TestCategory("Math")]
@@ -856,10 +863,10 @@ short main()
 
 		#endregion
 
-		#region Preprocessor
+		#region StandardLibrary
 
 		[TestMethod]
-		[TestCategory("Variables")]
+		[TestCategory("StandardLibrary")]
 		public void SimpleDefine()
 		{
 			using var c = new CTestHelper(@"
@@ -873,6 +880,23 @@ short main()
 ");
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual(3476, c.GetVariable<short>("x"));
+		}
+
+		[TestMethod]
+		[TestCategory("StandardLibrary")]
+		public void Println()
+		{
+			using var c = new CTestHelper(@"
+#include <dankle.h>
+
+short main()
+{
+    println(""Wahoo"");
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual("Wahoo\n", c.Output.ToString());
 		}
 
 		#endregion

@@ -321,7 +321,7 @@ longDouble
     ;
 
 lineMarker
-    : Hashtag Constant StringLiteral Constant*
+    : Hashtag 'line' Constant StringLiteral
     ;
 
 Auto
