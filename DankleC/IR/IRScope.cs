@@ -20,6 +20,9 @@ namespace DankleC.IR
 		public int MaxTempStackUsed { get; private set; } = 0;
 		public int MaxFuncAllocStackUsed { get; private set; } = 0;
 
+		public IRLogicLabel? LoopEnd { get; private set; }
+		public IRLogicLabel? LoopNext { get; private set; }
+
 		private short tempStackUsed = 0;
 
 		private readonly List<string> RequiredStackAllocVariables = [];
@@ -102,6 +105,19 @@ namespace DankleC.IR
 			func();
 			Locals.RemoveAt(Locals.Count - 1);
 			StackUsed = lastStackUsed;
+		}
+
+		public void SubScope(Action func, IRLogicLabel loopNext, IRLogicLabel loopEnd)
+		{
+			var tmpNext = LoopNext;
+			var tmpEnd = LoopEnd;
+			LoopNext = loopNext;
+			LoopEnd = loopEnd;
+
+			SubScope(func);
+
+			LoopNext = tmpNext;
+			LoopEnd = tmpEnd;
 		}
 
 		public void Start()

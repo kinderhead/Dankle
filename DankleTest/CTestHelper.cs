@@ -22,14 +22,14 @@ namespace DankleTest
 
 		private Statement? CurrentStatement;
 
-		public CTestHelper(string program)
+		public CTestHelper(string program, bool libc = false)
 		{
 			Compiler = new Compiler().ReadTextAndPreprocess(program).GenAST().GenIR(true);
 			Computer = new Computer(0xF0000u);
 			Computer.AddComponent<Terminal>(0xFFFFFFF0u, Output);
 			Computer.AddComponent<Debugger>(0xFFFFFFF2u);
 
-			Linker = new Linker([File.ReadAllText("cmain.asm"), Compiler.GenAssembly(), ..LibC]);
+			Linker = new Linker([File.ReadAllText("cmain.asm"), Compiler.GenAssembly(), ..libc ? Compiler.CompileLibC() : []]);
 			Computer.WriteMem(0x10000u, Linker.AssembleAndLink(0x10000u, Computer));
 			Computer.GetComponent<CPUCore>().ProgramCounter = Linker.Symbols["cmain"];
 
@@ -328,6 +328,8 @@ short main()
 			TestLogic(x, x, T.Zero, LogicalOperation.Or);
 			TestLogic(x, y, T.One, LogicalOperation.Or);
 			TestLogic(y, y, T.One, LogicalOperation.Or);
+
+			TestNot<T>();
 		}
 
 		public static void TestLogic<T>(T x, T y, T z, LogicalOperation op) where T : IBinaryInteger<T>
@@ -431,6 +433,29 @@ short main()
 			Assert.AreEqual(-x, c.GetVariable<T>("y"));
 		}
 
+		public static void TestNot<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestNot(T.MaxValue / T.CreateTruncating(4) * T.CreateTruncating(3));
+			TestNot(T.Zero);
+		}
+
+		public static void TestNot<T>(T x) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+    {type} x = {x};
+	{type} y = !x;
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+			Assert.AreEqual(x == T.Zero ? T.One : T.Zero, c.GetVariable<T>("y"));
+		}
+
 		public static void TestSimpleFunction<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			var type = CUtils.NumberTypeToString<T>();
@@ -528,12 +553,6 @@ short main()
 
 			cpu.RunUntil<ReturnStatement>(1);
 			Assert.AreEqual(a + b + c + d, cpu.GetVariable<T>("x"));
-		}
-
-		private static List<string> LibC = [];
-		public static void Setup()
-		{
-			LibC = Compiler.CompileLibC();
 		}
 	}
 }

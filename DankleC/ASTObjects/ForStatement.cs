@@ -12,11 +12,12 @@ namespace DankleC.ASTObjects
 
         public override void BuildIR(IRBuilder builder, IRFunction func)
         {
+            var done = new IRLogicLabel();
+            var cont = new IRLogicLabel();
+            var loop = new IRLogicLabel();
+
             Scope.SubScope(() =>
             {
-                var done = new IRLogicLabel();
-                var loop = new IRLogicLabel();
-
                 if (Statement1 is not null) builder.ProcessStatement(Statement1, func, Scope);
 
                 builder.Add(loop);
@@ -27,11 +28,12 @@ namespace DankleC.ASTObjects
                 }
 
                 builder.ProcessStatement(Body, func, Scope);
-                if (Statement3 is not null )builder.ProcessStatement(Statement3, func, Scope);
+                builder.Add(cont);
+                if (Statement3 is not null) builder.ProcessStatement(Statement3, func, Scope);
 
                 builder.Add(new IRJump(loop));
                 if (Conditional is not null) builder.Add(done);
-            });
+            }, cont, done);
         }
 
         public List<T> FindAll<T>() where T : Statement

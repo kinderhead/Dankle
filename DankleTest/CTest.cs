@@ -7,12 +7,6 @@ namespace DankleTest
 	[TestClass]
 	public class CTest
 	{
-		[TestInitialize]
-		public void TestInitialize()
-		{
-			CTestHelper.Setup();
-		}
-
 		#region Variables
 
 		[TestMethod]
@@ -586,6 +580,54 @@ short main()
 
 		[TestMethod]
 		[TestCategory("Logic")]
+		public void ForShortContinue()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+	short x;
+	short y = 0;
+    for (short i = 0; i < 10; i++)
+    {
+        x = i;
+		continue;
+		y = i;
+    }
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(9, c.GetVariable<short>("x"));
+			Assert.AreEqual(0, c.GetVariable<short>("y"));
+		}
+
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void ForShortBreak()
+		{
+			using var c = new CTestHelper(@"
+short main()
+{
+	short x = -1;
+	short y = 0;
+    for (short i = 0; i < 10; i++)
+    {
+        x = i;
+		break;
+		y = i;
+    }
+
+    return 0;
+}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(0, c.GetVariable<short>("x"));
+			Assert.AreEqual(0, c.GetVariable<short>("y"));
+		}
+
+		[TestMethod]
+		[TestCategory("Logic")]
 		public void ForInt()
 		{
 			using var c = new CTestHelper(@"
@@ -894,7 +936,7 @@ short main()
     println(""Wahoo"");
     return 0;
 }
-");
+", true);
 			c.RunUntil<ReturnStatement>();
 			Assert.AreEqual("Wahoo\n", c.Output.ToString());
 		}

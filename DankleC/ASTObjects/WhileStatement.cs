@@ -16,19 +16,29 @@ namespace DankleC.ASTObjects
 
             if (DoWhile)
             {
-                builder.Add(loop);
-                builder.ProcessStatement(Statement, func, Scope);
-                Expression.Resolve(builder).Conditional(builder);
-                builder.Add(new IRJumpEq(loop));
+                var cont = new IRLogicLabel();
+
+                builder.CurrentScope.SubScope(() =>
+                {
+                    builder.Add(loop);
+                    builder.ProcessStatement(Statement, func, Scope);
+                    builder.Add(cont);
+                    Expression.Resolve(builder).Conditional(builder);
+                    builder.Add(new IRJumpEq(loop));
+                    builder.Add(done);
+                }, cont, done);
             }
             else
             {
-                builder.Add(loop);
-                Expression.Resolve(builder).Conditional(builder);
-                builder.Add(new IRJumpNeq(done));
-                builder.ProcessStatement(Statement, func, Scope);
-                builder.Add(new IRJump(loop));
-                builder.Add(done);
+                builder.CurrentScope.SubScope(() =>
+                {
+                    builder.Add(loop);
+                    Expression.Resolve(builder).Conditional(builder);
+                    builder.Add(new IRJumpNeq(done));
+                    builder.ProcessStatement(Statement, func, Scope);
+                    builder.Add(new IRJump(loop));
+                    builder.Add(done);
+                }, loop, done);
             }
         }
 

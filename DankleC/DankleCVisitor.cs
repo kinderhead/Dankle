@@ -62,7 +62,7 @@ namespace DankleC
 
 		public override IASTObject VisitParameterList([NotNull] CParser.ParameterListContext context)
 		{
-			var p = new ParameterList([]);
+			var p = new ParameterList([], context.Ellipsis() is not null);
 
 			foreach (var i in context.parameterDeclaration())
 			{
@@ -130,6 +130,7 @@ namespace DankleC
 			else if (context.MinusMinus() is not null) return new PreDecrementExpression((UnresolvedLValue)Visit(context.unaryExpression()));
 			else if (context.And() is not null) return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 			else if (context.Minus() is not null) return new ArithmeticExpression(new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), 0), ArithmeticOperation.Subtraction, (IExpression)Visit(context.castExpression()));
+			else if (context.Not() is not null) return new NotExpression((IExpression)Visit(context.castExpression()));
 			else throw new NotImplementedException();
 		}
 
@@ -318,7 +319,14 @@ namespace DankleC
 		public override IASTObject VisitWhileStatement([NotNull] CParser.WhileStatementContext context) => new WhileStatement(Visit(context.expression()), Visit(context.statement()), context.Do() is not null);
 		public override IASTObject VisitForStatement([NotNull] CParser.ForStatementContext context) => new ForStatement(context.stmt1 is not null ? (Statement)Visit(context.stmt1) : null, context.expression() is not null ? Visit(context.expression()) : null, context.stmt3 is not null ? (Statement)Visit(context.stmt3) : null, Visit(context.body));
 
-		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
+		public override IASTObject VisitLoopControlStatement([NotNull] CParser.LoopControlStatementContext context)
+		{
+			if (context.Continue() is not null) return new ContinueStatement();
+			else if (context.Break() is not null) return new BreakStatement();
+			else throw new NotImplementedException();
+        }
+
+        public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
 
 		#endregion
 
@@ -338,6 +346,8 @@ namespace DankleC
 
 			t.IsConst = context.Const().Length != 0;
 			t.IsExtern = context.Extern().Length != 0;
+
+			if (context.Typedef() is not null) UserTypes[context.Identifier().GetText()] = t;
 			return t;
 		}
 

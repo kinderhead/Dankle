@@ -37,7 +37,7 @@ function
     ;
 
 parameterList
-    : (parameterDeclaration (Comma parameterDeclaration)*)?
+    : (parameterDeclaration (Comma parameterDeclaration)*)? (Comma Ellipsis)?
     ;
 
 parameterDeclaration
@@ -62,6 +62,7 @@ statement
 
 semiStatement
     : returnStatement
+    | loopControlStatement
     | assignmentStatement
     | expressionStatement
     | declaration
@@ -77,6 +78,7 @@ declaration
 
 declarationSpecifier
     : (Const | Extern)* (userType | builtinType)
+    | Typedef (Const | Extern)* (userType | builtinType) Identifier
     ;
 
 initDeclarator
@@ -121,6 +123,15 @@ ifStatement
     : If LeftParen expression RightParen statement (Else statement)?
     ;
 
+switchStatement
+    : Switch LeftParen expression RightParen LeftBrace switchBlock* RightBrace
+    ;
+
+switchBlock
+    : Case Constant Colon statement*
+    | Default Colon statement*
+    ;
+
 whileStatement
     : While LeftParen expression RightParen statement
     | Do statement While LeftParen expression RightParen Semi
@@ -128,6 +139,11 @@ whileStatement
 
 forStatement
     : For LeftParen stmt1=semiStatement? Semi expression? Semi stmt3=expressionStatement? RightParen body=statement
+    ;
+
+loopControlStatement
+    : Continue
+    | Break
     ;
 
 relationalExpression
@@ -182,7 +198,7 @@ castExpression
 
 unaryExpression
     : postfixExpression
-    | (And | Star | Minus) castExpression
+    | (And | Star | Minus | Not) castExpression
     | (PlusPlus | MinusMinus) unaryExpression
     ;
 

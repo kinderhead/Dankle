@@ -153,6 +153,18 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitIfStatement([NotNull] CParser.IfStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.switchStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSwitchStatement([NotNull] CParser.SwitchStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.switchBlock"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSwitchBlock([NotNull] CParser.SwitchBlockContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.whileStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -164,6 +176,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitForStatement([NotNull] CParser.ForStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.loopControlStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLoopControlStatement([NotNull] CParser.LoopControlStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.relationalExpression"/>.
 	/// </summary>
