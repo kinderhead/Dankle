@@ -14,7 +14,7 @@ namespace DankleC.IR
 		public readonly bool Debug = debug;
 
 		public readonly List<IRFunction> Functions = [];
-		public readonly Dictionary<string, ILabel> StaticVariables = [];
+		public readonly Dictionary<string, (ILabel, IImmediateValue)> StaticVariables = [];
 		public Dictionary<string, TypeSpecifier> Externs = [];
 		public readonly List<Literal> Literals = [];
 

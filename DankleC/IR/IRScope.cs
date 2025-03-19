@@ -1,4 +1,5 @@
 ﻿using DankleC.ASTObjects;
+using DankleC.ASTObjects.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,11 +33,11 @@ namespace DankleC.IR
 			return AllocStackLocal(name, type);
 		}
 
-		public Variable AllocStaticLocal(string name, TypeSpecifier type)
+		public Variable AllocStaticLocal(string name, TypeSpecifier type, IImmediateValue defaultValue)
 		{
 			var label = new IRStaticVariableLabel(Builder.CurrentFunction, name);
-			Builder.StaticVariables[$"{Builder.CurrentFunction.Name}${name}"] = label;
-			return new PointerVariable(name, type, new )
+			Builder.StaticVariables[$"{Builder.CurrentFunction.Name}${name}"] = (label, defaultValue);
+			return new PointerVariable(name, type, new LabelPointer(label.Label, 0, type.Size), this);
 		}
 
 		public PointerVariable AllocStackLocal(string name, TypeSpecifier type)

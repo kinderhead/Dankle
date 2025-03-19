@@ -47,7 +47,7 @@ namespace DankleC.IR
 		}
 
 		public bool UsingRegister(int reg) => false;
-    }
+	}
 
 	public readonly struct TempStackPointer(int offset, int size) : IPointer
 	{
@@ -63,14 +63,14 @@ namespace DankleC.IR
 		}
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
-        public IPointer Get(int offset, int size)
-        {
-        	if (Size - offset <= 0) throw new InvalidOperationException("TempStackPointer goes out of bounds");
+		public IPointer Get(int offset, int size)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("TempStackPointer goes out of bounds");
 			return new TempStackPointer(Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => false;
-    }
+	}
 
 	public readonly struct PreArgumentPointer(int offset, int size) : IPointer
 	{
@@ -86,14 +86,14 @@ namespace DankleC.IR
 		}
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
-        public IPointer Get(int offset, int size)
-        {
-        	if (Size - offset <= 0) throw new InvalidOperationException("PreArgumentPointer goes out of bounds");
+		public IPointer Get(int offset, int size)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("PreArgumentPointer goes out of bounds");
 			return new PreArgumentPointer(Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => false;
-    }
+	}
 
 	public readonly struct PostArgumentPointer(int offset, int size) : IPointer
 	{
@@ -109,14 +109,14 @@ namespace DankleC.IR
 		}
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
-        public IPointer Get(int offset, int size)
-        {
-        	if (Size - offset <= 0) throw new InvalidOperationException("PostArgumentPointer goes out of bounds");
+		public IPointer Get(int offset, int size)
+		{
+			if (Size - offset <= 0) throw new InvalidOperationException("PostArgumentPointer goes out of bounds");
 			return new PostArgumentPointer(Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => false;
-    }
+	}
 
 	public readonly struct RegisterPointer(int r1, int r2, int offset, int size) : IPointer
 	{
@@ -150,6 +150,20 @@ namespace DankleC.IR
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
 		public IPointer Get(int offset, int size) => new LiteralPointer(Address + (uint)offset, size);
+
+		public bool UsingRegister(int reg) => false;
+	}
+	
+	public readonly struct LabelPointer(string label, int offset, int size) : IPointer
+	{
+		public readonly string Address = label;
+		public readonly int Offset = offset;
+		public int Size => size;
+
+		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T> => Offset == 0 ? CGPointer<T>.Make(Address) : CGPointer<T>.Make(Address, (short)Offset);
+
+		public IPointer Get(int offset) => Get(offset, Size - offset);
+		public IPointer Get(int offset, int size) => new LabelPointer(Address, offset, size);
 
 		public bool UsingRegister(int reg) => false;
 	}

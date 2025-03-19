@@ -1,4 +1,5 @@
-﻿using DankleC.IR;
+﻿using DankleC.ASTObjects.Expressions;
+using DankleC.IR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,12 @@ namespace DankleC.ASTObjects
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
 			var value = Expression.Resolve(builder).Cast(Type).Execute(builder);
+			if (Type.IsStatic)
+			{
+				if (value is not IImmediateValue i) throw new InvalidOperationException("Static variable must have constant expression");
+				Scope.AllocStaticLocal(Name, Type, i);
+				return;
+			}
 			var variable = Scope.AllocLocal(Name, Type);
 			variable.Store(builder, value);
 		}
@@ -71,7 +78,8 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			Scope.AllocLocal(Name, Type);
+			if (Type.IsStatic) Scope.AllocStaticLocal(Name, Type, (IImmediateValue) new ConstantExpression(Type, 0).Execute(builder));
+			else Scope.AllocLocal(Name, Type);
 		}
 	}
 }

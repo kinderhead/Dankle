@@ -39,6 +39,7 @@ namespace DankleC.IR
 	{
         public readonly IRFunction Function = func;
         public readonly string Name = name;
+        public string Label => $"V${Function.Name}${Name}";
 
 		public override void Compile(CodeGen gen)
         {
@@ -47,7 +48,7 @@ namespace DankleC.IR
 
         public string Resolve(CodeGen gen)
         {
-            return $"V${Function.Name}${Name}";
+            return Label;
         }
     }
 }

@@ -242,8 +242,14 @@ namespace Assembler
 			{
 				var second = Tokens.Dequeue();
 				if (second.Symbol == Token.Type.CSquareBracket) return (0b0010, Utils.ToBytes(ParseNum<uint>(first)));
-				else if (second.Symbol == Token.Type.Plus) res = (0b0011, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
-				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
+
+				var third = Tokens.Dequeue();
+				if (second.Symbol == Token.Type.Plus)
+				{
+					if (IsNum(third)) res = (0b0010, Utils.ToBytes(ParseNum<uint>(first) + ParseNum<short>(second)));
+					else res = (0b0011, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister(third)]);
+				}
+				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister(third)]);
 				else throw new InvalidTokenException(second);
 			}
 			else if (first.Symbol == Token.Type.Register || first.Text == "SP" || first.Text == "PC")
