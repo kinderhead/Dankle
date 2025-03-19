@@ -1,6 +1,8 @@
 using System;
+using System.Text;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
+using Assembler;
 using DankleC.ASTObjects;
 using DankleC.ASTObjects.Expressions;
 
@@ -43,6 +45,7 @@ namespace DankleC
 		{
 			var pair = Visit(context.declarator(), Visit(context.declarationSpecifier()));
 			var type = (FunctionTypeSpecifier)pair.Type;
+			type.IsStatic = context.Static() is not null;
 			var scope = Visit(context.scope());
 
 			return new FunctionNode(pair.Name, type, scope);
@@ -306,6 +309,7 @@ namespace DankleC
 			foreach (var i in context.initDeclarator())
 			{
 				var type = Visit(i.declarator(), baseType);
+				type.Type.IsStatic = context.Static() is not null;
 				if (i.expression() is CParser.ExpressionContext expr) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, Visit(expr)));
 				else decls.Statements.Add(new DeclareStatement(type.Type, type.Name));
 			}
@@ -324,6 +328,28 @@ namespace DankleC
 			if (context.Continue() is not null) return new ContinueStatement();
 			else if (context.Break() is not null) return new BreakStatement();
 			else throw new NotImplementedException();
+        }
+
+		public override IASTObject VisitSwitchStatement([NotNull] CParser.SwitchStatementContext context)
+		{
+			var cases = new OrderedDictionary<Int128, ScopeNode>();
+			ScopeNode? def = null;
+			var expr = Visit(context.expression());
+
+			foreach (var i in context.switchBlock())
+			{
+				var block = new ScopeNode(false);
+				block.Statements.AddRange(i.statement().Select(Visit));
+
+				if (i.Default() is not null)
+				{
+					if (def is not null) throw new InvalidOperationException("Cannot have multiple default blocks");
+					def = block;
+				}
+				else cases[VisitInt(i.Constant())] = block;
+			}
+
+			return new SwitchStatement(expr, cases, def);
         }
 
         public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
@@ -415,12 +441,18 @@ namespace DankleC
 		public static Int128 VisitInt(ITerminalNode node)
 		{
 			var text = node.GetText();
-			if (!text.Contains('.'))
+			if (text.StartsWith('\''))
 			{
-				if (text.StartsWith("0x")) return Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
-				else return Int128.Parse(text);
+				text = Parser.ProcessString(text.Trim('\''));
+				if (text.Length != 1) throw new InvalidOperationException($"Invalid character literal \'{node.GetText()}\'");
+				return (Int128)Encoding.UTF8.GetBytes(text)[0];
 			}
-			else throw new NotImplementedException();
+			if (!text.Contains('.'))
+				{
+					if (text.StartsWith("0x")) return Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+					else return Int128.Parse(text);
+				}
+				else throw new NotImplementedException();
 		}
 
 		public DeclaratorPair Visit(CParser.DeclaratorContext context, TypeSpecifier baseType)

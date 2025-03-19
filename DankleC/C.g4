@@ -33,7 +33,7 @@ root
     ;
 
 function
-    : declarationSpecifier declarator scope
+    : Static? declarationSpecifier declarator scope
     ;
 
 parameterList
@@ -58,6 +58,7 @@ statement
     | ifStatement
     | whileStatement
     | forStatement
+    | switchStatement
     ;
 
 semiStatement
@@ -73,7 +74,7 @@ assignmentStatement
     ;
 
 declaration
-    : declarationSpecifier (initDeclarator (Comma initDeclarator)*)?
+    : Static? declarationSpecifier (initDeclarator (Comma initDeclarator)*)?
     ;
 
 declarationSpecifier

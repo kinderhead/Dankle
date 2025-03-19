@@ -71,7 +71,7 @@ namespace DankleTest
 				}
 				return Utils.FromBytes<T>([.. data]);
 			}
-			else if (v is StackVariable stackvar)
+			else if (v is PointerVariable stackvar)
 			{
 				return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + CurrentStatement.Scope.MaxFuncAllocStackUsed + ((StackPointer)stackvar.Pointer).Offset));
 			}
@@ -86,7 +86,7 @@ namespace DankleTest
 
 			if (type.Size != TypeInfo<T>.Size) throw new InvalidOperationException("Wrong type");
 
-			if (v is StackVariable stackvar)
+			if (v is PointerVariable stackvar)
 			{
 				return Computer.ReadMem<T>((uint)(Computer.MainCore.StackPointer + CurrentStatement.Scope.MaxFuncAllocStackUsed + ((StackPointer)stackvar.Pointer).Offset + (index * type.Size)));
 			}

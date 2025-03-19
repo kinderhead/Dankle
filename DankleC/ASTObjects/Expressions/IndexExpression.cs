@@ -18,7 +18,7 @@ namespace DankleC.ASTObjects.Expressions
 			{
 				var expr = (ResolvedVariableExpression)v.Resolve(builder);
 				var type = ((ArrayTypeSpecifier)expr.Type).Inner;
-				var val = ((StackVariable)expr.Variable).Index((dynamic)c.Value * type.Size);
+				var val = ((PointerVariable)expr.Variable).Index((dynamic)c.Value * type.Size);
 				return new ResolvedVariableExpression(val, type);
 			}
 			return new DerefExpression(new ArithmeticExpression(Source, ArithmeticOperation.Addition, Expr)).Resolve(builder);

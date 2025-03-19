@@ -32,9 +32,16 @@ namespace DankleC.IR
 			return AllocStackLocal(name, type);
 		}
 
-		public StackVariable AllocStackLocal(string name, TypeSpecifier type)
+		public Variable AllocStaticLocal(string name, TypeSpecifier type)
 		{
-			var variable = new StackVariable(name, type, new StackPointer(StackUsed, type.Size), this);
+			var label = new IRStaticVariableLabel(Builder.CurrentFunction, name);
+			Builder.StaticVariables[$"{Builder.CurrentFunction.Name}${name}"] = label;
+			return new PointerVariable(name, type, new )
+		}
+
+		public PointerVariable AllocStackLocal(string name, TypeSpecifier type)
+		{
+			var variable = new PointerVariable(name, type, new StackPointer(StackUsed, type.Size), this);
 			StackUsed = checked((short)(StackUsed + type.Size));
 			Locals.Last().Add(variable);
 			return variable;
@@ -70,7 +77,7 @@ namespace DankleC.IR
 			int offset = 0;
 			foreach (var i in func.Type.Parameters.Parameters)
 			{
-				Locals[0].Add(new StackVariable(i.Name, i.Type, new PostArgumentPointer(offset, i.Type.Size), this));
+				Locals[0].Add(new PointerVariable(i.Name, i.Type, new PostArgumentPointer(offset, i.Type.Size), this));
 				offset += i.Type.Size;
 			}
 		}
@@ -105,6 +112,16 @@ namespace DankleC.IR
 			func();
 			Locals.RemoveAt(Locals.Count - 1);
 			StackUsed = lastStackUsed;
+		}
+
+		public void SubScope(Action func, IRLogicLabel loopEnd)
+		{
+			var tmpEnd = LoopEnd;
+			LoopEnd = loopEnd;
+
+			SubScope(func);
+
+			LoopEnd = tmpEnd;
 		}
 
 		public void SubScope(Action func, IRLogicLabel loopNext, IRLogicLabel loopEnd)

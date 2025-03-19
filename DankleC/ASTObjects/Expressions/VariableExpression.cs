@@ -32,7 +32,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override IValue GetRef(IRBuilder builder)
 		{
-			if (Variable is StackVariable v)
+			if (Variable is PointerVariable v)
 			{
 				builder.Add(new IRLoadPtrAddress(v.Pointer));
 				return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.AsPointer().Size), Type.AsPointer());
@@ -40,7 +40,7 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new InvalidOperationException();
         }
 
-		public override IPointer GetPointer(IRBuilder builder) => Variable is StackVariable v ? v.Pointer : throw new InvalidOperationException();
+		public override IPointer GetPointer(IRBuilder builder) => Variable is PointerVariable v ? v.Pointer : throw new InvalidOperationException();
 
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
@@ -49,7 +49,7 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void WriteFrom(IValue val, IRBuilder builder, int offset, int subTypeSize)
 		{
-			if (Variable is not StackVariable v) throw new InvalidOperationException();
+			if (Variable is not PointerVariable v) throw new InvalidOperationException();
 
 			builder.Add(new IRStorePtr(v.Pointer.Get(offset, subTypeSize), val));
         }

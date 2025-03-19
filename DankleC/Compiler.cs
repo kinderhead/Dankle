@@ -24,7 +24,7 @@ namespace DankleC
 
         public Compiler ReadTextAndPreprocess(string program)
         {
-            var filename = $"tmp_{TempFileNameGen.Next()}.c";
+            var filename = $"tmp_{Guid.NewGuid()}.c";
             File.WriteAllText(filename, program);
 
             try
@@ -107,7 +107,5 @@ namespace DankleC
 
             return (stdout, stderr);
         }
-
-        public static readonly Random TempFileNameGen = new();
     }
 }

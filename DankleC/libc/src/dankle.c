@@ -6,5 +6,5 @@ void println(const char* txt)
     {
         WRITE_CHAR(*txt++);
     }
-    WRITE_CHAR(10);
+    WRITE_CHAR('\n');
 }

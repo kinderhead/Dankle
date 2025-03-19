@@ -646,6 +646,46 @@ short main()
 			Assert.AreEqual(9, c.GetVariable<int>("x"));
 		}
 
+		[TestMethod]
+		[TestCategory("Logic")]
+		public void Switch()
+		{
+			using var c = new CTestHelper(@"
+#include <dankle.h>
+
+short main()
+{
+    for (short x = 0; x < 6; x++)
+    {
+        switch (x + 1)
+        {
+        case 1:
+            println(""1"");
+            break;
+        case 3:
+            println(""3"");
+            break;
+        case 2:
+            println(""2"");
+            break;
+        case 4:
+            println(""4"");
+        case 5:
+            println(""5"");
+            break;
+        default:
+            println(""Neither"");
+            break;
+        }
+    }
+
+    return 0;
+}
+", true);
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual("1\n2\n3\n4\n5\n5\nNeither\n", c.Output.ToString());
+		}
+
 		#endregion
 
 		#region Functions

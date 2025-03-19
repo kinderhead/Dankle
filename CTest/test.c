@@ -2,12 +2,7 @@
 
 short main()
 {
-    for (int i = 0; i < 10; i++)
-    {
-        println("first");
-        break;
-        println("second");
-    }
-    
+    char x = '\n';
+
     return 0;
 }

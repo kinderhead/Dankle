@@ -7,6 +7,7 @@ namespace DankleC.ASTObjects
 	{
 		public bool IsConst = false;
 		public bool IsExtern = false;
+		public bool IsStatic = false;
 
 		public int Size { get => GetTypeSize(); }
 

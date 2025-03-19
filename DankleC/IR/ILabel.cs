@@ -8,22 +8,22 @@ namespace DankleC.IR
     }
 
     public class IRLabel(string name) : IRInsn, ILabel
-	{
-		public readonly string Name = name;
+    {
+        public readonly string Name = name;
 
-		public override void Compile(CodeGen gen)
-		{
+        public override void Compile(CodeGen gen)
+        {
             Add(Name);
-		}
+        }
 
         public string Resolve(CodeGen gen) => Name;
     }
-	
-	public class IRLogicLabel() : IRInsn, ILabel
-	{
+
+    public class IRLogicLabel() : IRInsn, ILabel
+    {
         public string? Name { get; private set; }
 
-		public override void Compile(CodeGen gen)
+        public override void Compile(CodeGen gen)
         {
             Add(Resolve(gen));
         }
@@ -32,6 +32,22 @@ namespace DankleC.IR
         {
             Name ??= gen.GetLogicLabel();
             return Name;
+        }
+    }
+    
+    public class IRStaticVariableLabel(IRFunction func, string name) : IRInsn, ILabel
+	{
+        public readonly IRFunction Function = func;
+        public readonly string Name = name;
+
+		public override void Compile(CodeGen gen)
+        {
+            Add(Resolve(gen));
+        }
+
+        public string Resolve(CodeGen gen)
+        {
+            return $"V${Function.Name}${Name}";
         }
     }
 }

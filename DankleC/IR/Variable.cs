@@ -67,7 +67,7 @@ namespace DankleC.IR
 		}
 	}
 
-	public class StackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope), IPointerValue
+	public class PointerVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : Variable(name, type, scope), IPointerValue
 	{
 		public IPointer Pointer => pointer;
 
@@ -115,14 +115,14 @@ namespace DankleC.IR
 			insn.MovePtrToRegs(Pointer, regs);
 		}
 
-		public StackVariable Index(int offset)
+		public PointerVariable Index(int offset)
 		{
 			if (Type is not ArrayTypeSpecifier arr) throw new NotImplementedException();
 			return new(Name, arr.Inner, pointer.Get(offset, arr.Inner.Size), Scope);
 		}
     }
 
-	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : StackVariable(name, type, pointer, scope), IDisposable
+	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : PointerVariable(name, type, pointer, scope), IDisposable
 	{
 		public void Dispose()
 		{

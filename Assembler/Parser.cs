@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -118,7 +119,7 @@ namespace Assembler
 				}
 				else if (token.Symbol == Token.Type.String)
 				{
-					Data[Addr] = [..Encoding.UTF8.GetBytes(ParseString(token)), 0];
+					Data[Addr] = [.. Encoding.UTF8.GetBytes(ParseString(token)), 0];
 					Addr += (uint)Data[Addr].Length;
 				}
 				else if (token.Symbol == Token.Type.Integer)
@@ -140,10 +141,7 @@ namespace Assembler
 			Assume(token.Value, Token.Type.String);
 
 			var text = token.Value.Text[1..(token.Value.Text.Length - 1)];
-			text = text.Replace("\\n", "\n");
-			text = text.Replace("\\t", "\t");
-			text = text.Replace("\\r", "\r");
-			return text;
+			return ProcessString(text);
 		}
 
 		public byte ParseRegister(Token? token = null)
@@ -244,8 +242,8 @@ namespace Assembler
 			{
 				var second = Tokens.Dequeue();
 				if (second.Symbol == Token.Type.CSquareBracket) return (0b0010, Utils.ToBytes(ParseNum<uint>(first)));
-				else if (second.Symbol == Token.Type.Plus) res = (0b0011, [..Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
-				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [..Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
+				else if (second.Symbol == Token.Type.Plus) res = (0b0011, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
+				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister()]);
 				else throw new InvalidTokenException(second);
 			}
 			else if (first.Symbol == Token.Type.Register || first.Text == "SP" || first.Text == "PC")
@@ -356,6 +354,72 @@ namespace Assembler
 			{
 				if (i is Terminal term) SetVariable("TERM_ADDR", term.Addr);
 			}
+		}
+		
+		// https://stackoverflow.com/questions/6629020/evaluate-escaped-string
+		public static string ProcessString(string s)
+		{
+			StringBuilder sb = new();
+			Regex r = new("\\\\[abfnrtv?\"'\\\\]|\\\\[0-3]?[0-7]{1,2}|\\\\u[0-9a-fA-F]{4}|\\\\U[0-9a-fA-F]{8}|.");
+			MatchCollection mc = r.Matches(s, 0);
+
+			foreach (Match m in mc)
+			{
+				if (m.Length == 1)
+				{
+					sb.Append(m.Value);
+				}
+				else
+				{
+					if (m.Value[1] >= '0' && m.Value[1] <= '7')
+					{
+						int i = Convert.ToInt32(m.Value.Substring(1), 8);
+						sb.Append((char)i);
+					}
+					else if (m.Value[1] == 'u')
+					{
+						int i = Convert.ToInt32(m.Value.Substring(2), 16);
+						sb.Append((char)i);
+					}
+					else if (m.Value[1] == 'U')
+					{
+						int i = Convert.ToInt32(m.Value.Substring(2), 16);
+						sb.Append(char.ConvertFromUtf32(i));
+					}
+					else
+					{
+						switch (m.Value[1])
+						{
+							case 'a':
+								sb.Append('\a');
+								break;
+							case 'b':
+								sb.Append('\b');
+								break;
+							case 'f':
+								sb.Append('\f');
+								break;
+							case 'n':
+								sb.Append('\n');
+								break;
+							case 'r':
+								sb.Append('\r');
+								break;
+							case 't':
+								sb.Append('\t');
+								break;
+							case 'v':
+								sb.Append('\v');
+								break;
+							default:
+								sb.Append(m.Value[1]);
+								break;
+						}
+					}
+				}
+			}
+
+			return sb.ToString();
 		}
 	}
 }
