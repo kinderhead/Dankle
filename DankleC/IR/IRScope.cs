@@ -20,6 +20,7 @@ namespace DankleC.IR
 		public int StackUsed { get; private set; } = 0;
 		public int MaxTempStackUsed { get; private set; } = 0;
 		public int MaxFuncAllocStackUsed { get; private set; } = 0;
+		public int StaticLocalVariables { get; private set; } = 0;
 
 		public IRLogicLabel? LoopEnd { get; private set; }
 		public IRLogicLabel? LoopNext { get; private set; }
@@ -33,11 +34,13 @@ namespace DankleC.IR
 			return AllocStackLocal(name, type);
 		}
 
-		public Variable AllocStaticLocal(string name, TypeSpecifier type, IImmediateValue defaultValue)
+		public Variable AllocStaticLocal(string name, TypeSpecifier type, byte[] defaultValue)
 		{
-			var label = new IRStaticVariableLabel(Builder.CurrentFunction, name);
-			Builder.StaticVariables[$"{Builder.CurrentFunction.Name}${name}"] = (label, defaultValue);
-			return new PointerVariable(name, type, new LabelPointer(label.Label, 0, type.Size), this);
+			var label = new IRStaticVariableLabel(Builder.CurrentFunction, name, StaticLocalVariables++);
+			Builder.StaticVariables[label.Label] = (label, defaultValue);
+			var variable = new PointerVariable(name, type, new LabelPointer(label.Label, 0, type.Size), this);
+			Locals.Last().Add(variable);
+			return variable;
 		}
 
 		public PointerVariable AllocStackLocal(string name, TypeSpecifier type)
@@ -100,7 +103,11 @@ namespace DankleC.IR
 
 			foreach (var i in Builder.Externs)
 			{
-				if (i.Key == name) return new LabelVariable($"_{name}", i.Value, this);
+				if (i.Key == name)
+				{
+					Builder.ExternsUsed.Add($"_{name}");
+					return new LabelVariable($"_{name}", i.Value, this);
+				}
 			}
 
 			throw new Exception($"Could not find variable with name {name}");

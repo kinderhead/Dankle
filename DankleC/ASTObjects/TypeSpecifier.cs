@@ -95,9 +95,7 @@ namespace DankleC.ASTObjects
 		LongDouble,
 
 		Void,
-		Bool,
-
-		String
+		Bool
 	}
 
 	public class BuiltinTypeSpecifier(BuiltinType type) : TypeSpecifier
@@ -112,7 +110,7 @@ namespace DankleC.ASTObjects
 
 		public override string GetName() => Enum.GetName(Type) ?? "<err>";
 
-		public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool && Type != BuiltinType.String;
+		public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool;
 
 		public override bool IsSigned()
 		{

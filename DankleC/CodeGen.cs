@@ -59,9 +59,14 @@ namespace DankleC
 				builder.Append('\n');
 			}
 
+			foreach (var i in IR.StaticVariables)
+			{
+				builder.Append($"\n{i.Value.Item1.Resolve(this)}:\n    {string.Join(' ', i.Value.Item2.Select(e => $"0x{e:X2}"))}");
+			}
+
 			foreach (var i in IR.Literals)
 			{
-				builder.Append($"\n{i.Label?.Name}:\n{i.Build(this)}");
+				builder.Append($"\n{i.Label?.Resolve(this)}:\n{i.Build(this)}");
 			}
 
 			return builder.ToString();

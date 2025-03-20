@@ -14,7 +14,11 @@ namespace DankleC.ASTObjects.Expressions
         public override bool IsSimpleExpression => true;
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
-		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
+		protected override ResolvedExpression AsCasted(TypeSpecifier type)
+		{
+			if (type is BuiltinTypeSpecifier b && b.Type == BuiltinType.Bool) return new ConstantExpression(type, (dynamic)Value == 0 ? 0 : 1);
+			else return ChangeType(type);
+		}
 
 		public override IValue Execute(IRBuilder builder)
 		{

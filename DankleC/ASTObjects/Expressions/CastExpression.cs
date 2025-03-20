@@ -25,6 +25,7 @@ namespace DankleC.ASTObjects.Expressions
 
         public override IValue Execute(IRBuilder builder)
 		{
+			if (Type is BuiltinTypeSpecifier b && b.Type == BuiltinType.Bool) return new EqualityExpression(Expr, EqualityOperation.NotEquals, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), 0)).Resolve(builder).Execute(builder);
 			builder.Add(new IRCast(Expr.Execute(builder), Type));
 			return ReturnValue(builder);
         }

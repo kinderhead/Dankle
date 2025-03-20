@@ -163,6 +163,31 @@ short main()
 			Assert.AreEqual(2, c.GetVariable<int>("y"));
 		}
 
+		[TestMethod]
+		[TestCategory("Variables")]
+		public void ShortStaticLocalVar()
+		{
+			using var c = new CTestHelper(@"
+#include <dankle.h>
+
+short test()
+{
+	static short x;
+	return x++;
+}
+
+short main()
+{
+    if (test() == 0) println(""Yay"");
+    if (test() == 1) println(""Yay"");
+    if (test() == 2) println(""Yay"");
+    return 0;
+}
+", true);
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual("Yay\nYay\nYay\n", c.Output.ToString());
+		}
+
 		#endregion
 
 		#region Math

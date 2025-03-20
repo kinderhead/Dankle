@@ -24,6 +24,12 @@ namespace DankleC.IR
             return new CGImmediate<ushort>(Value);
         }
 
+        public byte[] ToBytes()
+        {
+            if (Type.Size == 1) return [(byte)Value];
+            else return [(byte)(Value >> 8), (byte)(Value & 0xFF)];
+        }
+
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var reg = insn.Alloc();
@@ -73,6 +79,8 @@ namespace DankleC.IR
             throw new InvalidOperationException();
         }
 
+        public byte[] ToBytes() => [(byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)];
+
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var regs = insn.Alloc(4);
@@ -121,7 +129,9 @@ namespace DankleC.IR
 			throw new InvalidOperationException();
 		}
 
-		public SimpleRegisterValue ToRegisters(IRInsn insn)
+        public byte[] ToBytes() => [(byte)(Value >> 56), (byte)(Value >> 48), (byte)(Value >> 40), (byte)(Value >> 32), (byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)];
+
+        public SimpleRegisterValue ToRegisters(IRInsn insn)
 		{
 			var regs = insn.Alloc(4);
 			WriteTo(insn, regs);

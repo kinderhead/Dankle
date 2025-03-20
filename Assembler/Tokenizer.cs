@@ -30,6 +30,7 @@ namespace Assembler
 			TokenMap[Token.Type.Register] = new(@"^r([0-9]|1[0-5])\b");
 			TokenMap[Token.Type.Integer] = new(@"^((0[bB][01]+)|(0[xX][0-9a-fA-F]+)|\d+)");
 			TokenMap[Token.Type.Export] = new(@"^export");
+			TokenMap[Token.Type.Export] = new(@"^import");
 			TokenMap[Token.Type.Label] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$#]*:");
 			TokenMap[Token.Type.Text] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$#]*");
 			TokenMap[Token.Type.Comma] = new(@"^,");

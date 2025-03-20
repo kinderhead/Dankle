@@ -35,6 +35,7 @@ namespace Assembler
 			Integer,
 
 			Export,
+			Import,
 
 			Label,
 			Text,

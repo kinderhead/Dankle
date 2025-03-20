@@ -14,8 +14,9 @@ namespace DankleC.IR
 		public readonly bool Debug = debug;
 
 		public readonly List<IRFunction> Functions = [];
-		public readonly Dictionary<string, (ILabel, IImmediateValue)> StaticVariables = [];
+		public readonly Dictionary<string, (ILabel, byte[])> StaticVariables = [];
 		public Dictionary<string, TypeSpecifier> Externs = [];
+		public HashSet<string> ExternsUsed = [];
 		public readonly List<Literal> Literals = [];
 
 		public IRFunction CurrentFunction { get; private set; }

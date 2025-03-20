@@ -18,6 +18,7 @@ namespace Assembler
 		public readonly Dictionary<Type, Dictionary<string, object>> Variables = [];
 		public readonly Dictionary<uint, byte[]> Data = [];
 		public readonly HashSet<string> ExportedSymbols = [];
+		public readonly Dictionary<string, uint> ImportableSymbols = [];
 
 		public uint StartAddr;
 		public uint Addr { get; private set; }
@@ -73,7 +74,7 @@ namespace Assembler
 		{
 			foreach (var i in other.ExportedSymbols)
 			{
-				SetVariable(i, other.GetVariable<uint>(i));
+				ImportableSymbols[i] = other.GetVariable<uint>(i);
 			}
 		}
 
@@ -130,6 +131,12 @@ namespace Assembler
 				else if (token.Symbol == Token.Type.Export)
 				{
 					ExportedSymbols.Add(GetNextToken(Token.Type.Text).Text);
+				}
+				else if (token.Symbol == Token.Type.Import)
+				{
+					var name = GetNextToken(Token.Type.Text).Text;
+					if (ImportableSymbols.TryGetValue(name, out var sym)) SetVariable(name, sym);
+					else throw new ArgumentException($"Undefined external reference \"{name}\"");
 				}
 				else throw new InvalidTokenException(token);
 			}
@@ -246,7 +253,7 @@ namespace Assembler
 				var third = Tokens.Dequeue();
 				if (second.Symbol == Token.Type.Plus)
 				{
-					if (IsNum(third)) res = (0b0010, Utils.ToBytes(ParseNum<uint>(first) + ParseNum<short>(second)));
+					if (IsNum(third)) res = (0b0010, Utils.ToBytes(ParseNum<uint>(first) + ParseNum<short>(third)));
 					else res = (0b0011, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister(third)]);
 				}
 				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister(third)]);

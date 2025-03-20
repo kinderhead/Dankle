@@ -35,11 +35,12 @@ namespace DankleC.IR
         }
     }
     
-    public class IRStaticVariableLabel(IRFunction func, string name) : IRInsn, ILabel
+    public class IRStaticVariableLabel(IRFunction func, string name, int num) : IRInsn, ILabel
 	{
         public readonly IRFunction Function = func;
         public readonly string Name = name;
-        public string Label => $"V${Function.Name}${Name}";
+        public readonly int Index = num;
+        public string Label => $"V${Function.Name}${Index}_{Name}";
 
 		public override void Compile(CodeGen gen)
         {

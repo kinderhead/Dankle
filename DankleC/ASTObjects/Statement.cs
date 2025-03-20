@@ -50,7 +50,7 @@ namespace DankleC.ASTObjects
 			if (Type.IsStatic)
 			{
 				if (value is not IImmediateValue i) throw new InvalidOperationException("Static variable must have constant expression");
-				Scope.AllocStaticLocal(Name, Type, i);
+				Scope.AllocStaticLocal(Name, Type, i.ToBytes());
 				return;
 			}
 			var variable = Scope.AllocLocal(Name, Type);
@@ -78,7 +78,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			if (Type.IsStatic) Scope.AllocStaticLocal(Name, Type, (IImmediateValue) new ConstantExpression(Type, 0).Execute(builder));
+			if (Type.IsStatic) Scope.AllocStaticLocal(Name, Type, new byte[Type.Size]);
 			else Scope.AllocLocal(Name, Type);
 		}
 	}
