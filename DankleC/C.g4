@@ -175,8 +175,12 @@ logicalOrExpression
     : logicalAndExpression (OrOr logicalAndExpression)*
     ;
 
+conditionalExpression
+    : logicalOrExpression (Question expression Colon conditionalExpression)?
+    ;
+
 assignmentExpression
-    : logicalOrExpression
+    : conditionalExpression
     | Identifier Assign assignmentExpression
     ;
 

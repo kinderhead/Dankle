@@ -45,6 +45,11 @@ namespace DankleC
 				builder.AppendLine($"export {sym}");
 			}
 
+			foreach (var sym in IR.ExternsUsed)
+			{
+				builder.AppendLine($"import {sym}");
+			}
+
 			foreach (var sym in CompiledSymbols)
 			{
 				builder.Append($"\n{sym.Key}:");

@@ -225,6 +225,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLogicalOrExpression([NotNull] CParser.LogicalOrExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.conditionalExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitConditionalExpression([NotNull] CParser.ConditionalExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.assignmentExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

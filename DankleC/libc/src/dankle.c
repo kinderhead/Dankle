@@ -1,4 +1,5 @@
 #include <dankle.h>
+#include <stdbool.h>
 
 void println(const char* txt)
 {

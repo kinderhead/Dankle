@@ -110,7 +110,7 @@ namespace DankleC.ASTObjects
 
 		public override string GetName() => Enum.GetName(Type) ?? "<err>";
 
-		public override bool IsNumber() => Type != BuiltinType.Void && Type != BuiltinType.Bool;
+		public override bool IsNumber() => Type != BuiltinType.Void;
 
 		public override bool IsSigned()
 		{

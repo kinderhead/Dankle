@@ -11,12 +11,10 @@ namespace DankleC.IR
         public readonly ushort Value = value;
 
         public Type CGType => Type.Size == 1 ? typeof(CGImmediate<byte>) : typeof(CGImmediate<ushort>);
-
         public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
-
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
-
-		public ICGArg MakeArg() => Type.Size == 1 ? new CGImmediate<byte>((byte)Value) : new CGImmediate<ushort>(Value);
+        public IValue ChangeType(TypeSpecifier type) => new Immediate(Value, ((BuiltinTypeSpecifier)type).Type);
+        public ICGArg MakeArg() => Type.Size == 1 ? new CGImmediate<byte>((byte)Value) : new CGImmediate<ushort>(Value);
 
         public ICGArg MakeArg(int arg)
         {
@@ -65,11 +63,9 @@ namespace DankleC.IR
 		public readonly uint Value = value;
 
 		public Type CGType => typeof(CGImmediate<uint>);
-
 		public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
-
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => CGPointer<T>.Make(Value);
-
+        public IValue ChangeType(TypeSpecifier type) => new Immediate32(Value, ((BuiltinTypeSpecifier)type).Type);
         public ICGArg MakeArg() => new CGImmediate<uint>(Value);
 
         public ICGArg MakeArg(int arg)
@@ -113,11 +109,9 @@ namespace DankleC.IR
 		public readonly ulong Value = value;
 
 		public Type CGType => typeof(CGImmediate<ulong>);
-
 		public TypeSpecifier Type => new BuiltinTypeSpecifier(type);
-
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
-
+        public IValue ChangeType(TypeSpecifier type) => new Immediate64(Value, ((BuiltinTypeSpecifier)type).Type);
 		public ICGArg MakeArg() => new CGImmediate<ulong>(Value);
 
 		public ICGArg MakeArg(int arg)

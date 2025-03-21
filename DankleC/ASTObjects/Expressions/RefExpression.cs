@@ -14,16 +14,13 @@ namespace DankleC.ASTObjects.Expressions
 		public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedRefExpression(Expr.Resolve<LValue>(builder));
 	}
 
-	public class ResolvedRefExpression(LValue expr) : ResolvedExpression(expr.Type.AsPointer())
+	public class ResolvedRefExpression(LValue expr, TypeSpecifier? type = null) : ResolvedExpression(type ?? expr.Type.AsPointer())
 	{
 		public readonly LValue Expr = expr;
 
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type)
-		{
-			throw new NotImplementedException();
-		}
+		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedRefExpression(Expr, type);
 
         public override IValue Execute(IRBuilder builder)
 		{

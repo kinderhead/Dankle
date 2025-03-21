@@ -13,12 +13,13 @@ namespace DankleC.ASTObjects.Expressions
 
         public override bool IsSimpleExpression => true;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantExpression(type, Value);
-		protected override ResolvedExpression AsCasted(TypeSpecifier type)
+		public override ResolvedExpression ChangeType(TypeSpecifier type)
 		{
 			if (type is BuiltinTypeSpecifier b && b.Type == BuiltinType.Bool) return new ConstantExpression(type, (dynamic)Value == 0 ? 0 : 1);
-			else return ChangeType(type);
+			return new ConstantExpression(type, Value);
 		}
+
+		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
 
 		public override IValue Execute(IRBuilder builder)
 		{
@@ -71,6 +72,12 @@ namespace DankleC.ASTObjects.Expressions
 				if (Value is Int128 i) return new Immediate(byte.CreateTruncating(i), t.Type);
 				var val = Convert.ToByte(Value);
 				return new Immediate(val, t.Type);
+			}
+			else if (t.Type == BuiltinType.Bool)
+			{
+				if (Value is Int128 i) return new Immediate(byte.CreateTruncating(i) == 0 ? (byte)0 : (byte)1, t.Type);
+				var val = Convert.ToByte(Value);
+				return new Immediate(val == 0 ? (byte)0 : (byte)1, t.Type);
 			}
 			else throw new NotImplementedException();
 		}

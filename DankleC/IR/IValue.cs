@@ -15,6 +15,8 @@ namespace DankleC.IR
         public void WriteTo(IRInsn insn, IPointer ptr);
         public void WriteTo(IRInsn insn, int[] regs);
 
+        public IValue ChangeType(TypeSpecifier type);
+
         public SimpleRegisterValue ToRegisters(IRInsn insn);
 
         public ICGArg AsPointer(IRInsn insn) => AsPointer<uint>(insn);
@@ -42,6 +44,7 @@ namespace DankleC.IR
 
 		public Type CGType => throw new InvalidOperationException();
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
+        public IValue ChangeType(TypeSpecifier type) => throw new InvalidOperationException();
         public ICGArg MakeArg() => throw new InvalidOperationException();
         public ICGArg MakeArg(int arg) => throw new InvalidOperationException();
 		public SimpleRegisterValue ToRegisters(IRInsn insn) => throw new InvalidOperationException();
@@ -70,12 +73,14 @@ namespace DankleC.IR
 			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
 		}
 
+        public IValue ChangeType(TypeSpecifier type) => new SimpleRegisterValue(Registers, type);
+        
         public ICGArg MakeArg()
         {
             if (Registers.Length == 1) return new CGRegister(Registers[0]);
             else if (Registers.Length == 2) return new CGDoubleRegister(Registers[0], Registers[1]);
             else if (Registers.Length == 4) return new CGQuadRegister(Registers[0], Registers[1], Registers[2], Registers[3]);
-			throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public ICGArg MakeArg(int reg) => new CGRegister(Registers[reg]);
@@ -106,7 +111,9 @@ namespace DankleC.IR
 			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
 		}
 
-		public ICGArg MakeArg() => Type.Size switch
+        public IValue ChangeType(TypeSpecifier type) => new SimplePointerValue(Pointer, type, scope);
+
+        public ICGArg MakeArg() => Type.Size switch
         {
             1 => Pointer.Build<byte>(scope),
             4 => Pointer.Build<uint>(scope),

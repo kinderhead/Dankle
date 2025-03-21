@@ -135,8 +135,11 @@ namespace Assembler
 				else if (token.Symbol == Token.Type.Import)
 				{
 					var name = GetNextToken(Token.Type.Text).Text;
-					if (ImportableSymbols.TryGetValue(name, out var sym)) SetVariable(name, sym);
-					else throw new ArgumentException($"Undefined external reference \"{name}\"");
+					if (!IsSymbolPass)
+					{
+						if (ImportableSymbols.TryGetValue(name, out var sym)) SetVariable(name, sym);
+						else throw new ArgumentException($"Undefined external reference \"{name}\"");
+					}
 				}
 				else throw new InvalidTokenException(token);
 			}
