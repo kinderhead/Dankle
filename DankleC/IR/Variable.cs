@@ -25,6 +25,7 @@ namespace DankleC.IR
 		public abstract void WriteTo(IRInsn insn, int[] regs);
 		public abstract SimpleRegisterValue ToRegisters(IRInsn insn);
 		public abstract IValue ChangeType(TypeSpecifier type);
+		public abstract IValue GetRef(IRBuilder builder);
 
 		public virtual ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>
 		{
@@ -42,6 +43,7 @@ namespace DankleC.IR
 		public override Type CGType => Registers.Length == 1 ? typeof(CGRegister) : typeof(CGDoubleRegister);
 
 		public override IValue ChangeType(TypeSpecifier type) => new RegisterVariable(Name, type, Registers, Scope);
+		public override IValue GetRef(IRBuilder builder) => throw new InvalidOperationException();
 
         public override ICGArg MakeArg()
 		{
@@ -125,6 +127,12 @@ namespace DankleC.IR
 		}
 
 		public override IValue ChangeType(TypeSpecifier type) => new PointerVariable(Name, type, Pointer, Scope);
+
+        public override IValue GetRef(IRBuilder builder)
+        {
+            builder.Add(new IRLoadPtrAddress(Pointer));
+			return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.AsPointer().Size), Type.AsPointer());
+        }
     }
 
 	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : PointerVariable(name, type, pointer, scope), IDisposable
@@ -172,8 +180,8 @@ namespace DankleC.IR
 			insn.Add(CGInsn.Build<Load32>(MakeArg(), new CGDoubleRegister(regs[0], regs[1])));
 		}
 
-		public override ICGArg AsPointer<T>(IRInsn insn) => MakeArg();
-
+		public override ICGArg AsPointer<T>(IRInsn insn) => CGPointer<T>.Make(Name);
 		public override IValue ChangeType(TypeSpecifier type) => new LabelVariable(Name, type, Scope);
+		public override IValue GetRef(IRBuilder builder) => this;
     }
 }

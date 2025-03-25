@@ -17,7 +17,10 @@ namespace DankleC.ASTObjects.Expressions
 
 		InclusiveOr,
 		ExclusiveOr,
-		And
+		And,
+
+		LeftShift,
+		RightShift
 	}
 
 	public class ArithmeticExpression(IExpression left, ArithmeticOperation op, IExpression right, bool obeyPointers = true) : UnresolvedExpression
@@ -68,6 +71,8 @@ namespace DankleC.ASTObjects.Expressions
 					ArithmeticOperation.InclusiveOr => (Int128)(dynamic)l.Value | (dynamic)r.Value,
 					ArithmeticOperation.ExclusiveOr => (Int128)(dynamic)l.Value ^ (dynamic)r.Value,
 					ArithmeticOperation.And => (Int128)(dynamic)l.Value & (dynamic)r.Value,
+					ArithmeticOperation.LeftShift => (Int128)(dynamic)l.Value >> (dynamic)r.Value,
+					ArithmeticOperation.RightShift => (Int128)(dynamic)l.Value >> (dynamic)r.Value,
 					_ => throw new NotImplementedException(),
                 };
 				

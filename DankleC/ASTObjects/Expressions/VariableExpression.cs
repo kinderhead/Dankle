@@ -27,19 +27,8 @@ namespace DankleC.ASTObjects.Expressions
         public override bool IsSimpleExpression => true;
 
         public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedVariableExpression(Variable, type);
-
 		public override IValue Execute(IRBuilder builder) => Variable;
-
-		public override IValue GetRef(IRBuilder builder)
-		{
-			if (Variable is PointerVariable v)
-			{
-				builder.Add(new IRLoadPtrAddress(v.Pointer));
-				return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.AsPointer().Size), Type.AsPointer());
-			}
-			else throw new InvalidOperationException();
-        }
-
+		public override IValue GetRef(IRBuilder builder) => Variable.GetRef(builder).ChangeType(Type.AsPointer());
 		public override IPointer GetPointer(IRBuilder builder) => Variable is PointerVariable v ? v.Pointer : throw new InvalidOperationException();
 
 		public override void Walk(Action<ResolvedExpression> cb)

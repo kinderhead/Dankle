@@ -10,7 +10,8 @@ namespace DankleC.IR
 
         public override void Compile(CodeGen gen)
         {
-            Add(CGInsn.Build<Call>(Function.AsPointer(this)));
+            if (Function.Type.Size != 4) throw new InvalidOperationException();
+            Add(CGInsn.Build<Call>(Function.MakeArg()));
         }
     }
 }

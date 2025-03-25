@@ -45,6 +45,10 @@ namespace DankleC.ASTObjects
 			{
 				return new ResolvedRefExpression((LValue)this, type);
 			}
+			else if (Type is FunctionTypeSpecifier func && type is PointerTypeSpecifier ptr2 && func == ptr2.Inner)
+			{
+				return new ResolvedRefExpression((LValue)this, type);
+			}
 
 			throw new InvalidOperationException($"Cannot cast {Type} to {type}");
 		}

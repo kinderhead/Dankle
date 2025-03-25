@@ -116,10 +116,10 @@ namespace DankleC.IR
 		public void SubScope(Action func)
 		{
 			Locals.Add([]);
-			var lastStackUsed = StackUsed;
+			//var lastStackUsed = StackUsed; // TODO: Get this working with TempStackPointers
 			func();
 			Locals.RemoveAt(Locals.Count - 1);
-			StackUsed = lastStackUsed;
+			//StackUsed = lastStackUsed;
 		}
 
 		public void SubScope(Action func, IRLogicLabel loopEnd)

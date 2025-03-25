@@ -203,7 +203,15 @@ namespace DankleC.ASTObjects
 		public override bool AreEqual(TypeSpecifier a)
 		{
 			if (a is not FunctionTypeSpecifier type) return false;
-			return ReturnType == type.ReturnType;
+
+			if (ReturnType != type.ReturnType || type.Parameters.Parameters.Count != Parameters.Parameters.Count) return false;
+
+			for (int i = 0; i < Parameters.Parameters.Count; i++)
+			{
+				if (Parameters.Parameters[i].Type != type.Parameters.Parameters[i].Type) return false;
+			}
+
+			return true;
 		}
 
 		public override string GetName() => $"{ReturnType.GetName()} (*)()";

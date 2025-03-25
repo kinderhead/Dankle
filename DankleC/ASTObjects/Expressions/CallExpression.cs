@@ -8,23 +8,34 @@ namespace DankleC.ASTObjects.Expressions
         public readonly IExpression Function = func;
         public readonly ArgumentList Arguments = args;
 
-        public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedCallExpression(Function.Resolve(builder), [.. Arguments.Arguments.Select(i => i.Resolve(builder))]);
+        public override ResolvedExpression Resolve(IRBuilder builder)
+        {
+            var func = Function.Resolve(builder);
+
+            FunctionTypeSpecifier type;
+            if (func.Type is FunctionTypeSpecifier f) type = f;
+            else if (func.Type is PointerTypeSpecifier ptr) type = (FunctionTypeSpecifier)ptr.Inner;
+            else throw new InvalidOperationException();
+
+            return new ResolvedCallExpression(func, [.. Arguments.Arguments.Select(i => i.Resolve(builder))], type, type.ReturnType);
+        }
     }
 
-    public class ResolvedCallExpression(ResolvedExpression func, List<ResolvedExpression> args) : ResolvedExpression(((FunctionTypeSpecifier)func.Type).ReturnType)
+    public class ResolvedCallExpression(ResolvedExpression func, List<ResolvedExpression> args, FunctionTypeSpecifier funcType, TypeSpecifier type) : ResolvedExpression(type)
     {
         public readonly ResolvedExpression Function = func;
         public readonly List<ResolvedExpression> Arguments = args;
+        public readonly FunctionTypeSpecifier FunctionType = funcType;
         public override bool IsSimpleExpression => false;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedCallExpression(Function, Arguments);
+        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedCallExpression(Function, Arguments, FunctionType, type);
 
         public override IValue Execute(IRBuilder builder)
 		{
-            var parameters = ((FunctionTypeSpecifier)Function.Type).Parameters;
+            var parameters = FunctionType.Parameters;
             if (Arguments.Count != parameters.Parameters.Count) throw new InvalidOperationException("Mismatched argument count");
 
-			builder.CurrentScope.ReserveFunctionCallSpace((FunctionTypeSpecifier)Function.Type);
+			builder.CurrentScope.ReserveFunctionCallSpace(FunctionType);
 
             var reservedParams = 0;
 			foreach (var i in Arguments)

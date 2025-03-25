@@ -69,7 +69,8 @@ namespace DankleC
 
 			foreach (var i in context.parameterDeclaration())
 			{
-				p.Parameters.Add(Visit(i.declarator(), Visit(i.declarationSpecifier())));
+				if (i.declarator() is not null) p.Parameters.Add(Visit(i.declarator(), Visit(i.declarationSpecifier())));
+				else p.Parameters.Add(new(Visit(i.abstractDeclarator(), Visit(i.declarationSpecifier())), ""));
 			}
 
 			return p;
@@ -92,34 +93,31 @@ namespace DankleC
 			throw new Exception($"Invalid symbol \"{node.GetText()}\" at {node.Symbol.Line}:{node.Symbol.Column}");
         }
 
-        #region Expressions
+		#region Expressions
+
+		public static ConstantExpression GetSmallestConstantExpression(Int128 num)
+		{
+			if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
+			else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
+			else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
+			else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
+			else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), (int)num);
+			else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)num);
+			else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
+			else if (num >= ulong.MinValue && num <= ulong.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), (ulong)num);
+			else throw new NotImplementedException();
+		}
 
         public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
 			if (context.Constant() is ITerminalNode c)
 			{
 				var num = VisitInt(c);
-
-				if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
-				else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
-				else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
-				else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
-				else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), (int)num);
-				else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)num);
-				else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
-				else if (num >= ulong.MinValue && num <= ulong.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), (ulong)num);
-				else throw new NotImplementedException();
+				return GetSmallestConstantExpression(num);
 			}
 			else
 			{
 				return new StringLiteralExpression(context.StringLiteral().GetText().Trim('"'), new PointerTypeSpecifier(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar) { IsConst = true }));
-				//var text = context.StringLiteral().GetText().Trim('"');
-				//var type = new BuiltinTypeSpecifier(BuiltinType.UnsignedChar)
-				//{
-				//	IsConst = true,
-				//	PointerType = PointerType.Pointer
-				//};
-				//return new ConstantExpression(type, text);
 			}
 		}
 
@@ -134,6 +132,8 @@ namespace DankleC
 			else if (context.And() is not null) return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 			else if (context.Minus() is not null) return new ArithmeticExpression(new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), 0), ArithmeticOperation.Subtraction, (IExpression)Visit(context.castExpression()));
 			else if (context.Not() is not null) return new NotExpression((IExpression)Visit(context.castExpression()));
+			else if (context.type() is not null) return GetSmallestConstantExpression(Visit(context.type()).Size);
+			else if (context.Sizeof() is not null && context.unaryExpression() is not null) return new SizeofExpression((IExpression)Visit(context.unaryExpression()));
 			else throw new NotImplementedException();
 		}
 

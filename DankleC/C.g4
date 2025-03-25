@@ -41,7 +41,7 @@ parameterList
     ;
 
 parameterDeclaration
-    : declarationSpecifier declarator
+    : declarationSpecifier (declarator | abstractDeclarator)
     ;
 
 argumentList
@@ -205,6 +205,7 @@ unaryExpression
     : postfixExpression
     | (And | Star | Minus | Not) castExpression
     | (PlusPlus | MinusMinus) unaryExpression
+    | Sizeof ((LeftParen type RightParen) | unaryExpression)
     ;
 
 postfixExpression

@@ -1006,6 +1006,25 @@ short main()
 			Assert.AreEqual("Wahoo\n", c.Output.ToString());
 		}
 
+		[TestMethod]
+		[TestCategory("StandardLibrary")]
+		public void Itoa()
+		{
+			using var c = new CTestHelper(@"
+#include <dankle.h>
+
+short main()
+{
+    char str[10];
+    println(itoa(1246783, &str, 10));
+
+    return 0;
+}
+", true);
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual("1246783\n", c.Output.ToString());
+		}
+
 		#endregion
 	}
 }
