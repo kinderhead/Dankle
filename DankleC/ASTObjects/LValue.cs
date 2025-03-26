@@ -24,6 +24,8 @@ namespace DankleC.ASTObjects
 		{
 			var ptr = GetRef(builder);
 			if (ptr is SimpleRegisterValue val) return new RegisterPointer(val.Registers[0], val.Registers[1], 0, Type.Size);
+			else if (ptr is IPointerValue pval) return pval.Pointer;
+			else if (ptr is Immediate32 imm) return new LiteralPointer(imm.Value, Type.Size);
 			else throw new InvalidOperationException();
 		}
 	}

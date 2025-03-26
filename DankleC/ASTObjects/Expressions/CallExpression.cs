@@ -54,7 +54,7 @@ namespace DankleC.ASTObjects.Expressions
             {
                 ptrs.Add(new PreArgumentPointer(offset, parameters.Parameters[i].Type.Size));
                 offset += parameters.Parameters[i].Type.Size;
-                if (i < reservedParams) temps[i] = builder.CurrentScope.AllocTemp(parameters.Parameters[i].Type);
+                if (i < reservedParams && i != Arguments.Count - 1) temps[i] = builder.CurrentScope.AllocTemp(parameters.Parameters[i].Type);
             }
 
             for (int i = 0; i < Arguments.Count; i++)

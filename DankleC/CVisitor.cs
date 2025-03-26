@@ -81,12 +81,6 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitSemiStatement([NotNull] CParser.SemiStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CParser.assignmentStatement"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.declaration"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

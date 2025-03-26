@@ -64,13 +64,8 @@ statement
 semiStatement
     : returnStatement
     | loopControlStatement
-    | assignmentStatement
     | expressionStatement
     | declaration
-    ;
-
-assignmentStatement
-    : lvalue Assign expression
     ;
 
 declaration
@@ -181,7 +176,7 @@ conditionalExpression
 
 assignmentExpression
     : conditionalExpression
-    | Identifier Assign assignmentExpression
+    | unaryExpression Assign assignmentExpression
     ;
 
 returnStatement

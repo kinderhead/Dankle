@@ -428,6 +428,33 @@ short main()
 			Assert.AreEqual(unchecked((short)(10 / 340 + 891 * 50)), c.GetVariable<short>("y"));
 		}
 
+		[TestMethod]
+		[TestCategory("Pointers")]
+		public void FunctionPointer()
+		{
+			using var c = new CTestHelper(@"
+#include <dankle.h>
+
+short add(short x, short y)
+{
+    return x + y;
+}
+
+short main()
+{
+    short (*func)(short, short) = add;
+    short val = func(4, 7);
+
+    char str[10];
+    println(itoa(val, &str, 10));
+
+    return 0;
+}
+", true);
+			c.RunUntil<ReturnStatement>(1);
+			Assert.AreEqual("11\n", c.Output.ToString());
+		}
+
 		#endregion
 
 		#region Logic

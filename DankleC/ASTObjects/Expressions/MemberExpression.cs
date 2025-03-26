@@ -60,7 +60,7 @@ namespace DankleC.ASTObjects.Expressions
 			if (Expression is LValue l) return l.GetPointer(builder).Get(StructType.GetOffset(Member), Type.Size);
 			else
 			{
-				if (Expression.Execute(builder) is SimplePointerValue val) return val.Pointer.Get(StructType.GetOffset(Member), Type.Size);
+				if (Expression.Execute(builder) is IPointerValue val) return val.Pointer.Get(StructType.GetOffset(Member), Type.Size);
 				else throw new InvalidOperationException();
 			}
 		}

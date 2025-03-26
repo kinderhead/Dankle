@@ -1,5 +1,4 @@
 #include <dankle.h>
-#include <stdarg.h>
 
 short add(short x, short y)
 {

@@ -170,7 +170,7 @@ namespace DankleC
 		public override IASTObject VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context)
 		{
 			if (context.conditionalExpression() is CParser.ConditionalExpressionContext add) return Visit(add);
-			return new AssignmentExpression(context.Identifier().GetText(), (IExpression)Visit(context.assignmentExpression()));
+			return new AssignmentExpression((UnresolvedLValue)Visit(context.unaryExpression()), (IExpression)Visit(context.assignmentExpression()));
 		}
 
 		public override IASTObject VisitConditionalExpression([NotNull] CParser.ConditionalExpressionContext context)
@@ -323,7 +323,6 @@ namespace DankleC
 			return decls;
 		}
 
-		public override IASTObject VisitAssignmentStatement([NotNull] CParser.AssignmentStatementContext context) => new AssignmentStatement(Visit(context.lvalue()), Visit(context.expression()));
 		public override IASTObject VisitExpressionStatement([NotNull] CParser.ExpressionStatementContext context) => new ExpressionStatement(Visit(context.expression()));
 		public override IASTObject VisitIfStatement([NotNull] CParser.IfStatementContext context) => new IfStatement(Visit(context.expression()), Visit(context.statement()[0]), context.Else() is null ? null : Visit(context.statement()[1]));
 		public override IASTObject VisitWhileStatement([NotNull] CParser.WhileStatementContext context) => new WhileStatement(Visit(context.expression()), Visit(context.statement()), context.Do() is not null);
