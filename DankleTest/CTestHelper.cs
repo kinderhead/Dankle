@@ -204,6 +204,52 @@ short main()
 			Assert.AreEqual(x, c.GetVariable<T>("x"));
 			Assert.AreEqual(y, c.GetVariable<T>("y"));
 			Assert.AreEqual(z, c.GetVariable<T>("z"));
+
+			TestMathAssign(x, y, op);
+		}
+
+		public static void TestMathAssign<T>(T x, T y, ArithmeticOperation op) where T : IBinaryInteger<T>
+		{
+			var opchar = op switch
+			{
+				ArithmeticOperation.Addition => "+",
+				ArithmeticOperation.Subtraction => "-",
+				ArithmeticOperation.Multiplication => "*",
+				ArithmeticOperation.Division => "/",
+				ArithmeticOperation.Modulo => "%",
+				ArithmeticOperation.InclusiveOr => "|",
+				ArithmeticOperation.ExclusiveOr => "^",
+				ArithmeticOperation.And => "&",
+				_ => throw new InvalidOperationException(),
+			};
+
+			var type = CUtils.NumberTypeToString<T>();
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+    {type} x = {x};
+	{type} y = {y};
+	x {opchar}= y;
+    return 0;
+}}
+");
+			T z = op switch
+			{
+				ArithmeticOperation.Addition => x + y,
+				ArithmeticOperation.Subtraction => x - y,
+				ArithmeticOperation.Multiplication => x * y,
+				ArithmeticOperation.Division => x / y,
+				ArithmeticOperation.Modulo => x % y,
+				ArithmeticOperation.InclusiveOr => x | y,
+				ArithmeticOperation.ExclusiveOr => x ^ y,
+				ArithmeticOperation.And => x & y,
+				_ => throw new InvalidOperationException(),
+			};
+
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(z, c.GetVariable<T>("x"));
+			Assert.AreEqual(y, c.GetVariable<T>("y"));
 		}
 
 		public static void TestCast<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>

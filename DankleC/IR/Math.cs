@@ -1,10 +1,111 @@
 using Dankle.Components.CodeGen;
 using Dankle.Components.Instructions;
 using DankleC.ASTObjects;
+using DankleC.ASTObjects.Expressions;
 using System;
 
 namespace DankleC.IR
 {
+	public static class IRMath
+	{
+		public static void Perform(IRInsn insn, IValue left, ArithmeticOperation op, IValue right, IValue ret)
+		{
+			switch (op)
+			{
+				case ArithmeticOperation.Addition:
+					if (left.Type.Size <= 2) insn.Add(CGInsn.Build<Add>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+					else if (left.Type.Size == 4)
+					{
+						insn.Add(CGInsn.Build<Add>(left.MakeArg(1), right.MakeArg(1), ret.MakeArg(1)));
+						insn.Add(CGInsn.Build<Adc>(left.MakeArg(0), right.MakeArg(0), ret.MakeArg(0)));
+					}
+					else if (left.Type.Size == 8)
+					{
+						insn.Add(CGInsn.Build<Add>(left.MakeArg(3), right.MakeArg(3), ret.MakeArg(3)));
+						insn.Add(CGInsn.Build<Adc>(left.MakeArg(2), right.MakeArg(2), ret.MakeArg(2)));
+						insn.Add(CGInsn.Build<Adc>(left.MakeArg(1), right.MakeArg(1), ret.MakeArg(1)));
+						insn.Add(CGInsn.Build<Adc>(left.MakeArg(0), right.MakeArg(0), ret.MakeArg(0)));
+					}
+					else throw new NotImplementedException();
+					break;
+				case ArithmeticOperation.Subtraction:
+					if (left.Type.Size <= 2) insn.Add(CGInsn.Build<Subtract>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+					else if (left.Type.Size == 4)
+					{
+						insn.Add(CGInsn.Build<Subtract>(left.MakeArg(1), right.MakeArg(1), ret.MakeArg(1)));
+						insn.Add(CGInsn.Build<Sbb>(left.MakeArg(0), right.MakeArg(0), ret.MakeArg(0)));
+					}
+					else if (left.Type.Size == 8)
+					{
+						insn.Add(CGInsn.Build<Subtract>(left.MakeArg(3), right.MakeArg(3), ret.MakeArg(3)));
+						insn.Add(CGInsn.Build<Sbb>(left.MakeArg(2), right.MakeArg(2), ret.MakeArg(2)));
+						insn.Add(CGInsn.Build<Sbb>(left.MakeArg(1), right.MakeArg(1), ret.MakeArg(1)));
+						insn.Add(CGInsn.Build<Sbb>(left.MakeArg(0), right.MakeArg(0), ret.MakeArg(0)));
+					}
+					else throw new NotImplementedException();
+					break;
+				case ArithmeticOperation.Multiplication:
+					GenericPerform<SignedMul, SignedMul32, SignedMul64, UnsignedMul, UnsignedMul32, UnsignedMul64>(insn, left, right, ret);
+					break;
+				case ArithmeticOperation.Division:
+					GenericPerform<SignedDiv, SignedDiv32, SignedDiv64, UnsignedDiv, UnsignedDiv32, UnsignedDiv64>(insn, left, right, ret);
+					break;
+				case ArithmeticOperation.Modulo:
+					GenericPerform<SignedModulo, SignedModulo32, SignedModulo64, Modulo, Modulo32, Modulo64>(insn, left, right, ret);
+					break;
+				case ArithmeticOperation.InclusiveOr:
+					GenericBitwise<Or>(insn, left, right, ret);
+					break;
+				case ArithmeticOperation.ExclusiveOr:
+					GenericBitwise<Xor>(insn, left, right, ret);
+					break;
+				case ArithmeticOperation.And:
+					GenericBitwise<And>(insn, left, right, ret);
+					break;
+				default:
+					throw new NotImplementedException();
+			}
+		}
+
+		public static void GenericPerform<Op, Op32, Op64, UOp, UOp32, UOp64>(IRInsn insn, IValue left, IValue right, IValue ret) where Op : Instruction, new() where Op32 : Instruction, new() where Op64 : Instruction, new() where UOp : Instruction, new() where UOp32 : Instruction, new() where UOp64 : Instruction, new()
+		{
+			if (left.Type.IsSigned())
+			{
+				if (left.Type.Size == 1)
+				{
+					insn.Add(CGInsn.Build<SignExtend8>(left.MakeArg(), left.MakeArg()));
+					insn.Add(CGInsn.Build<SignExtend8>(right.MakeArg(), right.MakeArg()));
+				}
+
+				if (left.Type.Size <= 2) insn.Add(CGInsn.Build<Op>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				else if (left.Type.Size == 4) insn.Add(CGInsn.Build<Op32>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				else if (left.Type.Size == 8) insn.Add(CGInsn.Build<Op64>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				else throw new NotImplementedException();
+			}
+			else
+			{
+				if (left.Type.Size <= 2) insn.Add(CGInsn.Build<UOp>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				else if (left.Type.Size == 4) insn.Add(CGInsn.Build<UOp32>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				else if (left.Type.Size == 8) insn.Add(CGInsn.Build<UOp64>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				else throw new NotImplementedException();
+			}
+		}
+
+		public static void GenericBitwise<Op>(IRInsn insn, IValue left, IValue right, IValue ret) where Op : Instruction, new()
+		{
+			if (left.Type.Size == 1)
+			{
+				insn.Add(CGInsn.Build<Op>(left.MakeArg(), right.MakeArg(), ret.MakeArg()));
+				return;
+			}
+
+			for (int i = left.Type.Size - 2; i >= 0; i -= 2)
+			{
+				insn.Add(CGInsn.Build<Op>(left.MakeArg(i / 2), right.MakeArg(i / 2), ret.MakeArg(i / 2)));
+			}
+		}
+	}
+
 	public class IRAdd(IValue left, IValue right) : IRInsn
 	{
 		public readonly IValue Left = left;
@@ -15,21 +116,7 @@ namespace DankleC.IR
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.Size <= 2) Add(CGInsn.Build<Add>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-			else if (Left.Type.Size == 4)
-			{
-				Add(CGInsn.Build<Add>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
-			}
-			else if (Left.Type.Size == 8)
-			{
-				Add(CGInsn.Build<Add>(Left.MakeArg(3), Right.MakeArg(3), ret.MakeArg(3)));
-				Add(CGInsn.Build<Adc>(Left.MakeArg(2), Right.MakeArg(2), ret.MakeArg(2)));
-				Add(CGInsn.Build<Adc>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
-				Add(CGInsn.Build<Adc>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
-			}
-			else throw new NotImplementedException();
+			IRMath.Perform(this, Left, ArithmeticOperation.Addition, Right, ret);		
 		}
 	}
 
@@ -43,21 +130,7 @@ namespace DankleC.IR
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.Size <= 2) Add(CGInsn.Build<Subtract>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-			else if (Left.Type.Size == 4)
-			{
-				Add(CGInsn.Build<Subtract>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
-			}
-			else if (Left.Type.Size == 8)
-			{
-				Add(CGInsn.Build<Subtract>(Left.MakeArg(3), Right.MakeArg(3), ret.MakeArg(3)));
-				Add(CGInsn.Build<Sbb>(Left.MakeArg(2), Right.MakeArg(2), ret.MakeArg(2)));
-				Add(CGInsn.Build<Sbb>(Left.MakeArg(1), Right.MakeArg(1), ret.MakeArg(1)));
-				Add(CGInsn.Build<Sbb>(Left.MakeArg(0), Right.MakeArg(0), ret.MakeArg(0)));
-			}
-			else throw new NotImplementedException();
+			IRMath.Perform(this, Left, ArithmeticOperation.Subtraction, Right, ret);	
 		}
 	}
 
@@ -71,27 +144,7 @@ namespace DankleC.IR
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.IsSigned())
-			{
-				if (Left.Type.Size == 1)
-				{
-					Add(CGInsn.Build<SignExtend8>(Left.MakeArg(), Left.MakeArg()));
-					Add(CGInsn.Build<SignExtend8>(Right.MakeArg(), Right.MakeArg()));
-				}
-
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedMul>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedMul32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 8) Add(CGInsn.Build<SignedMul64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else throw new NotImplementedException();
-			}
-			else
-			{
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedMul>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedMul32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 8) Add(CGInsn.Build<UnsignedMul64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else throw new NotImplementedException();
-			}
+			IRMath.Perform(this, Left, ArithmeticOperation.Multiplication, Right, ret);
 		}
 	}
 
@@ -104,27 +157,7 @@ namespace DankleC.IR
 		{
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.IsSigned())
-			{
-				if (Left.Type.Size == 1)
-				{
-					Add(CGInsn.Build<SignExtend8>(Left.MakeArg(), Left.MakeArg()));
-					Add(CGInsn.Build<SignExtend8>(Right.MakeArg(), Right.MakeArg()));
-				}
-
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedDiv>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedDiv32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 8) Add(CGInsn.Build<SignedDiv64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else throw new NotImplementedException();
-			}
-			else
-			{
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<UnsignedDiv>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<UnsignedDiv32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 8) Add(CGInsn.Build<UnsignedDiv64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else throw new NotImplementedException();
-			}
+			IRMath.Perform(this, Left, ArithmeticOperation.Division, Right, ret);	
 		}
 	}
 
@@ -137,27 +170,7 @@ namespace DankleC.IR
 		{
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.IsSigned())
-			{
-				if (Left.Type.Size == 1)
-				{
-					Add(CGInsn.Build<SignExtend8>(Left.MakeArg(), Left.MakeArg()));
-					Add(CGInsn.Build<SignExtend8>(Right.MakeArg(), Right.MakeArg()));
-				}
-
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<SignedModulo>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<SignedModulo32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 8) Add(CGInsn.Build<SignedModulo64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else throw new NotImplementedException();
-			}
-			else
-			{
-				if (Left.Type.Size <= 2) Add(CGInsn.Build<Modulo>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 4) Add(CGInsn.Build<Modulo32>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else if (Left.Type.Size == 8) Add(CGInsn.Build<Modulo64>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				else throw new NotImplementedException();
-			}
+			IRMath.Perform(this, Left, ArithmeticOperation.Modulo, Right, ret);
 		}
 	}
 
@@ -169,17 +182,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.Size == 1)
-			{
-				Add(CGInsn.Build<Or>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				return;
-			}
-
-			for (int i = Left.Type.Size - 2; i >= 0; i -= 2)
-			{
-				Add(CGInsn.Build<Or>(Left.MakeArg(i / 2), Right.MakeArg(i / 2), ret.MakeArg(i / 2)));
-			}
+			IRMath.Perform(this, Left, ArithmeticOperation.InclusiveOr, Right, ret);
 		}
 	}
 
@@ -191,17 +194,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.Size == 1)
-			{
-				Add(CGInsn.Build<Xor>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				return;
-			}
-
-			for (int i = Left.Type.Size - 2; i >= 0; i -= 2)
-			{
-				Add(CGInsn.Build<Xor>(Left.MakeArg(i / 2), Right.MakeArg(i / 2), ret.MakeArg(i / 2)));
-			}
+			IRMath.Perform(this, Left, ArithmeticOperation.ExclusiveOr, Right, ret);
 		}
 	}
 
@@ -213,17 +206,7 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			var ret = GetReturn(Left.Type);
-
-			if (Left.Type.Size == 1)
-			{
-				Add(CGInsn.Build<And>(Left.MakeArg(), Right.MakeArg(), ret.MakeArg()));
-				return;
-			}
-
-			for (int i = Left.Type.Size - 2; i >= 0; i -= 2)
-			{
-				Add(CGInsn.Build<And>(Left.MakeArg(i / 2), Right.MakeArg(i / 2), ret.MakeArg(i / 2)));
-			}
+			IRMath.Perform(this, Left, ArithmeticOperation.And, Right, ret);
 		}
 	}
 

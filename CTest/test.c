@@ -1,17 +1,14 @@
 #include <dankle.h>
 
-short add(short x, short y)
-{
-    return x + y;
-}
-
 short main()
 {
-    short (*func)(short, short) = add;
-    short val = func(4, 7);
+    int x = 2147483647;
+    int y = 3;
+
+    x %= y;
 
     char str[10];
-    println(itoa(val, &str, 10));
+    println(itoa(x, &str, 10));
 
     return 0;
 }

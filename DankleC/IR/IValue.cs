@@ -18,6 +18,7 @@ namespace DankleC.IR
         public IValue ChangeType(TypeSpecifier type);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn);
+        public IValue ToNotPointer(IRInsn insn);
 
         public ICGArg AsPointer(IRInsn insn) => AsPointer<uint>(insn);
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T>;
@@ -47,7 +48,8 @@ namespace DankleC.IR
         public IValue ChangeType(TypeSpecifier type) => throw new InvalidOperationException();
         public ICGArg MakeArg() => throw new InvalidOperationException();
         public ICGArg MakeArg(int arg) => throw new InvalidOperationException();
-		public SimpleRegisterValue ToRegisters(IRInsn insn) => throw new InvalidOperationException();
+        public IValue ToNotPointer(IRInsn insn) => throw new InvalidOperationException();
+        public SimpleRegisterValue ToRegisters(IRInsn insn) => throw new InvalidOperationException();
 		public void WriteTo(IRInsn insn, IPointer ptr) => throw new InvalidOperationException();
 		public void WriteTo(IRInsn insn, int[] regs) => throw new InvalidOperationException();
 	}
@@ -84,7 +86,7 @@ namespace DankleC.IR
         }
 
         public ICGArg MakeArg(int reg) => new CGRegister(Registers[reg]);
-
+        public IValue ToNotPointer(IRInsn insn) => this;
         public SimpleRegisterValue ToRegisters(IRInsn insn) => this;
         public void WriteTo(IRInsn insn, IPointer ptr) => insn.MoveRegsToPtr(Registers, ptr);
         public void WriteTo(IRInsn insn, int[] regs) => insn.MoveRegsToRegs(Registers, regs);
@@ -126,6 +128,8 @@ namespace DankleC.IR
             if (IRBuilder.NumRegForBytes(Type.Size) < arg) throw new InvalidOperationException();
             return Pointer.Get(arg * 2).Build<ushort>(scope);
         }
+
+        public IValue ToNotPointer(IRInsn insn) => ToRegisters(insn);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {

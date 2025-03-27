@@ -20,7 +20,9 @@ namespace DankleC.ASTObjects.Expressions
 		And,
 
 		LeftShift,
-		RightShift
+		RightShift,
+
+		Null // Used by IRAssign
 	}
 
 	public class ArithmeticExpression(IExpression left, ArithmeticOperation op, IExpression right, bool obeyPointers = true) : UnresolvedExpression

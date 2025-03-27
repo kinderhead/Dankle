@@ -176,7 +176,7 @@ conditionalExpression
 
 assignmentExpression
     : conditionalExpression
-    | unaryExpression Assign assignmentExpression
+    | unaryExpression (Assign | PlusAssign | MinusAssign | StarAssign | DivAssign | ModAssign | OrAssign | XorAssign | AndAssign) assignmentExpression
     ;
 
 returnStatement

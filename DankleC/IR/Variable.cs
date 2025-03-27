@@ -34,6 +34,8 @@ namespace DankleC.IR
 			var regs = ToRegisters(insn);
 			return CGPointer<T>.Make(regs.Registers[0], regs.Registers[1]);
 		}
+
+		public abstract IValue ToNotPointer(IRInsn insn);
     }
 
 	public class RegisterVariable(string name, TypeSpecifier type, int[] reg, IRScope scope) : Variable(name, type, scope), IRegisterValue
@@ -59,7 +61,9 @@ namespace DankleC.IR
 			throw new NotImplementedException();
 		}
 
-		public override SimpleRegisterValue ToRegisters(IRInsn insn) => new(Registers, Type);
+		public override IValue ToNotPointer(IRInsn insn) => this;
+
+        public override SimpleRegisterValue ToRegisters(IRInsn insn) => new(Registers, Type);
 
 		public override void WriteTo(IRInsn insn, IPointer ptr)
 		{
@@ -133,6 +137,8 @@ namespace DankleC.IR
             builder.Add(new IRLoadPtrAddress(Pointer));
 			return new SimpleRegisterValue(IRInsn.FitRetRegs(Type.AsPointer().Size), Type.AsPointer());
         }
+
+		public override IValue ToNotPointer(IRInsn insn) => ToRegisters(insn);
     }
 
 	public class TempStackVariable(string name, TypeSpecifier type, IPointer pointer, IRScope scope) : PointerVariable(name, type, pointer, scope), IDisposable
@@ -183,5 +189,6 @@ namespace DankleC.IR
 		public override ICGArg AsPointer<T>(IRInsn insn) => CGPointer<T>.Make(Name);
 		public override IValue ChangeType(TypeSpecifier type) => new LabelVariable(Name, type, Scope);
 		public override IValue GetRef(IRBuilder builder) => this;
+		public override IValue ToNotPointer(IRInsn insn) => this;
     }
 }

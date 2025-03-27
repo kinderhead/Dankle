@@ -308,6 +308,40 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class LeftShift32 : Instruction
+	{
+		public override ushort Opcode => 95;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any16), typeof(Any32)];
+		public override string Name => "LSHL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.LSH, arg2.Read()));
+		}
+	}
+
+	public class LeftShift64 : Instruction
+	{
+		public override ushort Opcode => 96;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any16), typeof(Any64)];
+		public override string Name => "LSHLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.LSH, arg2.Read()));
+		}
+	}
+
 	public class RightShift : Instruction
 	{
 		public override ushort Opcode => 14;
@@ -320,6 +354,40 @@ namespace Dankle.Components.Instructions
 			var arg1 = ctx.GetNextArg<Any16>();
 			var arg2 = ctx.GetNextArg<Any16>();
 			var dest = ctx.GetNextArg<Any16>();
+
+			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.RSH, arg2.Read()));
+		}
+	}
+
+	public class RightShift32 : Instruction
+	{
+		public override ushort Opcode => 97;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any16), typeof(Any32)];
+		public override string Name => "RSHL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.RSH, arg2.Read()));
+		}
+	}
+
+	public class RightShift64 : Instruction
+	{
+		public override ushort Opcode => 98;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any16), typeof(Any64)];
+		public override string Name => "RSHLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any64>();
 
 			dest.Write(ctx.Core.ALU.Shift(arg1.Read(), ShiftOperation.RSH, arg2.Read()));
 		}

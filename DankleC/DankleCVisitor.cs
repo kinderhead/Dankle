@@ -170,7 +170,22 @@ namespace DankleC
 		public override IASTObject VisitAssignmentExpression([NotNull] CParser.AssignmentExpressionContext context)
 		{
 			if (context.conditionalExpression() is CParser.ConditionalExpressionContext add) return Visit(add);
-			return new AssignmentExpression((UnresolvedLValue)Visit(context.unaryExpression()), (IExpression)Visit(context.assignmentExpression()));
+
+			var op = context.children[1].GetText() switch
+			{
+				"=" => ArithmeticOperation.Null,
+				"+=" => ArithmeticOperation.Addition,
+				"-=" => ArithmeticOperation.Subtraction,
+				"*=" => ArithmeticOperation.Multiplication,
+				"/=" => ArithmeticOperation.Division,
+				"%=" => ArithmeticOperation.Modulo,
+				"|=" => ArithmeticOperation.InclusiveOr,
+				"^=" => ArithmeticOperation.ExclusiveOr,
+				"&=" => ArithmeticOperation.And,
+				_ => throw new NotImplementedException()
+			};
+
+			return new AssignmentExpression((UnresolvedLValue)Visit(context.unaryExpression()), op, (IExpression)Visit(context.assignmentExpression()));
 		}
 
 		public override IASTObject VisitConditionalExpression([NotNull] CParser.ConditionalExpressionContext context)

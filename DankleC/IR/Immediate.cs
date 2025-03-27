@@ -28,6 +28,8 @@ namespace DankleC.IR
             else return [(byte)(Value >> 8), (byte)(Value & 0xFF)];
         }
 
+        public IValue ToNotPointer(IRInsn insn) => this;
+
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
             var reg = insn.Alloc();
@@ -67,6 +69,8 @@ namespace DankleC.IR
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => CGPointer<T>.Make(Value);
         public IValue ChangeType(TypeSpecifier type) => new Immediate32(Value, ((BuiltinTypeSpecifier)type).Type);
         public ICGArg MakeArg() => new CGImmediate<uint>(Value);
+
+        public IValue ToNotPointer(IRInsn insn) => this;
 
         public ICGArg MakeArg(int arg)
         {
@@ -113,15 +117,16 @@ namespace DankleC.IR
         public ICGArg AsPointer<T>(IRInsn insn) where T : IBinaryInteger<T> => throw new InvalidOperationException();
         public IValue ChangeType(TypeSpecifier type) => new Immediate64(Value, ((BuiltinTypeSpecifier)type).Type);
 		public ICGArg MakeArg() => new CGImmediate<ulong>(Value);
+        public IValue ToNotPointer(IRInsn insn) => this;
 
 		public ICGArg MakeArg(int arg)
-		{
-			if (arg == 0) return new CGImmediate<ushort>((ushort)(Value >>> 48));
-			if (arg == 1) return new CGImmediate<ushort>((ushort)(Value >>> 32));
-			if (arg == 2) return new CGImmediate<ushort>((ushort)(Value >>> 16));
-			if (arg == 3) return new CGImmediate<ushort>((ushort)(Value & 0xFFFF));
-			throw new InvalidOperationException();
-		}
+        {
+            if (arg == 0) return new CGImmediate<ushort>((ushort)(Value >>> 48));
+            if (arg == 1) return new CGImmediate<ushort>((ushort)(Value >>> 32));
+            if (arg == 2) return new CGImmediate<ushort>((ushort)(Value >>> 16));
+            if (arg == 3) return new CGImmediate<ushort>((ushort)(Value & 0xFFFF));
+            throw new InvalidOperationException();
+        }
 
         public byte[] ToBytes() => [(byte)(Value >> 56), (byte)(Value >> 48), (byte)(Value >> 40), (byte)(Value >> 32), (byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)];
 
