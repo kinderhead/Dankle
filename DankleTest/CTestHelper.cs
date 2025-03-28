@@ -134,6 +134,20 @@ namespace DankleTest
 			TestMath(T.MinValue, T.CreateTruncating(127), ArithmeticOperation.Modulo);
 		}
 
+		public static void TestMathLeftShift<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.MaxValue, T.CreateTruncating(3), ArithmeticOperation.LeftShift);
+			TestMath(T.MinValue + T.One, T.CreateTruncating(2), ArithmeticOperation.LeftShift);
+			TestMath(T.One, T.One, ArithmeticOperation.LeftShift);
+		}
+
+		public static void TestMathRightShift<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestMath(T.MaxValue, T.CreateTruncating(3), ArithmeticOperation.RightShift);
+			TestMath(T.MinValue + T.One, T.CreateTruncating(2), ArithmeticOperation.RightShift);
+			TestMath(T.CreateTruncating(2), T.One, ArithmeticOperation.RightShift);
+		}
+
 		public static void TestMathInclusiveOr<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			TestMath(T.AllBitsSet, T.AllBitsSet / T.CreateTruncating(3), ArithmeticOperation.InclusiveOr);
@@ -156,6 +170,8 @@ namespace DankleTest
 			TestMathMul<T>();
 			TestMathDiv<T>();
 			TestMathMod<T>();
+			TestMathLeftShift<T>();
+			TestMathRightShift<T>();
 			TestMathInclusiveOr<T>();
 			TestMathExclusiveOr<T>();
 			TestMathAnd<T>();
@@ -170,6 +186,8 @@ namespace DankleTest
 				ArithmeticOperation.Multiplication => "*",
 				ArithmeticOperation.Division => "/",
 				ArithmeticOperation.Modulo => "%",
+				ArithmeticOperation.LeftShift => "<<",
+				ArithmeticOperation.RightShift => ">>",
 				ArithmeticOperation.InclusiveOr => "|",
 				ArithmeticOperation.ExclusiveOr => "^",
 				ArithmeticOperation.And => "&",
@@ -194,6 +212,8 @@ short main()
 				ArithmeticOperation.Multiplication => x * y,
 				ArithmeticOperation.Division => x / y,
 				ArithmeticOperation.Modulo => x % y,
+				ArithmeticOperation.LeftShift => x << int.CreateTruncating(y),
+				ArithmeticOperation.RightShift => x >> int.CreateTruncating(y),
 				ArithmeticOperation.InclusiveOr => x | y,
 				ArithmeticOperation.ExclusiveOr => x ^ y,
 				ArithmeticOperation.And => x & y,
@@ -217,6 +237,8 @@ short main()
 				ArithmeticOperation.Multiplication => "*",
 				ArithmeticOperation.Division => "/",
 				ArithmeticOperation.Modulo => "%",
+				ArithmeticOperation.LeftShift => "<<",
+				ArithmeticOperation.RightShift => ">>",
 				ArithmeticOperation.InclusiveOr => "|",
 				ArithmeticOperation.ExclusiveOr => "^",
 				ArithmeticOperation.And => "&",
@@ -241,6 +263,8 @@ short main()
 				ArithmeticOperation.Multiplication => x * y,
 				ArithmeticOperation.Division => x / y,
 				ArithmeticOperation.Modulo => x % y,
+				ArithmeticOperation.LeftShift => x << int.CreateTruncating(y),
+				ArithmeticOperation.RightShift => x >> int.CreateTruncating(y),
 				ArithmeticOperation.InclusiveOr => x | y,
 				ArithmeticOperation.ExclusiveOr => x ^ y,
 				ArithmeticOperation.And => x & y,

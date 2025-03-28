@@ -13,6 +13,10 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var dest = Dest.Resolve<LValue>(builder);
 			var expr = Expression.Resolve(builder);
+
+			if (Op == ArithmeticOperation.LeftShift || Op == ArithmeticOperation.RightShift) expr = expr.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
+			else expr = expr.Cast(dest.Type);
+
 			return new ResolvedAssignmentExpression(dest, Op, expr, dest.Type);
 		}
 	}
@@ -24,11 +28,13 @@ namespace DankleC.ASTObjects.Expressions
 		public readonly ResolvedExpression Expression = expr;
 
         public override bool IsSimpleExpression => false;
+		
+		// Watch out for floats :(
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedAssignmentExpression(Dest, Op, Expression, type);
 
 		public override IValue Execute(IRBuilder builder)
 		{
-			var original = Expression.Cast(Type).Execute(builder);
+			var original = Expression.Execute(builder);
 			IValue val = original;
 
 			if (!Expression.IsSimpleExpression && !Dest.IsSimpleExpression)
@@ -39,7 +45,7 @@ namespace DankleC.ASTObjects.Expressions
 
 			var ptr = Dest.GetPointer(builder);
 
-			builder.Add(new IRAssign(ptr, Op, val));
+			builder.Add(new IRAssign(ptr, Op, val, Type));
 
 			if (val is TempStackVariable t) t.Dispose();
 			return new SimplePointerValue(ptr, Type, builder.CurrentScope);

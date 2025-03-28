@@ -179,6 +179,8 @@ namespace DankleC
 				"*=" => ArithmeticOperation.Multiplication,
 				"/=" => ArithmeticOperation.Division,
 				"%=" => ArithmeticOperation.Modulo,
+				"<<=" => ArithmeticOperation.LeftShift,
+				">>=" => ArithmeticOperation.RightShift,
 				"|=" => ArithmeticOperation.InclusiveOr,
 				"^=" => ArithmeticOperation.ExclusiveOr,
 				"&=" => ArithmeticOperation.And,
@@ -209,7 +211,7 @@ namespace DankleC
 
 		public override IASTObject VisitRelationalExpression([NotNull] CParser.RelationalExpressionContext context)
 		{
-			IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
+			IExpression expr = (IExpression)Visit(context.shiftExpression()[0]);
 			for (int i = 0; i < context.children.Count; i++)
 			{
 				if (i == 0) continue;
@@ -226,6 +228,19 @@ namespace DankleC
 			}
 			return expr;
 		}
+
+        public override IASTObject VisitShiftExpression([NotNull] CParser.ShiftExpressionContext context)
+        {
+            IExpression expr = (IExpression)Visit(context.additiveExpression()[0]);
+			for (int i = 0; i < context.children.Count; i++)
+			{
+				if (i == 0) continue;
+
+				var op = context.children[i].GetText() == ">>" ? ArithmeticOperation.RightShift : ArithmeticOperation.LeftShift;
+				expr = new ArithmeticExpression(expr, op, (IExpression)Visit(context.children[++i]));
+			}
+			return expr;
+        }
 
 		public override IASTObject VisitAdditiveExpression([NotNull] CParser.AdditiveExpressionContext context)
 		{

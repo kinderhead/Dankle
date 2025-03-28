@@ -2,10 +2,10 @@
 
 short main()
 {
-    int x = 2147483647;
-    int y = 3;
+    int x = -4;
+    int y = 1;
 
-    x %= y;
+    x >>= y;
 
     char str[10];
     println(itoa(x, &str, 10));

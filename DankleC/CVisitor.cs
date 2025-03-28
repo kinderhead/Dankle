@@ -177,6 +177,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLoopControlStatement([NotNull] CParser.LoopControlStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.shiftExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitShiftExpression([NotNull] CParser.ShiftExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.relationalExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

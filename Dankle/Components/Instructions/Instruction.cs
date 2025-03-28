@@ -163,6 +163,13 @@ namespace Dankle.Components.Instructions
 			Register<SignedModulo>();
 			Register<SignedModulo64>();
 			Register<Modulo64>();
+			Register<LeftShift32>();
+			Register<LeftShift64>();
+			Register<RightShift32>();
+			Register<RightShift64>();
+			Register<ArithmeticRightShift>();
+			Register<ArithmeticRightShift32>();
+			Register<ArithmeticRightShift64>();
 		}
 	}
 

@@ -393,6 +393,57 @@ namespace Dankle.Components.Instructions
 		}
 	}
 
+	public class ArithmeticRightShift : Instruction
+	{
+		public override ushort Opcode => 99;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16), typeof(Any16)];
+		public override string Name => "ARSH";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any16>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any16>();
+
+			dest.Write((ushort)ctx.Core.ALU.Shift((short)arg1.Read(), ShiftOperation.RSH, arg2.Read()));
+		}
+	}
+
+	public class ArithmeticRightShift32 : Instruction
+	{
+		public override ushort Opcode => 100;
+
+		public override Type[] Arguments => [typeof(Any32), typeof(Any16), typeof(Any32)];
+		public override string Name => "ARSHL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any32>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any32>();
+
+			dest.Write((uint)ctx.Core.ALU.Shift((int)arg1.Read(), ShiftOperation.RSH, arg2.Read()));
+		}
+	}
+
+	public class ArithmeticRightShift64 : Instruction
+	{
+		public override ushort Opcode => 101;
+
+		public override Type[] Arguments => [typeof(Any64), typeof(Any16), typeof(Any64)];
+		public override string Name => "ARSHLL";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg1 = ctx.GetNextArg<Any64>();
+			var arg2 = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any64>();
+
+			dest.Write((ulong)ctx.Core.ALU.Shift((long)arg1.Read(), ShiftOperation.RSH, arg2.Read()));
+		}
+	}
+
 	public class Or : Instruction
 	{
 		public override ushort Opcode => 25;

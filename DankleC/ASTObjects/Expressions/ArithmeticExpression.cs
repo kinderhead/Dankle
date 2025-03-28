@@ -84,7 +84,11 @@ namespace DankleC.ASTObjects.Expressions
 			if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
 			else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 
-			return new ResolvedArithmeticExpression(left.Cast(type), Op, right.Cast(type), type);
+			left = left.Cast(type);
+			if (Op == ArithmeticOperation.LeftShift || Op == ArithmeticOperation.RightShift) right = right.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
+			else right = right.Cast(type);
+
+			return new ResolvedArithmeticExpression(left, Op, right, type);
 		}
 	}
 
@@ -129,6 +133,12 @@ namespace DankleC.ASTObjects.Expressions
 					break;
 				case ArithmeticOperation.Modulo:
 					builder.Add(new IRMod(left, right));
+					break;
+				case ArithmeticOperation.LeftShift:
+					builder.Add(new IRLeftShift(left, right));
+					break;
+				case ArithmeticOperation.RightShift:
+					builder.Add(new IRRightShift(left, right));
 					break;
 				case ArithmeticOperation.InclusiveOr:
 					builder.Add(new IRInclusiveOr(left, right));

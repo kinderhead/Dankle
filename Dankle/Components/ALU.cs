@@ -67,7 +67,8 @@ namespace Dankle.Components
 
             T ret;
             if (op == ShiftOperation.LSH) ret = left << right;
-            else if (op == ShiftOperation.RSH) ret = left >>> right;
+            else if (op == ShiftOperation.RSH) ret = left >> right;
+            else if (op == ShiftOperation.ARSH) ret = left >>> right;
             else throw new ArgumentException($"Invalid operation {op}");
 
             if (skipFlags) return ret;
@@ -121,8 +122,9 @@ namespace Dankle.Components
 
     public enum ShiftOperation
     {
-		LSH,
-		RSH
+        LSH,
+        RSH,
+        ARSH
 	}
 
     public enum BitwiseOperation

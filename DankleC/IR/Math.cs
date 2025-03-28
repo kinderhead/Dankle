@@ -53,6 +53,12 @@ namespace DankleC.IR
 				case ArithmeticOperation.Modulo:
 					GenericPerform<SignedModulo, SignedModulo32, SignedModulo64, Modulo, Modulo32, Modulo64>(insn, left, right, ret);
 					break;
+				case ArithmeticOperation.LeftShift:
+					GenericPerform<LeftShift, LeftShift32, LeftShift64, LeftShift, LeftShift32, LeftShift64>(insn, left, right, ret);
+					break;
+				case ArithmeticOperation.RightShift:
+					GenericPerform<ArithmeticRightShift, ArithmeticRightShift32, ArithmeticRightShift64, RightShift, RightShift32, RightShift64>(insn, left, right, ret);
+					break;
 				case ArithmeticOperation.InclusiveOr:
 					GenericBitwise<Or>(insn, left, right, ret);
 					break;
@@ -171,6 +177,30 @@ namespace DankleC.IR
 			//if (Left.Type != Right.Type || !Left.Type.IsNumber() || !Right.Type.IsNumber()) throw new NotImplementedException();
 			var ret = GetReturn(Left.Type);
 			IRMath.Perform(this, Left, ArithmeticOperation.Modulo, Right, ret);
+		}
+	}
+
+	public class IRLeftShift(IValue left, IValue right) : IRInsn
+	{
+		public readonly IValue Left = left;
+		public readonly IValue Right = right;
+
+		public override void Compile(CodeGen gen)
+		{
+			var ret = GetReturn(Left.Type);
+			IRMath.Perform(this, Left, ArithmeticOperation.LeftShift, Right, ret);
+		}
+	}
+
+	public class IRRightShift(IValue left, IValue right) : IRInsn
+	{
+		public readonly IValue Left = left;
+		public readonly IValue Right = right;
+
+		public override void Compile(CodeGen gen)
+		{
+			var ret = GetReturn(Left.Type);
+			IRMath.Perform(this, Left, ArithmeticOperation.RightShift, Right, ret);
 		}
 	}
 

@@ -142,8 +142,12 @@ loopControlStatement
     | Break
     ;
 
+shiftExpression
+    : additiveExpression ((LeftShift | RightShift) additiveExpression)*
+    ;
+
 relationalExpression
-    : additiveExpression ((Less | LessEqual | Greater | GreaterEqual) additiveExpression)*
+    : shiftExpression ((Less | LessEqual | Greater | GreaterEqual) shiftExpression)*
     ;
 
 equalityExpression
@@ -176,7 +180,7 @@ conditionalExpression
 
 assignmentExpression
     : conditionalExpression
-    | unaryExpression (Assign | PlusAssign | MinusAssign | StarAssign | DivAssign | ModAssign | OrAssign | XorAssign | AndAssign) assignmentExpression
+    | unaryExpression (Assign | PlusAssign | MinusAssign | StarAssign | DivAssign | ModAssign | LeftShiftAssign | RightShiftAssign | OrAssign | XorAssign | AndAssign) assignmentExpression
     ;
 
 returnStatement
