@@ -8,8 +8,10 @@ namespace DankleC.ASTObjects
 		public bool IsConst = false;
 		public bool IsExtern = false;
 		public bool IsStatic = false;
+		public bool IsTypedef = false;
 
 		public int Size { get => GetTypeSize(); }
+		public abstract TypeSpecifier Innermost { get; }
 
 		public abstract bool AreEqual(TypeSpecifier a);
 		public abstract string GetName();
@@ -102,7 +104,9 @@ namespace DankleC.ASTObjects
 	{
 		public readonly BuiltinType Type = type;
 
-		public override bool AreEqual(TypeSpecifier a)
+		public override TypeSpecifier Innermost => this;
+
+        public override bool AreEqual(TypeSpecifier a)
 		{
 			if (a is not BuiltinTypeSpecifier type || a.GetType().IsSubclassOf(typeof(BuiltinTypeSpecifier))) return false;
 			return Type == type.Type;
@@ -140,7 +144,9 @@ namespace DankleC.ASTObjects
 	{
 		public readonly string Type = type;
 
-		public override bool AreEqual(TypeSpecifier a)
+        public override TypeSpecifier Innermost => this;
+
+        public override bool AreEqual(TypeSpecifier a)
 		{
 			if (a is not UserTypeSpecifier type) return false;
 			return Type == type.Type;
@@ -160,6 +166,7 @@ namespace DankleC.ASTObjects
 	public class PointerTypeSpecifier(TypeSpecifier inner) : BuiltinTypeSpecifier(BuiltinType.UnsignedInt)
 	{
 		public readonly TypeSpecifier Inner = inner;
+		public override TypeSpecifier Innermost => Inner.Innermost;
 
 		public override bool AreEqual(TypeSpecifier a)
 		{
@@ -175,7 +182,9 @@ namespace DankleC.ASTObjects
 		public readonly TypeSpecifier Inner = inner;
 		public readonly int ArraySize = size;
 
-		public override bool AreEqual(TypeSpecifier a)
+        public override TypeSpecifier Innermost => Inner.Innermost;
+
+        public override bool AreEqual(TypeSpecifier a)
 		{
 			if (a is not ArrayTypeSpecifier type) return false;
 			return Inner == type.Inner;
@@ -192,6 +201,8 @@ namespace DankleC.ASTObjects
 	{
 		public readonly TypeSpecifier ReturnType;
 		public readonly ParameterList Parameters;
+
+		public override TypeSpecifier Innermost => this;
 
 		public FunctionTypeSpecifier(TypeSpecifier ret, ParameterList parameters) : base()
 		{
@@ -226,7 +237,9 @@ namespace DankleC.ASTObjects
 		public readonly string Name = name;
 		public readonly List<DeclaratorPair> Members = props;
 
-		public TypeSpecifier GetMember(string name)
+        public override TypeSpecifier Innermost => this;
+
+        public TypeSpecifier GetMember(string name)
 		{
 			foreach (var i in Members)
 			{

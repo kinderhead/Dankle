@@ -73,8 +73,7 @@ declaration
     ;
 
 declarationSpecifier
-    : (Const | Extern)* (userType | builtinType)
-    | Typedef (Const | Extern)* (userType | builtinType) Identifier
+    : Typedef? (Const | Extern)* (userType | builtinType)
     ;
 
 initDeclarator
@@ -192,7 +191,7 @@ lvalue
     ;
 
 expression
-    : assignmentExpression
+    : assignmentExpression // (Comma assignmentExpression)*
     ;
     
 castExpression

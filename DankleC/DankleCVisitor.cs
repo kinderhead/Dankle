@@ -28,12 +28,17 @@ namespace DankleC
 					{
 						if (decl is DeclareStatement d)
 						{
-							if (d.Type.IsExtern || d.Type is FunctionTypeSpecifier)
+							if (d.Type.Innermost.IsExtern || d.Type is FunctionTypeSpecifier)
 							{
 								d.Type.IsExtern = true;
 								program.Externs[d.Name] = d.Type;
 							}
+							else if (d.Type.Innermost.IsTypedef)
+							{
+								UserTypes[d.Name] = d.Type;
+							}
 						}
+						else throw new NotImplementedException();
 					}
 				}
 			}
@@ -106,6 +111,18 @@ namespace DankleC
 			else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
 			else if (num >= ulong.MinValue && num <= ulong.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), (ulong)num);
 			else throw new NotImplementedException();
+		}
+
+		public override IASTObject VisitExpression([NotNull] CParser.ExpressionContext context)
+		{
+			return Visit(context.children[0]);
+            // IExpression expr = (IExpression)Visit(context.assignmentExpression()[0]);
+			// for (int i = 0; i < context.children.Count; i++)
+			// {
+			// 	if (i == 0) continue;
+			// 	expr = new CommaExpression(expr, (IExpression)Visit(context.children[++i]));
+			// }
+			// return expr;
 		}
 
         public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
@@ -407,8 +424,8 @@ namespace DankleC
 
 			t.IsConst = context.Const().Length != 0;
 			t.IsExtern = context.Extern().Length != 0;
+			t.IsTypedef = context.Typedef() is not null;
 
-			if (context.Typedef() is not null) UserTypes[context.Identifier().GetText()] = t;
 			return t;
 		}
 

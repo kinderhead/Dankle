@@ -33,9 +33,10 @@ namespace DankleC.ASTObjects.Expressions
         public override IValue Execute(IRBuilder builder)
 		{
             var parameters = FunctionType.Parameters;
-            if (Arguments.Count != parameters.Parameters.Count) throw new InvalidOperationException("Mismatched argument count");
+            if (parameters.Ellipsis && Arguments.Count < parameters.Parameters.Count) throw new InvalidOperationException("Not enough arguments");
+            else if (!parameters.Ellipsis && Arguments.Count != parameters.Parameters.Count) throw new InvalidOperationException("Mismatched argument count");
 
-			builder.CurrentScope.ReserveFunctionCallSpace(FunctionType);
+			builder.CurrentScope.ReserveFunctionCallSpace(Arguments);
 
             var reservedParams = 0;
 			foreach (var i in Arguments)
@@ -52,14 +53,15 @@ namespace DankleC.ASTObjects.Expressions
             var offset = 0;
             for (int i = 0; i < Arguments.Count; i++)
             {
-                ptrs.Add(new PreArgumentPointer(offset, parameters.Parameters[i].Type.Size));
-                offset += parameters.Parameters[i].Type.Size;
-                if (i < reservedParams && i != Arguments.Count - 1) temps[i] = builder.CurrentScope.AllocTemp(parameters.Parameters[i].Type);
+                var type = i < parameters.Parameters.Count ? parameters.Parameters[i].Type : Arguments[i].Type;
+                ptrs.Add(new PreArgumentPointer(offset, type.Size));
+                offset += type.Size;
+                if (i < reservedParams && i != Arguments.Count - 1) temps[i] = builder.CurrentScope.AllocTemp(type);
             }
 
             for (int i = 0; i < Arguments.Count; i++)
             {
-                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], Arguments[i].Cast(parameters.Parameters[i].Type).Execute(builder)));
+                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], i < parameters.Parameters.Count ? Arguments[i].Cast(parameters.Parameters[i].Type).Execute(builder) : Arguments[i].Execute(builder)));
             }
 
             for (int i = 0; i < Arguments.Count; i++)

@@ -41,13 +41,13 @@ namespace DankleC.ASTObjects.Expressions
 			TypeSpecifier type;
 			if (ObeyPointers && left.Type is PointerTypeSpecifier lptr)
 			{
-				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction) || lptr.Inner.Size == 0) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size)).Resolve(builder), lptr);
+				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction)) throw new InvalidOperationException("Invalid operation with pointer");
+				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size == 0 ? 1 : lptr.Inner.Size)).Resolve(builder), lptr);
 			}
 			else if (ObeyPointers && right.Type is PointerTypeSpecifier rptr)
 			{
-				if (Op != ArithmeticOperation.Addition || rptr.Inner.Size == 0) throw new InvalidOperationException("Invalid operation with pointer");
-				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size)).Resolve(builder), Op, right, rptr);
+				if (Op != ArithmeticOperation.Addition) throw new InvalidOperationException("Invalid operation with pointer");
+				return new ResolvedArithmeticExpression(new ArithmeticExpression(left.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), rptr.Inner.Size == 0 ? 1 : rptr.Inner.Size)).Resolve(builder), Op, right, rptr);
 			}
 			else if (ObeyPointers && left.Type is ArrayTypeSpecifier larr)
 			{
@@ -61,6 +61,13 @@ namespace DankleC.ASTObjects.Expressions
 			}
 			else type = TypeSpecifier.GetOperationType(left.Type, right.Type);
 
+			if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
+			else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
+
+			left = left.Cast(type);
+			if (Op == ArithmeticOperation.LeftShift || Op == ArithmeticOperation.RightShift) right = right.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
+			else right = right.Cast(type);
+
 			if (left is ConstantExpression l && right is ConstantExpression r)
 			{
                 dynamic res = Op switch
@@ -73,20 +80,13 @@ namespace DankleC.ASTObjects.Expressions
 					ArithmeticOperation.InclusiveOr => (Int128)(dynamic)l.Value | (dynamic)r.Value,
 					ArithmeticOperation.ExclusiveOr => (Int128)(dynamic)l.Value ^ (dynamic)r.Value,
 					ArithmeticOperation.And => (Int128)(dynamic)l.Value & (dynamic)r.Value,
-					ArithmeticOperation.LeftShift => (Int128)(dynamic)l.Value >> (dynamic)r.Value,
+					ArithmeticOperation.LeftShift => (Int128)(dynamic)l.Value << (dynamic)r.Value,
 					ArithmeticOperation.RightShift => (Int128)(dynamic)l.Value >> (dynamic)r.Value,
 					_ => throw new NotImplementedException(),
                 };
 				
                 return new ConstantExpression(type, res);
 			}
-
-			if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
-			else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
-
-			left = left.Cast(type);
-			if (Op == ArithmeticOperation.LeftShift || Op == ArithmeticOperation.RightShift) right = right.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));
-			else right = right.Cast(type);
 
 			return new ResolvedArithmeticExpression(left, Op, right, type);
 		}

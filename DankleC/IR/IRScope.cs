@@ -51,10 +51,10 @@ namespace DankleC.IR
 			return variable;
 		}
 
-		public void ReserveFunctionCallSpace(FunctionTypeSpecifier func)
+		public void ReserveFunctionCallSpace(List<ResolvedExpression> p) // REMEMEMRMKEMRLJSJ
 		{
 			var stack = 0;
-			foreach (var i in func.Parameters.Parameters)
+			foreach (var i in p)
 			{
 				stack += i.Type.Size;
 			}
