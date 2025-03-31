@@ -100,12 +100,12 @@ namespace DankleC
 
 		#region Expressions
 
-		public static ConstantExpression GetSmallestConstantExpression(Int128 num)
+		public static ConstantExpression GetSmallestConstantExpression(Int128 num, bool isIntMin = true)
 		{
-			if (num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
-			else if (num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
-			else if (num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
-			else if (num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
+			if (!isIntMin && num >= sbyte.MinValue && num <= sbyte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), (sbyte)num);
+			else if (!isIntMin && num >= byte.MinValue && num <= byte.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), (byte)num);
+			else if (!isIntMin && num >= short.MinValue && num <= short.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedShort), (short)num);
+			else if (!isIntMin && num >= ushort.MinValue && num <= ushort.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort), (ushort)num);
 			else if (num >= int.MinValue && num <= int.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), (int)num);
 			else if (num >= uint.MinValue && num <= uint.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), (uint)num);
 			else if (num >= long.MinValue && num <= long.MaxValue) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), (long)num);
@@ -127,11 +127,7 @@ namespace DankleC
 
         public override IASTObject VisitConstantExpression([NotNull] CParser.ConstantExpressionContext context)
 		{
-			if (context.Constant() is ITerminalNode c)
-			{
-				var num = VisitInt(c);
-				return GetSmallestConstantExpression(num);
-			}
+			if (context.Constant() is ITerminalNode c) return VisitInt(c);
 			else
 			{
 				return new StringLiteralExpression(context.StringLiteral().GetText().Trim('"'), new PointerTypeSpecifier(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar) { IsConst = true }));
@@ -149,6 +145,7 @@ namespace DankleC
 			else if (context.And() is not null) return new RefExpression((UnresolvedLValue)Visit(context.castExpression()));
 			else if (context.Minus() is not null) return new ArithmeticExpression(new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedChar), 0), ArithmeticOperation.Subtraction, (IExpression)Visit(context.castExpression()));
 			else if (context.Not() is not null) return new NotExpression((IExpression)Visit(context.castExpression()));
+			else if (context.Tilde() is not null) return new BitwiseNotExpression((IExpression)Visit(context.castExpression()));
 			else if (context.type() is not null) return GetSmallestConstantExpression(Visit(context.type()).Size);
 			else if (context.Sizeof() is not null && context.unaryExpression() is not null) return new SizeofExpression((IExpression)Visit(context.unaryExpression()));
 			else throw new NotImplementedException();
@@ -398,13 +395,17 @@ namespace DankleC
 					if (def is not null) throw new InvalidOperationException("Cannot have multiple default blocks");
 					def = block;
 				}
-				else cases[VisitInt(i.Constant())] = block;
+				else cases[(Int128)VisitInt(i.Constant()).Value] = block;
 			}
 
 			return new SwitchStatement(expr, cases, def);
         }
 
-        public override IASTObject VisitStatement([NotNull] CParser.StatementContext context) => Visit(context.children[0]);
+		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context)
+		{
+			if (context.children[0].GetText() == ";") return new EmptyStatement();
+			return Visit(context.children[0]);
+		}
 
 		#endregion
 
@@ -490,28 +491,46 @@ namespace DankleC
 		public IExpression Visit(CParser.ExpressionContext context) => (IExpression)Visit((IParseTree)context);
 		public UnresolvedLValue Visit(CParser.LvalueContext context) => (UnresolvedLValue)Visit((IParseTree)context);
 		public Statement Visit(CParser.StatementContext context) => (Statement)Visit((IParseTree)context);
-		public static Int128 VisitInt(ITerminalNode node)
+		public static ConstantExpression VisitInt(ITerminalNode node)
 		{
-			var text = node.GetText();
+			var text = node.GetText().ToLower();
+			Int128 val;
 			if (text.StartsWith('\''))
 			{
 				text = Parser.ProcessString(text.Trim('\''));
 				if (text.Length != 1) throw new InvalidOperationException($"Invalid character literal \'{node.GetText()}\'");
-				return (Int128)Encoding.UTF8.GetBytes(text)[0];
+				val = (Int128)Encoding.UTF8.GetBytes(text)[0];
+				return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), val);
 			}
-			if (!text.Contains('.'))
-				{
-					if (text.StartsWith("0x")) return Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
-					else return Int128.Parse(text);
-				}
-				else throw new NotImplementedException();
+			else if (!text.Contains('.'))
+			{
+				bool unsigned = text.Contains('u');
+				bool isLong = text.Contains('l');
+
+				if (text.StartsWith("0x")) val = Int128.Parse(text.Replace("0x", "").Replace("u", "").Replace("l", ""), System.Globalization.NumberStyles.HexNumber);
+				else val = Int128.Parse(text);
+
+				if (unsigned && isLong) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), val);
+				else if (isLong) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedLong), val);
+				else if (unsigned) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedInt), val);
+				else return GetSmallestConstantExpression(val);
+			}
+			else throw new NotImplementedException();
 		}
 
 		public DeclaratorPair Visit(CParser.DeclaratorContext context, TypeSpecifier baseType)
 		{
 			DeclaratorPair pair;
-			if (context.Star() is null) pair = Visit(context.directDeclarator(), baseType);
-			else pair = Visit(context.directDeclarator(), new PointerTypeSpecifier(baseType));
+			if (context.Star().Length == 0) pair = Visit(context.directDeclarator(), baseType);
+			else
+			{
+				var t = new PointerTypeSpecifier(baseType);
+				for (int i = 0; i < context.Star().Length - 1; i++)
+				{
+					t = new PointerTypeSpecifier(t);
+				}
+				pair = Visit(context.directDeclarator(), t);
+			}
 			pair.Type.IsConst = context.Const() is not null;
 			return pair;
 		}
@@ -520,15 +539,22 @@ namespace DankleC
 		{
 			if (context.Identifier() is ITerminalNode name) return new(baseType, name.GetText());
 			else if (context.declarator() is CParser.DeclaratorContext decl) return Visit(decl, baseType);
-			else if (context.LeftBracket() is not null) return Visit(context.directDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant())));
+			else if (context.LeftBracket() is not null) return Visit(context.directDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant()).Value));
 			else return Visit(context.directDeclarator(), new FunctionTypeSpecifier(baseType, (ParameterList)Visit(context.parameterList())));
 		}
 
 		public TypeSpecifier Visit(CParser.AbstractDeclaratorContext context, TypeSpecifier baseType)
 		{
 			TypeSpecifier type;
-			if (context.Star() is null) type = baseType;
-			else type = new PointerTypeSpecifier(baseType);
+			if (context.Star().Length == 0) type = baseType;
+			else
+			{
+				type = new PointerTypeSpecifier(baseType);
+				for (int i = 0; i < context.Star().Length - 1; i++)
+				{
+					type = new PointerTypeSpecifier(type);
+				}
+			}
 
 			if (context.abstractDirectDeclarator() is CParser.AbstractDirectDeclaratorContext decl) type = Visit(decl, type);
 			type.IsConst = context.Const() is not null;
@@ -539,7 +565,7 @@ namespace DankleC
 		public TypeSpecifier Visit(CParser.AbstractDirectDeclaratorContext context, TypeSpecifier baseType)
 		{
 			if (context.abstractDeclarator() is CParser.AbstractDeclaratorContext decl) return Visit(decl, baseType);
-			else if (context.LeftBracket() is not null) return Visit(context.abstractDirectDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant())));
+			else if (context.LeftBracket() is not null) return Visit(context.abstractDirectDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant()).Value));
 			else return Visit(context.abstractDirectDeclarator(), new FunctionTypeSpecifier(baseType, (ParameterList)Visit(context.parameterList())));
 		}
 

@@ -170,6 +170,7 @@ namespace Dankle.Components.Instructions
 			Register<ArithmeticRightShift>();
 			Register<ArithmeticRightShift32>();
 			Register<ArithmeticRightShift64>();
+			Register<Not>();
 		}
 	}
 

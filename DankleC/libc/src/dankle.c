@@ -61,3 +61,8 @@ char* itoa(int num, char* str, short base)
 
     return str;
 }
+
+void _putchar(char character)
+{
+    WRITE_CHAR(character);
+}

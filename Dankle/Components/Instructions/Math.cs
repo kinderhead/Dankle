@@ -610,4 +610,20 @@ namespace Dankle.Components.Instructions
 			reg.Write((ushort)-(short)reg.Read());
 		}
 	}
+
+	public class Not : Instruction
+	{
+		public override ushort Opcode => 102;
+
+		public override Type[] Arguments => [typeof(Any16), typeof(Any16)];
+		public override string Name => "NOT";
+
+		protected override void Handle(Context ctx)
+		{
+			var arg = ctx.GetNextArg<Any16>();
+			var dest = ctx.GetNextArg<Any16>();
+
+			dest.Write((ushort)~arg.Read());
+		}
+	}
 }

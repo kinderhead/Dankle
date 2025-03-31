@@ -14,10 +14,10 @@ namespace DankleC.ASTObjects
 		public int ID { get; } = IDRandomizer.Next();
 
 #pragma warning disable CS8618
-        public IRScope Scope { get; internal set; }
+		public IRScope Scope { get; internal set; }
 #pragma warning restore CS8618
 
-        public abstract void BuildIR(IRBuilder builder, IRFunction func);
+		public abstract void BuildIR(IRBuilder builder, IRFunction func);
 
 		public static readonly Random IDRandomizer = new();
 	}
@@ -82,4 +82,12 @@ namespace DankleC.ASTObjects
 			else Scope.AllocLocal(Name, Type);
 		}
 	}
+
+    public class EmptyStatement : Statement
+    {
+        public override void BuildIR(IRBuilder builder, IRFunction func)
+        {
+            
+        }
+    }
 }

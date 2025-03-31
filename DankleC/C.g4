@@ -59,6 +59,7 @@ statement
     | whileStatement
     | forStatement
     | switchStatement
+    | Semi
     ;
 
 semiStatement
@@ -81,7 +82,7 @@ initDeclarator
     ;
 
 declarator
-    : (Star Const?)? directDeclarator
+    : (Star+ Const?)? directDeclarator
     ;
 
 directDeclarator
@@ -92,7 +93,7 @@ directDeclarator
     ;
 
 abstractDeclarator
-    : (Star Const?)? abstractDirectDeclarator?
+    : (Star+ Const?)? abstractDirectDeclarator?
     ;
 
 abstractDirectDeclarator
@@ -154,7 +155,7 @@ equalityExpression
     ;
 
 andExpression
-    : equalityExpression ('&' equalityExpression)*
+    : equalityExpression (And equalityExpression)*
     ;
 
 exclusiveOrExpression
@@ -201,7 +202,7 @@ castExpression
 
 unaryExpression
     : postfixExpression
-    | (And | Star | Minus | Not) castExpression
+    | (And | Star | Minus | Not | Tilde) castExpression
     | (PlusPlus | MinusMinus) unaryExpression
     | Sizeof ((LeftParen type RightParen) | unaryExpression)
     ;
@@ -784,9 +785,7 @@ fragment HexadecimalDigit
 
 fragment IntegerSuffix
     : UnsignedSuffix LongSuffix?
-    | UnsignedSuffix LongLongSuffix
     | LongSuffix UnsignedSuffix?
-    | LongLongSuffix UnsignedSuffix?
     ;
 
 fragment UnsignedSuffix
@@ -795,11 +794,6 @@ fragment UnsignedSuffix
 
 fragment LongSuffix
     : [lL]
-    ;
-
-fragment LongLongSuffix
-    : 'll'
-    | 'LL'
     ;
 
 fragment FloatingConstant

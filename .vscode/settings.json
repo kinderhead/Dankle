@@ -10,7 +10,8 @@
         "*.inc": "c",
         "stdarg.h": "c",
         "dankle.h": "c",
-        "stdint-gcc.h": "c"
+        "stdint-gcc.h": "c",
+        "cstdint": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

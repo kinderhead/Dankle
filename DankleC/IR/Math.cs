@@ -240,6 +240,17 @@ namespace DankleC.IR
 		}
 	}
 
+	public class IRNot(IValue val) : IRInsn
+	{
+		public readonly IValue Value = val;
+
+		public override void Compile(CodeGen gen)
+		{
+			var ret = GetReturn(Value.Type);
+			throw new NotImplementedException();
+		}
+	}
+
 	public class IRPostIncrement(IPointer ptr, TypeSpecifier type) : IRInsn
 	{
 		public readonly IPointer Pointer = ptr;

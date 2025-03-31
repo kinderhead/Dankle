@@ -129,8 +129,8 @@ namespace Dankle.Components
 
     public enum BitwiseOperation
     {
-		OR,
-		AND,
+        OR,
+        AND,
         XOR
 	}
 
