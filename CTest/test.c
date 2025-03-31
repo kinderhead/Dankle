@@ -10,11 +10,15 @@ void test(short x, ...)
 
     char str[10];
     println(itoa(y, &str, 10));
+    y = va_arg(list, int);
+    println(itoa(y, &str, 10));
+
+    va_end(list);
 }
 
 short main()
 {
-    test(0, 4535);
+    test(0, 4535, -34275);
 
     return 0;
 }

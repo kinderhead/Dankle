@@ -51,14 +51,9 @@ namespace DankleC.IR
 			return variable;
 		}
 
-		public void ReserveFunctionCallSpace(List<ResolvedExpression> p) // REMEMEMRMKEMRLJSJ
+		public void ReserveFunctionCallSpace(int size)
 		{
-			var stack = 0;
-			foreach (var i in p)
-			{
-				stack += i.Type.Size;
-			}
-			MaxFuncAllocStackUsed = Math.Max(stack, MaxFuncAllocStackUsed);
+			MaxFuncAllocStackUsed = Math.Max(size, MaxFuncAllocStackUsed);
 		}
 
 		public TempStackVariable AllocTemp(TypeSpecifier type)

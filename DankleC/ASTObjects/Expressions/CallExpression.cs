@@ -36,8 +36,6 @@ namespace DankleC.ASTObjects.Expressions
             if (parameters.Ellipsis && Arguments.Count < parameters.Parameters.Count) throw new InvalidOperationException("Not enough arguments");
             else if (!parameters.Ellipsis && Arguments.Count != parameters.Parameters.Count) throw new InvalidOperationException("Mismatched argument count");
 
-			builder.CurrentScope.ReserveFunctionCallSpace(Arguments);
-
             var reservedParams = 0;
 			foreach (var i in Arguments)
 			{
@@ -48,20 +46,27 @@ namespace DankleC.ASTObjects.Expressions
 			}
 
 			var ptrs = new List<PreArgumentPointer>();
+            var types = new List<TypeSpecifier>();
             var temps = new TempStackVariable?[Arguments.Count];
 
             var offset = 0;
             for (int i = 0; i < Arguments.Count; i++)
             {
-                var type = i < parameters.Parameters.Count ? parameters.Parameters[i].Type : Arguments[i].Type;
+                var type = Arguments[i].Type;
+                if (i < parameters.Parameters.Count) type = parameters.Parameters[i].Type;
+                else if (type.IsNumber() && type.Size < 4) type = new BuiltinTypeSpecifier(BuiltinType.SignedInt);
+
                 ptrs.Add(new PreArgumentPointer(offset, type.Size));
+                types.Add(type);
                 offset += type.Size;
                 if (i < reservedParams && i != Arguments.Count - 1) temps[i] = builder.CurrentScope.AllocTemp(type);
             }
 
+            builder.CurrentScope.ReserveFunctionCallSpace(offset);
+
             for (int i = 0; i < Arguments.Count; i++)
             {
-                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], i < parameters.Parameters.Count ? Arguments[i].Cast(parameters.Parameters[i].Type).Execute(builder) : Arguments[i].Execute(builder)));
+                builder.Add(new IRStorePtr(temps[i] is TempStackVariable v ? v.Pointer : ptrs[i], Arguments[i].Cast(types[i]).Execute(builder)));
             }
 
             for (int i = 0; i < Arguments.Count; i++)

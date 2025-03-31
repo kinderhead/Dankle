@@ -9,7 +9,8 @@
         "numeric": "c",
         "*.inc": "c",
         "stdarg.h": "c",
-        "dankle.h": "c"
+        "dankle.h": "c",
+        "stdint-gcc.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }
