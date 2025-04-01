@@ -291,6 +291,29 @@ short main()
 		[TestMethod, TestCategory("Math")]
 		public void ULongNegate() => CTestHelper.TestNegate<ulong>();
 
+		[TestMethod, TestCategory("Math")]
+		public void CharBitwiseNot() => CTestHelper.TestBitwiseNot<sbyte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void UCharBitwiseNot() => CTestHelper.TestBitwiseNot<byte>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ShortBitwiseNot() => CTestHelper.TestBitwiseNot<short>();
+
+		[TestMethod, TestCategory("Math")]
+		public void UShortBitwiseNot() => CTestHelper.TestBitwiseNot<ushort>();
+
+		[TestMethod, TestCategory("Math")]
+		public void IntBitwiseNot() => CTestHelper.TestBitwiseNot<int>();
+
+		[TestMethod, TestCategory("Math")]
+		public void UIntBitwiseNot() => CTestHelper.TestBitwiseNot<uint>();
+
+		[TestMethod, TestCategory("Math")]
+		public void LongBitwiseNot() => CTestHelper.TestBitwiseNot<long>();
+
+		[TestMethod, TestCategory("Math")]
+		public void ULongBitwiseNot() => CTestHelper.TestBitwiseNot<ulong>();
 
 		[TestMethod]
 		[TestCategory("Math")]

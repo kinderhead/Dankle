@@ -247,7 +247,17 @@ namespace DankleC.IR
 		public override void Compile(CodeGen gen)
 		{
 			var ret = GetReturn(Value.Type);
-			throw new NotImplementedException();
+			
+			if (Value.Type.Size == 1)
+			{
+				Add(CGInsn.Build<Not>(Value.MakeArg(), ret.MakeArg()));
+				return;
+			}
+
+			for (int i = Value.Type.Size - 2; i >= 0; i -= 2)
+			{
+				Add(CGInsn.Build<Not>(Value.MakeArg(i / 2), ret.MakeArg(i / 2)));
+			}
 		}
 	}
 

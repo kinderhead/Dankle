@@ -22,6 +22,10 @@ namespace DankleC.ASTObjects.Expressions
             if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
             else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 
+            expr.Cast(type);
+
+            if (expr is ConstantExpression c) return new ConstantExpression(type, ~(dynamic)c.Value);
+
             return new ResolvedBitwiseNotExpression(expr, type);
         }
     }
@@ -35,7 +39,9 @@ namespace DankleC.ASTObjects.Expressions
 
         public override IValue Execute(IRBuilder builder)
         {
-            throw new NotImplementedException();
+            var val = Expression.Execute(builder);
+            builder.Add(new IRNot(val));
+            return ReturnValue(builder);
         }
 
         public override void Walk(Action<ResolvedExpression> cb)

@@ -395,7 +395,7 @@ namespace DankleC
 					if (def is not null) throw new InvalidOperationException("Cannot have multiple default blocks");
 					def = block;
 				}
-				else cases[(Int128)VisitInt(i.Constant()).Value] = block;
+				else cases[(Int128)(dynamic)VisitInt(i.Constant()).Value] = block;
 			}
 
 			return new SwitchStatement(expr, cases, def);

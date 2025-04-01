@@ -526,6 +526,30 @@ short main()
 			Assert.AreEqual(x == T.Zero ? T.One : T.Zero, c.GetVariable<T>("y"));
 		}
 
+		public static void TestBitwiseNot<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			TestBitwiseNot(T.MaxValue / T.CreateTruncating(4) * T.CreateTruncating(3));
+			TestBitwiseNot(T.Zero);
+			TestBitwiseNot(T.AllBitsSet);
+		}
+
+		public static void TestBitwiseNot<T>(T x) where T : IBinaryInteger<T>, IMinMaxValue<T>
+		{
+			var type = CUtils.NumberTypeToString<T>();
+
+			using var c = new CTestHelper(@$"
+short main()
+{{
+    {type} x = {x};
+	{type} y = ~x;
+    return 0;
+}}
+");
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual(x, c.GetVariable<T>("x"));
+			Assert.AreEqual(~x, c.GetVariable<T>("y"));
+		}
+
 		public static void TestSimpleFunction<T>() where T : IBinaryInteger<T>, IMinMaxValue<T>
 		{
 			var type = CUtils.NumberTypeToString<T>();
