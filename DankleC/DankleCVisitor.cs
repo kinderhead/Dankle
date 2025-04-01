@@ -507,7 +507,9 @@ namespace DankleC
 				bool unsigned = text.Contains('u');
 				bool isLong = text.Contains('l');
 
-				if (text.StartsWith("0x")) val = Int128.Parse(text.Replace("0x", "").Replace("u", "").Replace("l", ""), System.Globalization.NumberStyles.HexNumber);
+				text = text.Replace("u", "").Replace("l", "");
+
+				if (text.StartsWith("0x")) val = Int128.Parse(text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
 				else val = Int128.Parse(text);
 
 				if (unsigned && isLong) return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedLong), val);

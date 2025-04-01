@@ -12,7 +12,7 @@ namespace DankleC.ASTObjects.Expressions
         {
             var first = First.Resolve(builder);
             var second = Second.Resolve(builder);
-            return new ResolvedCommaExpression(first, second, first.Type);
+            return new ResolvedCommaExpression(first, second, second.Type);
         }
     }
 
@@ -27,7 +27,7 @@ namespace DankleC.ASTObjects.Expressions
         public override IValue Execute(IRBuilder builder)
         {
             First.Standalone().Execute(builder);
-            return Second.Cast(Type).Execute(builder);
+            return Second.Execute(builder);
         }
 
         public override void Walk(Action<ResolvedExpression> cb)

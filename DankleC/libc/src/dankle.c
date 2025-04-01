@@ -10,10 +10,10 @@ void println(const char* txt)
     WRITE_CHAR('\n');
 }
 
-static void reverse(char* str, short length)
+static void reverse(char* str, int length)
 {
-    short start = 0;
-    short end = length - 1;
+    int start = 0;
+    int end = length - 1;
     while (start < end)
     {
         char temp = str[start];
@@ -25,9 +25,9 @@ static void reverse(char* str, short length)
 }
 
 // https://www.geeksforgeeks.org/implement-itoa/
-char* itoa(int num, char* str, short base)
+char* itoa(int num, char* str, int base)
 {
-    short i = 0;
+    int i = 0;
     bool isNegative = false;
 
     if (num == 0)
@@ -45,7 +45,7 @@ char* itoa(int num, char* str, short base)
 
     while (num != 0)
     {
-        short rem = num % base;
+        int rem = num % base;
         str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
         num = num / base;
     }

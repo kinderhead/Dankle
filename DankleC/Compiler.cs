@@ -72,7 +72,7 @@ namespace DankleC
         {
             var libc = new List<string>();
 
-            foreach (var i in new List<string> { "dankle.c" })
+            foreach (var i in new List<string> { "dankle.c", "printf.c" })
             {
                 libc.Add(new Compiler().ReadFileAndPreprocess(Path.Join(GetExecutableFolder(), "libc", "src", i)).Compile());
             }
