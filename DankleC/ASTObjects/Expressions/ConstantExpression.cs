@@ -20,6 +20,7 @@ namespace DankleC.ASTObjects.Expressions
 		}
 
 		protected override ResolvedExpression AsCasted(TypeSpecifier type) => ChangeType(type);
+		public bool IsTrue => (dynamic)Value == 0;
 
 		public override IValue Execute(IRBuilder builder)
 		{
@@ -84,13 +85,14 @@ namespace DankleC.ASTObjects.Expressions
 
 		public override void Conditional(IRBuilder builder, bool negate = false)
 		{
-			var cond = (dynamic)Value != 0;
-			if (negate) cond = !cond;
+			throw new NotImplementedException("Caller does not handle constant conditionals");
+			// var cond = (dynamic)Value != 0;
+			// if (negate) cond = !cond;
 
-			// TODO: Maybe do this better
-			if (cond) builder.Add(new IREq(new Immediate(1, BuiltinType.UnsignedChar), new Immediate(1, BuiltinType.UnsignedChar), false));
-			else builder.Add(new IREq(new Immediate(0, BuiltinType.UnsignedChar), new Immediate(1, BuiltinType.UnsignedChar), false));
-        }
+			// // TODO: Maybe do this better
+			// if (cond) builder.Add(new IREq(new Immediate(1, BuiltinType.UnsignedChar), new Immediate(1, BuiltinType.UnsignedChar), false));
+			// else builder.Add(new IREq(new Immediate(0, BuiltinType.UnsignedChar), new Immediate(1, BuiltinType.UnsignedChar), false));
+		}
 
 		public override void Walk(Action<ResolvedExpression> cb)
 		{

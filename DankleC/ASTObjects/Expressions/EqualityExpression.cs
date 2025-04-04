@@ -78,29 +78,44 @@ namespace DankleC.ASTObjects.Expressions
 
         private void Compare(IRBuilder builder, EqualityOperation op, bool ret)
         {
+            var left = Left.Execute(builder);
+            TempStackVariable? save = null;
+
+            if (left is SimpleRegisterValue && !Right.IsSimpleExpression)
+            {
+                save = builder.CurrentScope.AllocTemp(Type);
+                save.Store(builder, left);
+            }
+
+            var right = Right.Execute(builder);
+
+            if (save is not null) left = save;
+
             switch (op)
             {
                 case EqualityOperation.Equals:
-                    builder.Add(new IREq(Left.Execute(builder), Right.Execute(builder), ret));
+                    builder.Add(new IREq(left, right, ret));
                     break;
                 case EqualityOperation.NotEquals:
-                    builder.Add(new IRNeq(Left.Execute(builder), Right.Execute(builder), ret));
+                    builder.Add(new IRNeq(left, right, ret));
                     break;
                 case EqualityOperation.LessThan:
-                    builder.Add(new IRLt(Left.Execute(builder), Right.Execute(builder), ret));
+                    builder.Add(new IRLt(left, right, ret));
                     break;
                 case EqualityOperation.LessThanOrEqual:
-                    builder.Add(new IRLte(Left.Execute(builder), Right.Execute(builder), ret));
+                    builder.Add(new IRLte(left, right, ret));
                     break;
                 case EqualityOperation.GreaterThan:
-                    builder.Add(new IRGt(Left.Execute(builder), Right.Execute(builder), ret));
+                    builder.Add(new IRGt(left, right, ret));
                     break;
                 case EqualityOperation.GreaterThanOrEqual:
-                    builder.Add(new IRGte(Left.Execute(builder), Right.Execute(builder), ret));
+                    builder.Add(new IRGte(left, right, ret));
                     break;
                 default:
                     throw new NotImplementedException();
             }
+            
+            save?.Dispose();
         }
 
         public static EqualityOperation Invert(EqualityOperation op) => op switch

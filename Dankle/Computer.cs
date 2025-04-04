@@ -31,7 +31,7 @@ namespace Dankle
 		public Computer(uint memSize)
 		{
 			MemorySize = memSize;
-			AddMemoryMapEntry(new RAM(memSize));
+			AddMemoryMapEntry(new RAM(0, memSize));
 			AddComponent<CPUCore>();
 			MainCore = GetComponent<CPUCore>();
 		}

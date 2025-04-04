@@ -28,13 +28,13 @@ namespace Dankle
 		public abstract void Write(uint addr, byte[] data);
 	}
 
-	public class RAM(uint end) : MemoryMapEntry
+	public class RAM(uint start, uint end) : MemoryMapEntry
 	{
-		public override uint StartAddr => 0;
+		public override uint StartAddr => start;
 
 		public override uint EndAddr => end;
 
-		private readonly byte[] Memory = new byte[end];
+		private readonly byte[] Memory = new byte[end - start];
 		private readonly Lock MemoryLock = new();
 
 		public override byte[] Read(uint addr, uint size)
@@ -42,7 +42,7 @@ namespace Dankle
 			var data = new byte[size];
 			lock (MemoryLock)
 			{
-				Array.Copy(Memory, addr, data, 0, size);
+				Array.Copy(Memory, addr - StartAddr, data, 0, size);
 			}
 			return data;
 		}
@@ -51,7 +51,7 @@ namespace Dankle
 		{
 			lock (MemoryLock)
 			{
-				data.CopyTo(Memory, addr);
+				data.CopyTo(Memory, addr - StartAddr);
 			}
 		}
 	}

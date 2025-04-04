@@ -28,6 +28,7 @@ namespace DankleTest
 			Computer = new Computer(0xF0000u);
 			Computer.AddComponent<Terminal>(0xFFFFFFF0u, Output);
 			Computer.AddComponent<Debugger>(0xFFFFFFF2u);
+			Computer.AddMemoryMapEntry(new RAM(0xFFFF0000, 0xFFFFA000)); // Stack
 
 			Linker = new Linker([File.ReadAllText("cmain.asm"), Compiler.GenAssembly(), ..libc ? Compiler.CompileLibC() : []]);
 			Computer.WriteMem(0x10000u, Linker.AssembleAndLink(0x10000u, Computer));

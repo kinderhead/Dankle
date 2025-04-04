@@ -22,7 +22,9 @@ namespace Dankle.Components
 		public readonly ALU ALU;
 
 		public uint ProgramCounter { get => Utils.Merge(Registers[14], Registers[15]); set { Registers[14] = (ushort)(value >>> 16); Registers[15] = (ushort)value; } }
-		public uint StackPointer { get => Utils.Merge(Registers[12], Registers[13]); set { Registers[12] = (ushort)(value >>> 16); Registers[13] = (ushort)value; } }
+		public uint StackPointer { get => Utils.Merge(Registers[12], Registers[13]); set { Registers[12] = (ushort)(value >>> 16); Registers[13] = (ushort)value; LowestSP = Math.Min(value, LowestSP); } }
+
+		public uint LowestSP { get; private set; } = uint.MaxValue;
 
 		public bool ShouldStep = false;
 

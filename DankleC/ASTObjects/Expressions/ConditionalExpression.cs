@@ -37,18 +37,26 @@ namespace DankleC.ASTObjects.Expressions
 
         public override IValue Execute(IRBuilder builder)
         {
-            var falseLabel = new IRLogicLabel();
-            var trueLabel = new IRLogicLabel();
+            if (Condition is ConstantExpression c)
+            {
+                if (c.IsTrue) return True.Execute(builder);
+                else return False.Execute(builder);
+            }
+            else
+            {
+                var falseLabel = new IRLogicLabel();
+                var trueLabel = new IRLogicLabel();
 
-            Condition.Resolve(builder).Conditional(builder);
-            builder.Add(new IRJumpNeq(falseLabel));
-            True.Execute(builder);
-            builder.Add(new IRJump(trueLabel));
-            builder.Add(falseLabel);
-            False.Execute(builder);
-            builder.Add(trueLabel);
+                Condition.Conditional(builder);
+                builder.Add(new IRJumpNeq(falseLabel));
+                True.Execute(builder);
+                builder.Add(new IRJump(trueLabel));
+                builder.Add(falseLabel);
+                False.Execute(builder);
+                builder.Add(trueLabel);
 
-            return ReturnValue(builder);
+                return ReturnValue(builder);
+            }
         }
 
         public override void Walk(Action<ResolvedExpression> cb)
