@@ -54,6 +54,8 @@ namespace DankleC.ASTObjects
 			return base.GetHashCode();
 		}
 
+		public override string ToString() => GetName();
+
 		public static TypeSpecifier GetBigger(TypeSpecifier a, TypeSpecifier b) => a.Size >= b.Size ? a : b;
 
 		public static BuiltinTypeSpecifier GetGenericForSize(int size) => size switch
@@ -202,7 +204,7 @@ namespace DankleC.ASTObjects
 		public readonly TypeSpecifier ReturnType;
 		public readonly ParameterList Parameters;
 
-		public override TypeSpecifier Innermost => this;
+		public override TypeSpecifier Innermost => ReturnType.Innermost;
 
 		public FunctionTypeSpecifier(TypeSpecifier ret, ParameterList parameters) : base()
 		{

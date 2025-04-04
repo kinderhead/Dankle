@@ -82,6 +82,16 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new NotImplementedException();
 		}
 
+		public override void Conditional(IRBuilder builder, bool negate = false)
+		{
+			var cond = (dynamic)Value != 0;
+			if (negate) cond = !cond;
+
+			// TODO: Maybe do this better
+			if (cond) builder.Add(new IREq(new Immediate(1, BuiltinType.UnsignedChar), new Immediate(1, BuiltinType.UnsignedChar), false));
+			else builder.Add(new IREq(new Immediate(0, BuiltinType.UnsignedChar), new Immediate(1, BuiltinType.UnsignedChar), false));
+        }
+
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
 			cb(this);

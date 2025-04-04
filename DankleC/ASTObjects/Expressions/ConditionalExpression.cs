@@ -21,7 +21,7 @@ namespace DankleC.ASTObjects.Expressions
             else if (t.Type.IsNumber() && f.Type.IsNumber()) type = TypeSpecifier.GetOperationType(t.Type, f.Type);
             else throw new InvalidOperationException();
 
-            return new ResolvedConditionalExpression(cond, t, f, type);
+            return new ResolvedConditionalExpression(cond, t.Cast(type), f.Cast(type), type);
         }
     }
 

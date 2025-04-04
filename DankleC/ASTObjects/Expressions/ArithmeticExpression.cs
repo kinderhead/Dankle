@@ -36,10 +36,15 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			var left = Left.Resolve(builder);
 			var right = Right.Resolve(builder);
-			if (!left.Type.IsNumber() || !right.Type.IsNumber() || ((left.Type is PointerTypeSpecifier || left.Type is ArrayTypeSpecifier) && (right.Type is PointerTypeSpecifier || right.Type is ArrayTypeSpecifier))) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
+			if (!left.Type.IsNumber() || !right.Type.IsNumber()) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
 
 			TypeSpecifier type;
-			if (ObeyPointers && left.Type is PointerTypeSpecifier lptr)
+
+			if ((left.Type is PointerTypeSpecifier || left.Type is ArrayTypeSpecifier) && (right.Type is PointerTypeSpecifier || right.Type is ArrayTypeSpecifier))
+			{
+				type = new BuiltinTypeSpecifier(BuiltinType.SignedInt);
+			}
+			else if (ObeyPointers && left.Type is PointerTypeSpecifier lptr)
 			{
 				if (!(Op == ArithmeticOperation.Addition || Op == ArithmeticOperation.Subtraction)) throw new InvalidOperationException("Invalid operation with pointer");
 				return new ResolvedArithmeticExpression(left, Op, new ArithmeticExpression(right.Cast(new BuiltinTypeSpecifier(BuiltinType.SignedInt)), ArithmeticOperation.Multiplication, new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.SignedInt), lptr.Inner.Size == 0 ? 1 : lptr.Inner.Size)).Resolve(builder), lptr);
@@ -80,8 +85,8 @@ namespace DankleC.ASTObjects.Expressions
 					ArithmeticOperation.InclusiveOr => (Int128)(dynamic)l.Value | (dynamic)r.Value,
 					ArithmeticOperation.ExclusiveOr => (Int128)(dynamic)l.Value ^ (dynamic)r.Value,
 					ArithmeticOperation.And => (Int128)(dynamic)l.Value & (dynamic)r.Value,
-					ArithmeticOperation.LeftShift => (Int128)(dynamic)l.Value << (dynamic)r.Value,
-					ArithmeticOperation.RightShift => (Int128)(dynamic)l.Value >> (dynamic)r.Value,
+					ArithmeticOperation.LeftShift => (Int128)(dynamic)l.Value << (int)(dynamic)r.Value,
+					ArithmeticOperation.RightShift => (Int128)(dynamic)l.Value >> (int)(dynamic)r.Value,
 					_ => throw new NotImplementedException(),
                 };
 				

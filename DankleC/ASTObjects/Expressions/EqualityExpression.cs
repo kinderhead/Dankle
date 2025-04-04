@@ -23,7 +23,7 @@ namespace DankleC.ASTObjects.Expressions
 		{
             var left = Left.Resolve(builder);
 			var right = Right.Resolve(builder);
-			if (!left.Type.IsNumber() || !right.Type.IsNumber() || left.Type is PointerTypeSpecifier || right.Type is PointerTypeSpecifier) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
+			if (!left.Type.IsNumber() || !right.Type.IsNumber()) throw new InvalidOperationException($"Cannot perform arithmetic between {left.Type} and {right.Type}");
 
             var type = TypeSpecifier.GetOperationType(left.Type, right.Type);
 
@@ -40,7 +40,7 @@ namespace DankleC.ASTObjects.Expressions
 					_ => throw new NotImplementedException(),
                 };
 
-                return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), res);
+                return new ConstantExpression(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar), res ? 1 : 0);
             }
 
             //if (type.Size == 1 && type.IsSigned() && Op != EqualityOperation.Equals && Op != EqualityOperation.NotEquals) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);

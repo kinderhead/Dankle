@@ -180,7 +180,7 @@ namespace Dankle.Components
 					{
 						if (i.Value <= addr)
 						{
-							symbol = $" ({i.Key}+0x{(addr - i.Value):X8})";
+							symbol = $" ({i.Key}+0x{addr - i.Value:X8})";
 							break;
 						}
 					}

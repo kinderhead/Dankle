@@ -22,7 +22,7 @@ namespace DankleC.ASTObjects.Expressions
             if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
             else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 
-            expr.Cast(type);
+            expr = expr.Cast(type);
 
             if (expr is ConstantExpression c) return new ConstantExpression(type, ~(dynamic)c.Value);
 

@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 #include "printf.h"
+#include "dankle.h"
 
 
 // define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
@@ -290,8 +291,9 @@ static size_t _ntoa_long(out_fct_type out, char* buffer, size_t idx, size_t maxl
 
   // write if precision != 0 and value is != 0
   if (!(flags & FLAGS_PRECISION) || value) {
-    do {
-      const char digit = (char)(value % base);
+    do
+    {
+      const char digit = (char) (value % base);
       buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit - 10;
       value /= base;
     } while (value && (len < PRINTF_NTOA_BUFFER_SIZE));
@@ -600,7 +602,8 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
     // evaluate flags
     flags = 0U;
-    do {
+    do
+    {
       switch (*format) {
         case '0': flags |= FLAGS_ZEROPAD; format++; n = 1U; break;
         case '-': flags |= FLAGS_LEFT;    format++; n = 1U; break;
@@ -731,9 +734,10 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
             const long value = va_arg(va, long);
             idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned long)(value > 0 ? value : 0 - value), value < 0, base, precision, width, flags);
           }
-          else {
+          else
+          {
             const int value = (flags & FLAGS_CHAR) ? (char)va_arg(va, int) : (flags & FLAGS_SHORT) ? (short int)va_arg(va, int) : va_arg(va, int);
-            idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned int)(value > 0 ? value : 0 - value), value < 0, base, precision, width, flags);
+            idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned int) (value > 0 ? value : 0 - value), value < 0, base, precision, width, flags);
           }
         }
         else {

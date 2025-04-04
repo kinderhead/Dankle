@@ -15,13 +15,15 @@ namespace DankleC
             var compiler = new Compiler();
 			var asm = compiler.ReadFileAndPreprocess("../../../../CTest/test.c").GenAST().GenIR().GenAssembly();
 
-			Console.WriteLine(asm + "\n-----------------------------");
-
 			var computer = new Computer(0xF0000u);
 			computer.AddComponent<Terminal>(0xFFFFFFF0u);
 			computer.AddComponent<Debugger>(0xFFFFFFF2u);
 
-			var linker = new Linker([File.ReadAllText("cmain.asm"), asm, ..Compiler.CompileLibC()]);
+			var libc = Compiler.CompileLibC();
+			var linker = new Linker([File.ReadAllText("cmain.asm"), asm, ..libc]);
+
+			Console.WriteLine(asm + "\n" + libc[1] + "\n-----------------------------");
+
 			computer.WriteMem(0x10000u, linker.AssembleAndLink(0x10000u, computer));
 			computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["cmain"];
 

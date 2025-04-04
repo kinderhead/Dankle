@@ -11,7 +11,8 @@
         "stdarg.h": "c",
         "dankle.h": "c",
         "stdint-gcc.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "random": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

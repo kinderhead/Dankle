@@ -24,23 +24,23 @@ namespace Assembler
 
         protected override void GenerateTokenMap()
 		{
-			TokenMap[Token.Type.Comment] = new(@"^;.*\n?");
-			TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+");
-			TokenMap[Token.Type.Newline] = new(@"^\n+");
-			TokenMap[Token.Type.Register] = new(@"^r([0-9]|1[0-5])\b");
-			TokenMap[Token.Type.Integer] = new(@"^((0[bB][01]+)|(0[xX][0-9a-fA-F]+)|\d+)");
-			TokenMap[Token.Type.Export] = new(@"^export");
-			TokenMap[Token.Type.Import] = new(@"^import");
-			TokenMap[Token.Type.Label] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$#]*:");
-			TokenMap[Token.Type.Text] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$#]*");
-			TokenMap[Token.Type.Comma] = new(@"^,");
-			TokenMap[Token.Type.OSquareBracket] = new(@"^\[");
-			TokenMap[Token.Type.CSquareBracket] = new(@"^\]");
-			TokenMap[Token.Type.OParen] = new(@"^\(");
-			TokenMap[Token.Type.CParen] = new(@"^\)");
-			TokenMap[Token.Type.Plus] = new(@"^\+");
-			TokenMap[Token.Type.Minus] = new(@"^\-");
-			TokenMap[Token.Type.String] = new(@"^""[^""]+""");
+			TokenMap[Token.Type.Comment] = new(@"^;.*\n?", RegexOptions.Compiled);
+			TokenMap[Token.Type.Whitespace] = new(@"^( |\t|\r)+", RegexOptions.Compiled);
+			TokenMap[Token.Type.Newline] = new(@"^\n+", RegexOptions.Compiled);
+			TokenMap[Token.Type.Register] = new(@"^r([0-9]|1[0-5])\b", RegexOptions.Compiled);
+			TokenMap[Token.Type.Integer] = new(@"^((0[bB][01]+)|(0[xX][0-9a-fA-F]+)|\d+)", RegexOptions.Compiled);
+			TokenMap[Token.Type.Export] = new(@"^export", RegexOptions.Compiled);
+			TokenMap[Token.Type.Import] = new(@"^import", RegexOptions.Compiled);
+			TokenMap[Token.Type.Label] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$#]*:", RegexOptions.Compiled);
+			TokenMap[Token.Type.Text] = new(@"^[a-zA-Z_$][a-zA-Z0-9_$#]*", RegexOptions.Compiled);
+			TokenMap[Token.Type.Comma] = new(@"^,", RegexOptions.Compiled);
+			TokenMap[Token.Type.OSquareBracket] = new(@"^\[", RegexOptions.Compiled);
+			TokenMap[Token.Type.CSquareBracket] = new(@"^\]", RegexOptions.Compiled);
+			TokenMap[Token.Type.OParen] = new(@"^\(", RegexOptions.Compiled);
+			TokenMap[Token.Type.CParen] = new(@"^\)", RegexOptions.Compiled);
+			TokenMap[Token.Type.Plus] = new(@"^\+", RegexOptions.Compiled);
+			TokenMap[Token.Type.Minus] = new(@"^\-", RegexOptions.Compiled);
+			TokenMap[Token.Type.String] = new(@"^""[^""]+""", RegexOptions.Compiled);
 		}
 
 		public override Token MakeToken(Token.Type symbol, int index, string text, int line, int column) => new(symbol, index, text, line, column);

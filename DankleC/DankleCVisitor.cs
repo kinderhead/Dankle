@@ -541,7 +541,7 @@ namespace DankleC
 		{
 			if (context.Identifier() is ITerminalNode name) return new(baseType, name.GetText());
 			else if (context.declarator() is CParser.DeclaratorContext decl) return Visit(decl, baseType);
-			else if (context.LeftBracket() is not null) return Visit(context.directDeclarator(), new ArrayTypeSpecifier(baseType, (int)VisitInt(context.Constant()).Value));
+			else if (context.LeftBracket() is not null) return Visit(context.directDeclarator(), new ArrayTypeSpecifier(baseType, (int)(dynamic)VisitInt(context.Constant()).Value));
 			else return Visit(context.directDeclarator(), new FunctionTypeSpecifier(baseType, (ParameterList)Visit(context.parameterList())));
 		}
 

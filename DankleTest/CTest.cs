@@ -1058,6 +1058,24 @@ short main()
 
 		[TestMethod]
 		[TestCategory("StandardLibrary")]
+		public void Printf()
+		{
+			using var c = new CTestHelper(@"
+#include <printf.h>
+
+short main()
+{
+    printf(""Test %d, %d, %s\n"", 69, -2414, ""WAHOOOOOOOO!!"");
+
+    return 0;
+}
+", true);
+			c.RunUntil<ReturnStatement>();
+			Assert.AreEqual("Test 69, -2414, WAHOOOOOOOO!!\n", c.Output.ToString());
+		}
+
+		[TestMethod]
+		[TestCategory("StandardLibrary")]
 		public void Itoa()
 		{
 			using var c = new CTestHelper(@"
