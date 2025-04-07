@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Assembler
@@ -7,7 +8,7 @@ namespace Assembler
     {
         public string Input { get; protected set; }
 
-        protected readonly OrderedDictionary<TType, Regex> TokenMap = [];
+        protected readonly OrderedDictionary<TType, TokenParser> TokenMap = [];
         private int Index;
 
         public BaseTokenizer(string input)
@@ -22,21 +23,36 @@ namespace Assembler
 
 			while (Index < Input.Length)
 			{
-				var possibleTokens = new List<TToken>();
-				foreach (var i in TokenMap)
+				var loc = GetLineAndColumn(Index);
+
+				List<KeyValuePair<TType, TokenParser>> possibilities = [.. TokenMap];
+				Dictionary<TType, string> parsed = [];
+
+				var i = Index;
+				var soFar = new StringBuilder();
+				while (possibilities.Count != 0)
 				{
-					var match = i.Value.Match(Input[Index..]);
-					if (match.Success)
+					for (var idex = 0; idex < possibilities.Count; idex++)
 					{
-						var loc = GetLineAndColumn(Index);
-						possibleTokens.Add(MakeToken(i.Key, Index, match.Value, loc.Item1, loc.Item2));
+						if (i >= Input.Length || !possibilities[idex].Value.IsValid(soFar, Input[i]))
+						{
+							if (possibilities[idex].Value.IsValidWhenFinished(soFar)) parsed[possibilities[idex].Key] = soFar.ToString();
+							possibilities.RemoveAt(idex);
+							idex--;
+						}
+					}
+
+					if (possibilities.Count != 0)
+					{
+						soFar.Append(Input[i]);
+						i++;
 					}
 				}
 
-				if (possibleTokens.Count == 0) throw new Exception($"Invalid symbol at {GetLineAndColumn(Index)}: {Input[Index]}");
+				var biggest = parsed.MaxBy(e => e.Value.Length);
+				if (biggest.Value.Length == 0) throw new Exception($"Invalid symbol at {loc}: {Input[Index]}");
 
-				var tk = possibleTokens.MaxBy(i => i.Text.Length);
-                if (tk is null) continue;
+				var tk = MakeToken(biggest.Key, Index, biggest.Value, loc.Item1, loc.Item2);
 
 				if (KeepToken(tk)) tokens.Add(tk);
 				Index += tk.Text.Length;
