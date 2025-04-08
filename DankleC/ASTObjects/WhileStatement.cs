@@ -1,4 +1,5 @@
 using System;
+using DankleC.ASTObjects.Expressions;
 using DankleC.IR;
 
 namespace DankleC.ASTObjects
@@ -14,6 +15,8 @@ namespace DankleC.ASTObjects
             var done = new IRLogicLabel();
             var loop = new IRLogicLabel();
 
+            var expr = Expression.Resolve(builder);
+
             if (DoWhile)
             {
                 var cont = new IRLogicLabel();
@@ -23,7 +26,7 @@ namespace DankleC.ASTObjects
                     builder.Add(loop);
                     builder.ProcessStatement(Statement, func, Scope);
                     builder.Add(cont);
-                    Expression.Resolve(builder).Conditional(builder);
+                    expr.Conditional(builder);
                     builder.Add(new IRJumpEq(loop));
                     builder.Add(done);
                 }, cont, done);
@@ -33,8 +36,11 @@ namespace DankleC.ASTObjects
                 builder.CurrentScope.SubScope(() =>
                 {
                     builder.Add(loop);
-                    Expression.Resolve(builder).Conditional(builder);
-                    builder.Add(new IRJumpNeq(done));
+                    if (expr is not ConstantExpression c)
+                    {
+                        expr.Conditional(builder);
+                        builder.Add(new IRJumpNeq(done));
+                    }
                     builder.ProcessStatement(Statement, func, Scope);
                     builder.Add(new IRJump(loop));
                     builder.Add(done);

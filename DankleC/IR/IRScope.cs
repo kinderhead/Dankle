@@ -91,6 +91,11 @@ namespace DankleC.IR
 				}
 			}
 
+			foreach (var i in Builder.GlobalVariables)
+			{
+				if (i.Key == name) return new PointerVariable(name, i.Value, new LabelPointer($"_{name}", 0, i.Value.Size), this);
+			}
+
 			foreach (var i in Builder.Functions)
 			{
 				if (i.Name == name) return new LabelVariable($"_{name}", i.Type, this);
@@ -101,7 +106,8 @@ namespace DankleC.IR
 				if (i.Key == name)
 				{
 					Builder.ExternsUsed.Add($"_{name}");
-					return new LabelVariable($"_{name}", i.Value, this);
+					// Use PointerVariable instead of LabelVariable because it works better I hope
+					return new LabelVariable($"_{name}", i.Value, this); // new PointerVariable(name, i.Value, new LabelPointer($"_{name}", 0, i.Value.Size), this);
 				}
 			}
 

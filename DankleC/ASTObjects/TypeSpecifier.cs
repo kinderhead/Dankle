@@ -42,7 +42,7 @@ namespace DankleC.ASTObjects
 			if (obj is null) return false;
 			if (obj is TypeSpecifier type)
 			{
-				if (type.IsConst != IsConst) return false;
+				//if (type.IsConst != IsConst) return false;
 				return AreEqual(type);
 			}
 

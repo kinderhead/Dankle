@@ -59,7 +59,7 @@ namespace Dankle.Components
 		public virtual void WriteOut(string text)
 		{
 			Console.Write(text);
-			Console.Out.Flush();
+			//Console.Out.Flush();
 		}
 
 		public class MM(uint addr, Terminal16 term) : MemoryMapRegisters(addr)

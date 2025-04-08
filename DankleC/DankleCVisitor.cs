@@ -37,7 +37,9 @@ namespace DankleC
 							{
 								UserTypes[d.Name] = d.Type;
 							}
+							else program.GlobalVariables[d.Name] = new(d.Name, d.Type, null);
 						}
+						else if (decl is InitAssignmentStatement init) program.GlobalVariables[init.Name] = new(init.Name, init.Type, (ConstantExpression)init.Expression);
 						else throw new NotImplementedException();
 					}
 				}

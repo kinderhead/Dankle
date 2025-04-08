@@ -163,6 +163,9 @@ namespace Dankle.Components
 			var sw = new Stopwatch();
 			sw.Start();
 			var addr = ProgramCounter;
+
+			// Console.WriteLine(Dissassemble(addr));
+
 			var op = GetNext();
 			var insn = Instruction.Get(op);
 

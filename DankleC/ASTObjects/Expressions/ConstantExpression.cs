@@ -83,6 +83,8 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new NotImplementedException();
 		}
 
+		public byte[] ToBytes(IRBuilder builder) => ((IImmediateValue)Execute(builder)).ToBytes();
+
 		public override void Conditional(IRBuilder builder, bool negate = false)
 		{
 			throw new NotImplementedException("Caller does not handle constant conditionals");

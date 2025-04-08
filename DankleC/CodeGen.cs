@@ -12,7 +12,7 @@ namespace DankleC
 	{
 		public readonly IRBuilder IR = ir;
 		public readonly Dictionary<string, List<InsnDef>> CompiledSymbols = [];
-		public readonly List<string> ExportedFunctions = [];
+		public readonly List<string> Exports = [];
 
 		public string CurrentFunc { get; private set; } = "";
 
@@ -23,7 +23,7 @@ namespace DankleC
 			foreach (var func in IR.Functions)
 			{
 				CompiledSymbols[func.SymbolName] = [];
-				if (!func.Type.IsStatic) ExportedFunctions.Add(func.SymbolName);
+				if (!func.Type.IsStatic) Exports.Add(func.SymbolName);
 				CurrentFunc = func.SymbolName;
 				foreach (var insn in func.Insns)
 				{
@@ -37,10 +37,15 @@ namespace DankleC
 				}
 			}
 
+			foreach (var i in IR.GlobalVariables)
+			{
+				if (!i.Value.Innermost.IsStatic) Exports.Add($"_{i.Key}");
+			}
+
 			var optimizer = new Optimizer(settings ?? new(true, false));
 			var builder = new StringBuilder();
 
-			foreach (var sym in ExportedFunctions)
+			foreach (var sym in Exports)
 			{
 				builder.AppendLine($"export {sym}");
 			}

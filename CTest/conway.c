@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+// Written by a friend. Compiles and runs with default settings.
+
 #define grid_size 25
 #define grid_area 729 // (size + 2) * (size + 2)
 #define print_size 651 // size * (size + 1) + 2

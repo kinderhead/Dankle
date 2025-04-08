@@ -39,7 +39,7 @@ namespace Dankle
 
 		public void WaitUntilFinish()
 		{
-			if (Thread.IsAlive) Thread.Join(1000);
+			if (Thread.IsAlive) Thread.Join();
 		}
 
 		public void Stop()

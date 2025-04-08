@@ -1,4 +1,5 @@
 ﻿using DankleC.ASTObjects;
+using DankleC.ASTObjects.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace DankleC.IR
 
 		public readonly List<IRFunction> Functions = [];
 		public readonly Dictionary<string, (ILabel, byte[])> StaticVariables = [];
+		public readonly Dictionary<string, TypeSpecifier> GlobalVariables = [];
 		public Dictionary<string, TypeSpecifier> Externs = [];
 		public HashSet<string> ExternsUsed = [];
 		public readonly List<Literal> Literals = [];
@@ -28,10 +30,23 @@ namespace DankleC.IR
 		{
 			Externs = AST.Externs;
 
+			foreach (var i in AST.GlobalVariables)
+			{
+				HandleGlobalVariable(i.Value);
+			}
+
 			foreach (var i in AST.Functions)
 			{
 				HandleFunction(i);
 			}
+		}
+
+		private void HandleGlobalVariable(GlobalVariableDecl g)
+		{
+			var def = ((ConstantExpression?)g.Value?.Cast(g.Type))?.ToBytes(this) ?? new byte[g.Type.Size];
+			var label = new IRLabel($"_{g.Name}");
+			StaticVariables[label.Name] = (label, def);
+			GlobalVariables[g.Name] = g.Type;
 		}
 
 		private void HandleFunction(FunctionNode node)
@@ -39,7 +54,6 @@ namespace DankleC.IR
 			var func = new IRFunction(node.Name, node.Type);
 
 			CurrentFunction = func;
-
 			HandleScope(func, new(node.Scope, this, 0));
 			// func.Insns.Add(new ReturnInsn());
 

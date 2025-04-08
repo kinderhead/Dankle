@@ -1,4 +1,5 @@
 using System;
+using DankleC.ASTObjects.Expressions;
 
 namespace DankleC.ASTObjects
 {
@@ -6,6 +7,7 @@ namespace DankleC.ASTObjects
     {
         public readonly List<FunctionNode> Functions = [];
         public readonly Dictionary<string, TypeSpecifier> Externs = [];
+        public readonly Dictionary<string, GlobalVariableDecl> GlobalVariables = [];
 
         public List<T> FindAll<T>() where T : Statement
         {
@@ -29,4 +31,6 @@ namespace DankleC.ASTObjects
 
         public readonly record struct Settings();
     }
+
+    public readonly record struct GlobalVariableDecl(string Name, TypeSpecifier Type, ConstantExpression? Value);
 }
