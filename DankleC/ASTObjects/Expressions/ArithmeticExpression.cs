@@ -66,8 +66,10 @@ namespace DankleC.ASTObjects.Expressions
 			}
 			else type = TypeSpecifier.GetOperationType(left.Type, right.Type);
 
-			if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
-			else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
+			if (type.Size < 4) type = new BuiltinTypeSpecifier(BuiltinType.SignedInt);
+
+			// if (type.Size == 1 && type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.SignedShort);
+			// else if (type.Size == 1 && !type.IsSigned()) type = new BuiltinTypeSpecifier(BuiltinType.UnsignedShort);
 
 			left = left.Cast(type);
 			if (Op == ArithmeticOperation.LeftShift || Op == ArithmeticOperation.RightShift) right = right.Cast(new BuiltinTypeSpecifier(BuiltinType.UnsignedShort));

@@ -7,6 +7,10 @@
 #define BREAK() *((char*)DEBUGGER) = 1
 
 void println(const char* txt);
+
+#define readkey() *((char*)TERMINAL + 1)
+char* readline(char* buf, int size);
+
 char* itoa(int num, char* str, int base);
 
 #endif

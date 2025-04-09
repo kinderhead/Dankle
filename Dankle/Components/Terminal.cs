@@ -42,6 +42,15 @@ namespace Dankle.Components
 			{
 				Terminal.WriteOut(Encoding.UTF8.GetString(data));
 			}
+
+			[ReadRegister(1)]
+			public byte[] Read(uint _)
+			{
+				char c = Console.ReadKey().KeyChar;
+				if (c == '\r') return [10]; // Enter
+
+				return [Encoding.UTF8.GetBytes([c])[0]];
+			}
 		}
 	}
 

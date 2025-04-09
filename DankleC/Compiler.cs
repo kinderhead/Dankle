@@ -5,6 +5,7 @@ using Antlr4.Runtime;
 using Dankle;
 using DankleC.ASTObjects;
 using DankleC.IR;
+using ShellProgressBar;
 
 namespace DankleC
 {
@@ -15,7 +16,11 @@ namespace DankleC
         public ProgramNode AST { get => _AST ?? throw new InvalidOperationException(); }
         public IRBuilder? IR { get; private set; }
 
-        public Compiler ReadFileAndPreprocess(string path) => ReadText(Preprocess(path));
+        public Compiler ReadFileAndPreprocess(string path, ProgressBar? pb = null)
+        {
+            if (pb is not null) pb.Message = $"Compiling {Path.GetRelativePath(Environment.CurrentDirectory, path)}...";
+            return ReadText(Preprocess(path));
+        }
         public Compiler ReadFile(string path)
         {
             Stream = new AntlrFileStream(path);
@@ -64,17 +69,23 @@ namespace DankleC
             return this;
         }
 
-        public string GenAssembly() => new CodeGen(IR ?? throw new InvalidOperationException()).Compile();
-
-        public string Compile() => GenAST().GenIR().GenAssembly();
-
-        public static List<string> CompileLibC()
+        public string GenAssembly(ProgressBar? pb = null)
         {
-            var libc = new List<string>();
+            var res = new CodeGen(IR ?? throw new InvalidOperationException()).Compile();
+            pb?.Tick();
+            return res;
+        }
 
-            foreach (var i in new List<string> { "dankle.c", "printf.c" })
+        public string Compile(ProgressBar? pb = null) => GenAST().GenIR().GenAssembly(pb);
+
+        public static Dictionary<string, string> CompileLibC(ProgressBar? pb = null)
+        {
+            var libc = new Dictionary<string, string>();
+
+            foreach (var i in LibC)
             {
-                libc.Add(new Compiler().ReadFileAndPreprocess(Path.Join(GetExecutableFolder(), "libc", "src", i)).Compile());
+                var file = Path.Join(GetExecutableFolder(), "libc", "src", i);
+                libc[file] = new Compiler().ReadFileAndPreprocess(file, pb).Compile(pb);
             }
 
             return libc;
@@ -107,5 +118,7 @@ namespace DankleC
 
             return (stdout, stderr);
         }
+
+        public static readonly string[] LibC = ["dankle.c", "printf.c", "string.c"];
     }
 }

@@ -66,3 +66,19 @@ void _putchar(char character)
 {
     WRITE_CHAR(character);
 }
+
+char* readline(char* buf, int size)
+{
+    int i;
+    for (i = 0; i < size - 1; i++)
+    {
+        char c = readkey();
+        if (c == '\n') break;
+        else buf[i] = c;
+    }
+
+    buf[i] = 0;
+    WRITE_CHAR('\n');
+
+    return buf;
+}
