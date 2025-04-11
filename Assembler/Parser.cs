@@ -346,6 +346,7 @@ namespace Assembler
 			if (value is uint num)
 			{
 				if (num <= ushort.MaxValue) SetVariable(name, ushort.CreateTruncating(num));
+				ImportableSymbols[name] = num;
 
 				SetVariable(name + "#L", (ushort)(num & 0xFFFF));
 				SetVariable(name + "#H", (ushort)(num >>> 16));

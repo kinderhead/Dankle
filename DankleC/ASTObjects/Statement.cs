@@ -83,11 +83,31 @@ namespace DankleC.ASTObjects
 		}
 	}
 
-    public class EmptyStatement : Statement
-    {
+	public class LabelStatement(string label) : Statement
+	{
+		public readonly string Label = label;
+
         public override void BuildIR(IRBuilder builder, IRFunction func)
         {
-            
+			builder.Add(new IRLabel($"{func.SymbolName}${Label}"));
         }
     }
+
+	public class GotoStatement(string label) : Statement
+	{
+		public readonly string Label = label;
+
+        public override void BuildIR(IRBuilder builder, IRFunction func)
+        {
+			builder.Add(new IRJump(new IRLabel($"{func.SymbolName}${Label}")));
+        }
+    }
+
+    public class EmptyStatement : Statement
+	{
+		public override void BuildIR(IRBuilder builder, IRFunction func)
+		{
+
+		}
+	}
 }

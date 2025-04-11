@@ -1,5 +1,6 @@
 ﻿using Dankle.Components.CodeGen;
 using DankleC.IR;
+using ShellProgressBar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +19,17 @@ namespace DankleC
 
 		private int logicLabelCounter = 0;
 
-		public string Compile(Optimizer.Settings? settings = null)
+		public string Compile(Optimizer.Settings? settings = null, ProgressBar? pb = null)
 		{
+			var child = pb?.Spawn(IR.Functions.Count, "Compiling functions...");
 			foreach (var func in IR.Functions)
 			{
+				if (child is not null) child.Message = $"Compiling {func.Name}...";
+
 				CompiledSymbols[func.SymbolName] = [];
 				if (!func.Type.IsStatic) Exports.Add(func.SymbolName);
 				CurrentFunc = func.SymbolName;
+
 				foreach (var insn in func.Insns)
 				{
 					insn.Compile(this);
@@ -35,7 +40,10 @@ namespace DankleC
 					insn.PostCompile(this);
 					CompiledSymbols[CurrentFunc].AddRange(insn.Insns);
 				}
+
+				child?.Tick();
 			}
+			child?.Dispose();
 
 			foreach (var i in IR.GlobalVariables)
 			{

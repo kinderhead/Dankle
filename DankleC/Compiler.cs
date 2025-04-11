@@ -71,7 +71,7 @@ namespace DankleC
 
         public string GenAssembly(ProgressBar? pb = null)
         {
-            var res = new CodeGen(IR ?? throw new InvalidOperationException()).Compile();
+            var res = new CodeGen(IR ?? throw new InvalidOperationException()).Compile(null, pb);
             pb?.Tick();
             return res;
         }

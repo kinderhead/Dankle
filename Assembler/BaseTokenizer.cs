@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using ShellProgressBar;
 
 namespace Assembler
 {
@@ -17,9 +18,11 @@ namespace Assembler
             GenerateTokenMap();
         }
 
-		public List<TToken> Parse()
+		public List<TToken> Parse(ProgressBar? pb = null)
 		{
 			var tokens = new List<TToken>();
+
+			var child = pb?.Spawn(Input.Length, "Tokenizing...");
 
 			while (Index < Input.Length)
 			{
@@ -56,7 +59,11 @@ namespace Assembler
 
 				if (KeepToken(tk)) tokens.Add(tk);
 				Index += tk.Text.Length;
+
+				child?.Tick(Index);
 			}
+
+			child?.Dispose();
 
 			return tokens;
 		}

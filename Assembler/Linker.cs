@@ -22,7 +22,7 @@ namespace Assembler
             {
                 if (pb is not null) pb.Message = $"Assembling {Path.GetRelativePath(Environment.CurrentDirectory, i.Key)}...";
 
-                var tokens = new Tokenizer(i.Value, false).Parse();
+                var tokens = new Tokenizer(i.Value, false).Parse(pb);
                 var parser = new Parser(tokens, addr, computer);
 
                 addr += parser.SymbolPass();

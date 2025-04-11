@@ -12,11 +12,11 @@ namespace DankleC
     public static class Program
     {
         static void Main(string[] _)
-        {
+		{
 			string asm;
 			var computer = new Computer(0xF0000u);
 
-			using (var pb = new ProgressBar((Compiler.LibC.Length + 1) * 2 + 1, "Compiling...", new ProgressBarOptions() { ProgressCharacter = '─' }))
+			using (var pb = new ProgressBar((Compiler.LibC.Length + 1) * 2 + 1, "Compiling...", new ProgressBarOptions() { ProgressCharacter = '─', CollapseWhenFinished = true }))
 			{
 				var compiler = new Compiler();
 				asm = compiler.ReadFileAndPreprocess("../../../../CTest/test.c", pb).GenAST().GenIR().GenAssembly(pb);

@@ -1,5 +1,6 @@
 #include <dankle.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 void println(const char* txt)
 {
@@ -74,6 +75,7 @@ char* readline(char* buf, int size)
     {
         char c = readkey();
         if (c == '\n') break;
+        else if (c == 127) i -= 2;
         else buf[i] = c;
     }
 

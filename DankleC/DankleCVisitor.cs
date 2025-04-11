@@ -403,6 +403,9 @@ namespace DankleC
 			return new SwitchStatement(expr, cases, def);
         }
 
+		public override IASTObject VisitGotoStatement([NotNull] CParser.GotoStatementContext context) => new GotoStatement(context.Identifier().GetText());
+		public override IASTObject VisitLabelStatement([NotNull] CParser.LabelStatementContext context) => new LabelStatement(context.Identifier().GetText());
+
 		public override IASTObject VisitStatement([NotNull] CParser.StatementContext context)
 		{
 			if (context.children[0].GetText() == ";") return new EmptyStatement();

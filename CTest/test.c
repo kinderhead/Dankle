@@ -1,12 +1,17 @@
 #include <string.h>
 #include <stdio.h>
 #include <dankle.h>
+#include <stdbool.h>
 
 void main()
 {
-    const char* a = "Test1";
-    const char* b = "Test ";
+    while (true)
+    {
+        char cmdbuf[128];
+        printf("> ");
+        readline(cmdbuf, 128);
 
-    int res = strcmp(a, b);
-    printf("Diff: %d\n", res);
+        char* cmd = strtok(cmdbuf, " ");
+        printf(cmd);
+    }
 }

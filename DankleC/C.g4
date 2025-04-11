@@ -59,6 +59,7 @@ statement
     | whileStatement
     | forStatement
     | switchStatement
+    | labelStatement
     | Semi
     ;
 
@@ -66,6 +67,7 @@ semiStatement
     : returnStatement
     | loopControlStatement
     | expressionStatement
+    | gotoStatement
     | declaration
     ;
 
@@ -140,6 +142,14 @@ forStatement
 loopControlStatement
     : Continue
     | Break
+    ;
+
+gotoStatement
+    : Goto Identifier
+    ;
+
+labelStatement
+    : Identifier Colon
     ;
 
 shiftExpression
