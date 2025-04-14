@@ -5,13 +5,18 @@
 
 void main()
 {
+    //printf("______  ___   _   _  _   __ _      _____\n|  _  \\/ _ \\ | \\ | || | / /| |    |  ___|\n| | | / /_\\ \\|  \\| || |/ / | |    | |\n| | | |  _  || . ` ||    \\ | |    |  __|\n| |/ /| | | || |\\  || |\\  \\| |____| |___\n|___/ \\_| |_/\\_| \\_/\\_| \\_/\\_____/\\____/");
+    printf("Dankle OS\n");
+
     while (true)
     {
         char cmdbuf[128];
-        printf("> ");
+        printf("\n> ");
         readline(cmdbuf, 128);
 
         char* cmd = strtok(cmdbuf, " ");
-        printf(cmd);
+
+        if (streq(cmd, "69")) printf("Nice");
+        else printf("Invalid command \"%s\"", cmd);
     }
 }

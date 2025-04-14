@@ -4,7 +4,6 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/DankleC/include",
                 "${workspaceFolder}/DankleC/libc/include"
             ],
             "cStandard": "c17",
