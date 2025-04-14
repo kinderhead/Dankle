@@ -34,7 +34,7 @@ namespace DankleC.IR
 			return AllocStackLocal(name, type);
 		}
 
-		public Variable AllocStaticLocal(string name, TypeSpecifier type, byte[] defaultValue)
+		public Variable AllocStaticLocal(string name, TypeSpecifier type, IByteLike defaultValue)
 		{
 			var label = new IRStaticVariableLabel(Builder.CurrentFunction, name, StaticLocalVariables++);
 			Builder.StaticVariables[label.Label] = (label, defaultValue);

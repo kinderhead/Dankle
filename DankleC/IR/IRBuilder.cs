@@ -15,7 +15,7 @@ namespace DankleC.IR
 		public readonly bool Debug = debug;
 
 		public readonly List<IRFunction> Functions = [];
-		public readonly Dictionary<string, (ILabel, byte[])> StaticVariables = [];
+		public readonly Dictionary<string, (ILabel, IByteLike)> StaticVariables = [];
 		public readonly Dictionary<string, TypeSpecifier> GlobalVariables = [];
 		public Dictionary<string, TypeSpecifier> Externs = [];
 		public HashSet<string> ExternsUsed = [];
@@ -43,7 +43,7 @@ namespace DankleC.IR
 
 		private void HandleGlobalVariable(GlobalVariableDecl g)
 		{
-			var def = ((ConstantExpression?)g.Value?.Cast(g.Type))?.ToBytes(this) ?? new byte[g.Type.Size];
+			var def = ((IToBytes?)g.Value?.Cast(g.Type))?.ToBytes(this) ?? new Bytes(new byte[g.Type.Size]);
 			var label = new IRLabel($"_{g.Name}");
 			StaticVariables[label.Name] = (label, def);
 			GlobalVariables[g.Name] = g.Type;

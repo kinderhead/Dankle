@@ -99,6 +99,12 @@ public interface ICVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInitDeclarator([NotNull] CParser.InitDeclaratorContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CParser.arrayInitializer"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitArrayInitializer([NotNull] CParser.ArrayInitializerContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CParser.declarator"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

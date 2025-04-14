@@ -28,7 +28,7 @@ namespace Assembler
 		public enum Type
 		{
 			Comment,
-			
+
 			Whitespace,
 			Newline,
 			Register,
@@ -46,7 +46,8 @@ namespace Assembler
 			CParen,
 			Plus,
 			Minus,
-			String
+			String,
+			Period
 		}
 	}
 }

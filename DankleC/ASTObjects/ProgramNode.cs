@@ -32,5 +32,5 @@ namespace DankleC.ASTObjects
         public readonly record struct Settings();
     }
 
-    public readonly record struct GlobalVariableDecl(string Name, TypeSpecifier Type, ConstantExpression? Value);
+    public readonly record struct GlobalVariableDecl(string Name, TypeSpecifier Type, IToBytes? Value);
 }

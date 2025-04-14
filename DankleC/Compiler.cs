@@ -16,10 +16,10 @@ namespace DankleC
         public ProgramNode AST { get => _AST ?? throw new InvalidOperationException(); }
         public IRBuilder? IR { get; private set; }
 
-        public Compiler ReadFileAndPreprocess(string path, ProgressBar? pb = null)
+        public Compiler ReadFileAndPreprocess(string path, ProgressBar? pb = null, params string[] preprocessArgs)
         {
             if (pb is not null) pb.Message = $"Compiling {Path.GetRelativePath(Environment.CurrentDirectory, path)}...";
-            return ReadText(Preprocess(path));
+            return ReadText(Preprocess(path, preprocessArgs));
         }
         public Compiler ReadFile(string path)
         {
@@ -91,9 +91,21 @@ namespace DankleC
             return libc;
         }
 
-        public static string Preprocess(string filepath)
+        public static Dictionary<string, string> CompileAll(List<string> paths, ProgressBar? pb = null)
         {
-            var output = ExecuteProgram(GetPreprocessorPath(), $"{filepath} -I\"{Path.Join(GetExecutableFolder(), "libc", "include")}\"");
+            var comp = new Dictionary<string, string>();
+
+            foreach (var i in paths)
+            {
+                comp[i] = new Compiler().ReadFileAndPreprocess(i, pb).Compile(pb);
+            }
+
+            return comp;
+        }
+
+        public static string Preprocess(string filepath, params string[] args)
+        {
+            var output = ExecuteProgram(GetPreprocessorPath(), $"{filepath} -I\"{Path.Join(GetExecutableFolder(), "libc", "include")}\" {string.Join(" ", args)}");
             if (output.Item2.Trim() != "") throw new Exception($"Error preprocessing file \"{filepath}\":\n{output.Item2}");
             return output.Item1;
         }
@@ -120,5 +132,6 @@ namespace DankleC
         }
 
         public static readonly string[] LibC = ["dankle.c", "printf.c", "string.c"];
+        public static readonly string[] DankleOS = [.. new List<string> { "main.c", "commands.c" }.Select(i => "../../../../DankleOS/src/" + i)];
     }
 }

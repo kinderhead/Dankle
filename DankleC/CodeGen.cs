@@ -79,7 +79,7 @@ namespace DankleC
 
 			foreach (var i in IR.StaticVariables)
 			{
-				builder.Append($"\n{i.Value.Item1.Resolve(this)}:\n    {string.Join(' ', i.Value.Item2.Select(e => $"0x{e:X2}"))}");
+				builder.Append($"\n{i.Value.Item1.Resolve(this)}:\n    {i.Value.Item2.Compile()}");
 			}
 
 			foreach (var i in IR.Literals)

@@ -46,31 +46,19 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			var value = Expression.Resolve(builder).Cast(Type).Execute(builder);
 			if (Type.IsStatic)
 			{
-				if (value is not IImmediateValue i) throw new InvalidOperationException("Static variable must have constant expression");
-				Scope.AllocStaticLocal(Name, Type, i.ToBytes());
+				if (Expression is not IToBytes i) throw new InvalidOperationException("Static variable must have constant expression");
+				Scope.AllocStaticLocal(Name, Type, i.ToBytes(builder));
 				return;
 			}
+
+			var value = Expression.Resolve(builder).Cast(Type).Execute(builder);
 			var variable = Scope.AllocLocal(Name, Type);
 			variable.Store(builder, value);
 		}
 	}
-
-	public class AssignmentStatement(UnresolvedLValue dest, IExpression expr) : Statement
-	{
-		public readonly UnresolvedLValue Dest = dest;
-		public readonly IExpression Expression = expr;
-
-		public override void BuildIR(IRBuilder builder, IRFunction func)
-		{
-			var variable = Dest.Resolve<LValue>(builder);
-			var expr = Expression.Resolve(builder).Cast(variable.Type);
-			variable.WriteFrom(expr.Execute(builder), builder);
-		}
-	}
-
+	
 	public class DeclareStatement(TypeSpecifier type, string name) : Statement
 	{
 		public readonly TypeSpecifier Type = type;
@@ -78,7 +66,7 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
-			if (Type.IsStatic) Scope.AllocStaticLocal(Name, Type, new byte[Type.Size]);
+			if (Type.IsStatic) Scope.AllocStaticLocal(Name, Type, new Bytes(new byte[Type.Size]));
 			else Scope.AllocLocal(Name, Type);
 		}
 	}

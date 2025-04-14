@@ -22,7 +22,7 @@ namespace Assembler
 			}
         }
 
-        protected override void GenerateTokenMap()
+		protected override void GenerateTokenMap()
 		{
 			TokenMap[Token.Type.Comment] = new CommentToken();
 			TokenMap[Token.Type.Whitespace] = new CollectiveOptionToken([' ', '\r', '\t']);
@@ -41,6 +41,7 @@ namespace Assembler
 			TokenMap[Token.Type.Plus] = new ConstantToken("+");
 			TokenMap[Token.Type.Minus] = new ConstantToken("-");
 			TokenMap[Token.Type.String] = new StringToken();
+			TokenMap[Token.Type.Period] = new ConstantToken(".");
 		}
 
 		public override Token MakeToken(Token.Type symbol, int index, string text, int line, int column) => new(symbol, index, text, line, column);

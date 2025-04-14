@@ -141,6 +141,12 @@ namespace Assembler
 						else throw new ArgumentException($"Undefined external reference \"{name}\"");
 					}
 				}
+				else if (token.Symbol == Token.Type.Period)
+				{
+					var data = Utils.ToBytes(ParseNum<uint>(Tokens.Dequeue()));
+					Data[Addr] = data;
+					Addr += (uint)data.Length;
+				}
 				else throw new InvalidTokenException(token);
 			}
 		}

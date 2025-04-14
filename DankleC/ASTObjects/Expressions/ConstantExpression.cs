@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DankleC.ASTObjects.Expressions
 {
-	public class ConstantExpression(TypeSpecifier type, object value) : ResolvedExpression(type)
+	public class ConstantExpression(TypeSpecifier type, object value) : ResolvedExpression(type), IToBytes
 	{
 		public readonly object Value = value;
 
-        public override bool IsSimpleExpression => true;
+		public override bool IsSimpleExpression => true;
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type)
 		{
@@ -83,7 +83,7 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new NotImplementedException();
 		}
 
-		public byte[] ToBytes(IRBuilder builder) => ((IImmediateValue)Execute(builder)).ToBytes();
+		public IByteLike ToBytes(IRBuilder builder) => new Bytes(((IImmediateValue)Execute(builder)).ToBytes());
 
 		public override void Conditional(IRBuilder builder, bool negate = false)
 		{

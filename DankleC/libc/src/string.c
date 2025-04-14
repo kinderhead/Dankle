@@ -13,6 +13,14 @@ int strcmp(const char* a, const char* b)
     return *(const unsigned char*) a - *(const unsigned char*) b;
 }
 
+// https://stackoverflow.com/questions/14476627/strcpy-implementation-in-c
+char* strcpy(char* strDest, const char* strSrc)
+{
+    char* temp = strDest;
+    while (*strDest++ = *strSrc++) { }
+    return temp;
+}
+
 // The following is yoinked from OpenBSD's libc
 
 char* strtok(char* s, const char* delim)

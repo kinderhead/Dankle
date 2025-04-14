@@ -11,6 +11,7 @@ namespace DankleC.ASTObjects
 	public interface IExpression : IASTObject
 	{
 		public ResolvedExpression Resolve(IRBuilder builder);
+		public ResolvedExpression Cast(TypeSpecifier type);
 	}
 
 	public abstract class ResolvedExpression(TypeSpecifier type) : IExpression
@@ -65,7 +66,8 @@ namespace DankleC.ASTObjects
 
 	public abstract class UnresolvedExpression : IExpression
 	{
-		public T Resolve<T>(IRBuilder builder) where T : ResolvedExpression => (T)Resolve(builder);
+		public ResolvedExpression Cast(TypeSpecifier type) => throw new InvalidOperationException();
+        public T Resolve<T>(IRBuilder builder) where T : ResolvedExpression => (T)Resolve(builder);
 		public abstract ResolvedExpression Resolve(IRBuilder builder);
 	}
 }

@@ -150,7 +150,7 @@ namespace DankleC.IR
 		}
 	}
 
-	public class LabelVariable(string name, TypeSpecifier type, IRScope scope) : Variable(name, type, scope)
+	public class LabelVariable(string name, TypeSpecifier type, IRScope scope) : Variable(name, type, scope), IImmediateValue
 	{
 		public override Type CGType => typeof(CGLabel<uint>);
 
@@ -190,5 +190,10 @@ namespace DankleC.IR
 		public override IValue ChangeType(TypeSpecifier type) => new LabelVariable(Name, type, Scope);
 		public override IValue GetRef(IRBuilder builder) => this;
 		public override IValue ToNotPointer(IRInsn insn) => this;
+
+        public byte[] ToBytes()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

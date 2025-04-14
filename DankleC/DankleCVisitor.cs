@@ -39,7 +39,7 @@ namespace DankleC
 							}
 							else program.GlobalVariables[d.Name] = new(d.Name, d.Type, null);
 						}
-						else if (decl is InitAssignmentStatement init) program.GlobalVariables[init.Name] = new(init.Name, init.Type, (ConstantExpression)init.Expression);
+						else if (decl is InitAssignmentStatement init) program.GlobalVariables[init.Name] = new(init.Name, init.Type, (IToBytes)init.Expression);
 						else throw new NotImplementedException();
 					}
 				}
@@ -132,7 +132,7 @@ namespace DankleC
 			if (context.Constant() is ITerminalNode c) return VisitInt(c);
 			else
 			{
-				return new StringLiteralExpression(context.StringLiteral().GetText().Trim('"'), new PointerTypeSpecifier(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar) { IsConst = true }));
+				return new StringLiteralExpression(context.StringLiteral().GetText()[1..^1], new PointerTypeSpecifier(new BuiltinTypeSpecifier(BuiltinType.UnsignedChar) { IsConst = true }));
 			}
 		}
 
@@ -363,6 +363,7 @@ namespace DankleC
 				var type = Visit(i.declarator(), baseType);
 				type.Type.IsStatic = context.Static() is not null;
 				if (i.expression() is CParser.ExpressionContext expr) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, Visit(expr)));
+				else if (i.arrayInitializer() is CParser.ArrayInitializerContext arr) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, new ConstantArrayExpression([.. arr.expression().Select(Visit)], type.Type)));
 				else decls.Statements.Add(new DeclareStatement(type.Type, type.Name));
 			}
 
