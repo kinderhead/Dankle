@@ -30,25 +30,41 @@ namespace DankleC.ASTObjects.Expressions
 		}
 	}
 
-    public class ConstantArrayExpression(List<IExpression> values, TypeSpecifier type) : ResolvedExpression(type), IToBytes
+    public class ListInitializer(List<IExpression> values) : UnresolvedExpression
     {
 		public readonly List<IExpression> Values = values;
-        public override bool IsSimpleExpression => true;
 
-        public override ResolvedExpression ChangeType(TypeSpecifier type) => new ConstantArrayExpression(Values, type);
+		public override ResolvedExpression Resolve(IRBuilder builder)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class ResolvedListInitializer(List<ResolvedExpression> values, TypeSpecifier type) : ResolvedExpression(type), IToBytes
+	{
+		public readonly List<ResolvedExpression> Values = values;
+		public override bool IsSimpleExpression => true;
+
+		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedListInitializer(Values, type);
 		public override IValue Execute(IRBuilder builder) => throw new NotImplementedException();
 		public IByteLike ToBytes(IRBuilder builder)
 		{
-			if (((ArrayTypeSpecifier)Type).Size != Values.Count) throw new NotImplementedException();
-			return new ConstantArray([.. Values.Select(i => ((IToBytes)i.Cast(((ArrayTypeSpecifier)Type).Inner)).ToBytes(builder))]);
+			if (Type is ArrayTypeSpecifier arr)
+			{
+				if (arr.Size != Values.Count) throw new NotImplementedException();
+				return new ConstantArray([.. Values.Select(i => ((IToBytes)i.Cast(arr.Inner)).ToBytes(builder))]);
+			}
+			else throw new NotImplementedException();
 		}
 
 		public override void Walk(Action<ResolvedExpression> cb)
 		{
 			cb(this);
-			
-			// There should never be any call expressions here and I can't be bothered to make an unresolved and resolved version of
-			// ConstantArrayExpression because there's no other reason to.
+
+			foreach (var i in Values)
+			{
+				i.Walk(cb);
+			}
 		}
-    }
+	}
 }

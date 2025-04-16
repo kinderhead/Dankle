@@ -1,5 +1,7 @@
 #include "commands.h"
 
+char prompt[32];
+
 void main()
 {
     printf("Dankle OS\n\n");
@@ -7,7 +9,7 @@ void main()
     while (true)
     {
         char cmdbuf[512];
-        printf("> ");
+        printf("%s> ", prompt);
 
         readline(cmdbuf, 128);
 

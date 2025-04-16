@@ -13,7 +13,7 @@ namespace DankleC
     {
         static void Main(string[] _)
 		{
-			Dictionary<string, string> asm = [];
+			OrderedDictionary<string, string> asm = [];
 			var computer = new Computer(0xF0000u);
 
 			using (var pb = new ProgressBar((Compiler.LibC.Length + Compiler.DankleOS.Length) * 2 + 1, "Compiling...", new ProgressBarOptions() { ProgressCharacter = '─', CollapseWhenFinished = true }))
@@ -36,7 +36,8 @@ namespace DankleC
 				computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["cmain"];
 			}
 
-			Console.WriteLine("\n-----------------------------");
+			//Console.WriteLine("\n" + asm.First().Value + "\n-----------------------------");
+			Console.WriteLine();
 
 			computer.Run();
 

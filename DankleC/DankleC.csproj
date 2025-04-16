@@ -24,6 +24,9 @@
     <None Update="simplecpp/simplecpp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+	<None Update="simplecpp/simplecpp.exe">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
     <None Update="libc/**/*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

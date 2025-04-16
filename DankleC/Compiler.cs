@@ -1,6 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using Antlr4.Runtime;
 using Dankle;
 using DankleC.ASTObjects;
@@ -105,13 +108,14 @@ namespace DankleC
 
         public static string Preprocess(string filepath, params string[] args)
         {
-            var output = ExecuteProgram(GetPreprocessorPath(), $"{filepath} -I\"{Path.Join(GetExecutableFolder(), "libc", "include")}\" {string.Join(" ", args)}");
+            var output = ExecuteProgram(GetPreprocessorPath(), $"{filepath.Replace("\\", "/")} -I\"{Path.Join(GetExecutableFolder(), "libc", "include").Replace("\\", "/")}\" {string.Join(" ", args)}");
             if (output.Item2.Trim() != "") throw new Exception($"Error preprocessing file \"{filepath}\":\n{output.Item2}");
             return output.Item1;
         }
 
         public static string GetExecutableFolder() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new FileNotFoundException("Could not get path");
-        public static string GetPreprocessorPath() => Path.Join(GetExecutableFolder(), "simplecpp", "simplecpp");
+
+        public static string GetPreprocessorPath() => Path.Join(GetExecutableFolder(), "simplecpp", RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "simplecpp" : "simplecpp.exe");
 
         public static (string, string) ExecuteProgram(string program, string args)
         {
@@ -122,13 +126,50 @@ namespace DankleC
             p.StartInfo.FileName = program;
             p.StartInfo.Arguments = args;
 
-            p.Start();
-            p.WaitForExit();
+			var stdout = new StringBuilder();
+			var stderr = new StringBuilder();
 
-            var stderr = p.StandardError.ReadToEnd();
-            var stdout = p.StandardOutput.ReadToEnd();
+			using (var outputWaitHandle = new AutoResetEvent(false))
+			using (var errorWaitHandle = new AutoResetEvent(false))
+			{
+				p.OutputDataReceived += (sender, e) => {
+					if (e.Data == null)
+					{
+						outputWaitHandle.Set();
+					}
+					else
+					{
+						stdout.AppendLine(e.Data);
+					}
+				};
+				p.ErrorDataReceived += (sender, e) =>
+				{
+					if (e.Data == null)
+					{
+						errorWaitHandle.Set();
+					}
+					else
+					{
+						stderr.AppendLine(e.Data);
+					}
+				};
 
-            return (stdout, stderr);
+				p.Start();
+
+				p.BeginOutputReadLine();
+				p.BeginErrorReadLine();
+
+                p.WaitForExit();
+
+				//if (p.WaitForExit(timeout) && outputWaitHandle.WaitOne(timeout) && errorWaitHandle.WaitOne(timeout))
+				//{
+				//}
+				//else
+				//{
+				//}
+			}
+
+			return (stdout.ToString(), stderr.ToString());
         }
 
         public static readonly string[] LibC = ["dankle.c", "printf.c", "string.c"];

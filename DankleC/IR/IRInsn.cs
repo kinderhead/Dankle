@@ -199,6 +199,7 @@ namespace DankleC.IR
 
 		public static IPointer GetReturnPointer(int size)
 		{
+			if (size > 256) throw new InvalidOperationException($"Struct of size {size} bytes is too big to return from functions");
 			return new LiteralPointer(0, size);
 		}
 

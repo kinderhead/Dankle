@@ -75,7 +75,22 @@ char* readline(char* buf, int size)
     {
         char c = readkey();
         if (c == '\n') break;
-        else if (c == 127) i -= 2;
+        else if (c == 127)
+        {
+            if (i == 0)
+            {
+                i--;
+                WRITE_CHAR(' ');
+            }
+            else
+            {
+                i -= 2;
+
+                // WRITE_CHAR('\b');
+                WRITE_CHAR(' ');
+                WRITE_CHAR('\b');
+            }
+        }
         else buf[i] = c;
     }
 

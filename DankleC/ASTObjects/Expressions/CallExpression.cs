@@ -54,6 +54,7 @@ namespace DankleC.ASTObjects.Expressions
             {
                 var type = Arguments[i].Type;
                 if (i < parameters.Parameters.Count) type = parameters.Parameters[i].Type;
+                else if (type is ArrayTypeSpecifier arr) type = new PointerTypeSpecifier(arr.Inner);
                 else if (type.IsNumber() && type.Size < 4) type = new BuiltinTypeSpecifier(BuiltinType.SignedInt);
 
                 ptrs.Add(new PreArgumentPointer(offset, type.Size));

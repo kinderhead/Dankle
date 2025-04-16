@@ -362,12 +362,17 @@ namespace DankleC
 			{
 				var type = Visit(i.declarator(), baseType);
 				type.Type.IsStatic = context.Static() is not null;
-				if (i.expression() is CParser.ExpressionContext expr) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, Visit(expr)));
-				else if (i.arrayInitializer() is CParser.ArrayInitializerContext arr) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, new ConstantArrayExpression([.. arr.expression().Select(Visit)], type.Type)));
+				if (i.initializer() is not null) decls.Statements.Add(new InitAssignmentStatement(type.Type, type.Name, (IExpression)Visit(i.initializer())));
 				else decls.Statements.Add(new DeclareStatement(type.Type, type.Name));
 			}
 
 			return decls;
+		}
+
+		public override IASTObject VisitInitializer([NotNull] CParser.InitializerContext context)
+		{
+			if (context.expression() is CParser.ExpressionContext expr) return Visit(expr);
+			else return new ListInitializer([.. context.arrayInitializer().initializer().Select(Visit).Cast<IExpression>()]);
 		}
 
 		public override IASTObject VisitExpressionStatement([NotNull] CParser.ExpressionStatementContext context) => new ExpressionStatement(Visit(context.expression()));

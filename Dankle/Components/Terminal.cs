@@ -48,7 +48,7 @@ namespace Dankle.Components
 			{
 				char c = Console.ReadKey().KeyChar;
 				if (c == '\r') return [10]; // Enter
-				else if (c == 127) Console.Write("\b \b"); // Backspace
+				else if (c == '\b') return [127]; // Backspace
 
 				return [Encoding.UTF8.GetBytes([c])[0]];
 			}

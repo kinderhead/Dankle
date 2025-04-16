@@ -16,7 +16,7 @@ namespace Dankle
 
 		protected bool ShouldStop = false;
 
-		private readonly BlockingCollection<IMessage> Messages = new(new ConcurrentQueue<IMessage>());
+		private readonly BlockingCollection<IMessage> Messages = [.. new ConcurrentQueue<IMessage>()];
 		private readonly Dictionary<Type, Action<IMessage>> Handlers = [];
 
 		public Component(Computer computer)

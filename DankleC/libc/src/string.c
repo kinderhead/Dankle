@@ -21,6 +21,20 @@ char* strcpy(char* strDest, const char* strSrc)
     return temp;
 }
 
+size_t strlen(const char* str)
+{
+    const char* p;
+
+    if (str == NULL)
+        return 0;
+
+    p = str;
+    while (*p != '\0')
+        p++;
+
+    return p - str;
+}
+
 // The following is yoinked from OpenBSD's libc
 
 char* strtok(char* s, const char* delim)

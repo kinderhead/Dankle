@@ -13,7 +13,8 @@
         "stdint-gcc.h": "c",
         "cstdint": "c",
         "random": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "cstring": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

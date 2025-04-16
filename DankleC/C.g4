@@ -80,11 +80,16 @@ declarationSpecifier
     ;
 
 initDeclarator
-    : declarator (Assign (expression | arrayInitializer))?
+    : declarator (Assign initializer)?
+    ;
+
+initializer
+    : expression
+    | arrayInitializer
     ;
 
 arrayInitializer
-    : LeftBrace (expression (Comma expression)*)+ RightBrace
+    : LeftBrace (initializer (Comma initializer)*)+ Comma? RightBrace
     ;
 
 declarator

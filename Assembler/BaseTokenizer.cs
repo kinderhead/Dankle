@@ -11,6 +11,7 @@ namespace Assembler
 
         protected readonly OrderedDictionary<TType, TokenParser> TokenMap = [];
         private int Index;
+		private int Line;
 
         public BaseTokenizer(string input)
         {
@@ -26,7 +27,7 @@ namespace Assembler
 
 			while (Index < Input.Length)
 			{
-				var loc = GetLineAndColumn(Index);
+				var loc = GetColumn(Index);
 
 				List<KeyValuePair<TType, TokenParser>> possibilities = [.. TokenMap];
 				Dictionary<TType, string> parsed = [];
@@ -55,10 +56,11 @@ namespace Assembler
 				var biggest = parsed.MaxBy(e => e.Value.Length);
 				if (biggest.Value.Length == 0) throw new Exception($"Invalid symbol at {loc}: {Input[Index]}");
 
-				var tk = MakeToken(biggest.Key, Index, biggest.Value, loc.Item1, loc.Item2);
+				var tk = MakeToken(biggest.Key, Index, biggest.Value, Line, loc);
 
 				if (KeepToken(tk)) tokens.Add(tk);
 				Index += tk.Text.Length;
+				if (IsNewline(tk.Symbol)) Line++;
 
 				child?.Tick(Index);
 			}
@@ -68,15 +70,15 @@ namespace Assembler
 			return tokens;
 		}
 
-        public (int, int) GetLineAndColumn(int index)
+        public int GetColumn(int index)
 		{
-			var st = Input[..index];
-			var line = st.Count(i => i == '\n');
+			var st = Input.AsSpan()[..index];
 			var col = st.Length - st.LastIndexOf('\n') - 1;
-			return (line, col);
+			return col;
 		}
 
         public abstract TToken MakeToken(TType symbol, int index, string text, int line, int column);
+		public abstract bool IsNewline(TType symbol);
 
         protected virtual bool KeepToken(TToken tk) => true;
         protected abstract void GenerateTokenMap();

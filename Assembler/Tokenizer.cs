@@ -26,7 +26,7 @@ namespace Assembler
 		{
 			TokenMap[Token.Type.Comment] = new CommentToken();
 			TokenMap[Token.Type.Whitespace] = new CollectiveOptionToken([' ', '\r', '\t']);
-			TokenMap[Token.Type.Newline] = new CollectiveOptionToken(['\n']);
+			TokenMap[Token.Type.Newline] = new ConstantToken("\n");
 			TokenMap[Token.Type.Register] = new RegisterToken();
 			TokenMap[Token.Type.Integer] = new IntegerToken();
 			TokenMap[Token.Type.Export] = new ConstantToken("export");
@@ -45,5 +45,7 @@ namespace Assembler
 		}
 
 		public override Token MakeToken(Token.Type symbol, int index, string text, int line, int column) => new(symbol, index, text, line, column);
-    }
+
+		public override bool IsNewline(Token.Type symbol) => symbol == Token.Type.Newline;
+	}
 }
