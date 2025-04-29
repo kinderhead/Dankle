@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DankleC.IR
 {
-	public class IRScope(ScopeNode scope, IRBuilder builder, int startIndex)
+	public class IRScope(ScopeNode? scope, IRBuilder builder, int startIndex)
 	{
-		public readonly ScopeNode Scope = scope;
+		public readonly ScopeNode? Scope = scope;
 		public readonly IRBuilder Builder = builder;
 		public readonly int StartIndex = startIndex;
 

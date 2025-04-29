@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace DankleC.IR
 {
 #pragma warning disable CS8618
-	public class IRBuilder(ProgramNode ast, bool debug = false)
-	{
-		public readonly ProgramNode AST = ast;
-		public readonly bool Debug = debug;
+	public class IRBuilder
+    {
+        public readonly ProgramNode AST;
+        public readonly bool Debug;
 
-		public readonly List<IRFunction> Functions = [];
+        public readonly List<IRFunction> Functions = [];
 		public readonly Dictionary<string, (ILabel, IByteLike)> StaticVariables = [];
 		public readonly Dictionary<string, TypeSpecifier> GlobalVariables = [];
 		public Dictionary<string, TypeSpecifier> Externs = [];
@@ -26,7 +26,14 @@ namespace DankleC.IR
 
 		private int literalLabels = 0;
 
-		public void Build()
+		public IRBuilder(ProgramNode ast, bool debug = false)
+		{
+			AST = ast;
+			Debug = debug;
+			CurrentScope = new(null, this, 0);
+        }
+
+        public void Build()
 		{
 			Externs = AST.Externs;
 
@@ -65,7 +72,7 @@ namespace DankleC.IR
 			CurrentScope = scope;
 			scope.SetupArguments(func);
 			scope.Start();
-			ProcessStatements(scope.Scope.Statements, func, scope);
+			ProcessStatements(scope.Scope?.Statements ?? throw new InvalidOperationException(), func, scope);
 			// scope.End();
 		}
 

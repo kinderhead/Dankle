@@ -1,11 +1,13 @@
 #include "commands.h"
 
-#define DEFINE_CMD(name, help) static const char* name##_help = help;
-#define RUN_CMD(name) else if (streq(cmd, #name)) name(args)
+#define NUM_CMDS 3
 
-DEFINE_CMD(about, "Display the about message.")
-DEFINE_CMD(echo, "Print arguments to the console.\nUSAGE: echo <message>")
-DEFINE_CMD(set_prompt, "Set the prompt text.\nUSAGE: set_prompt <prompt>")
+typedef struct command_s
+{
+    void (*cb)(const char*);
+    const char* name;
+    const char* help;
+} command_t;
 
 extern char prompt[32];
 
@@ -39,11 +41,22 @@ static void help(const char* args)
     
 }
 
+command_t cmds[NUM_CMDS] = {
+    { about, "about", "Display the about message." },
+    { echo, "echo", "Print arguments to the console.\nUSAGE: echo <message>" },
+    { set_prompt, "prompt", "Set the prompt text.\nUSAGE: set_prompt <prompt>" }
+};
+
 void run_cmd(const char* cmd, const char* args)
 {
-    if (cmd[0] == 0) printf("Empty command\n");
-    RUN_CMD(about);
-    RUN_CMD(echo);
-    RUN_CMD(set_prompt);
-    else printf("Invalid command \"%s\"\n", cmd);
+    for (int i = 0; i < NUM_CMDS; i++)
+    {
+        if (streq(cmd, cmds[i].name))
+        {
+            cmds[i].cb(args);
+            return;
+        }
+    }
+
+    printf("Invalid command \"%s\"\n", cmd);
 }
