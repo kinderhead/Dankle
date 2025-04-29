@@ -46,14 +46,16 @@ namespace DankleC.ASTObjects
 
 		public override void BuildIR(IRBuilder builder, IRFunction func)
 		{
+			var expr = Expression.Resolve(builder).Cast(Type);
+			
 			if (Type.IsStatic)
 			{
-				if (Expression is not IToBytes i) throw new InvalidOperationException("Static variable must have constant expression");
+				if (expr is not IToBytes i) throw new InvalidOperationException("Static variable must have constant expression");
 				Scope.AllocStaticLocal(Name, Type, i.ToBytes(builder));
 				return;
 			}
 
-			var value = Expression.Resolve(builder).Cast(Type).Execute(builder);
+			var value = expr.Execute(builder);
 			var variable = Scope.AllocLocal(Name, Type);
 			variable.Store(builder, value);
 		}

@@ -43,7 +43,7 @@ namespace DankleC.IR
 
 		private void HandleGlobalVariable(GlobalVariableDecl g)
 		{
-			var def = ((IToBytes?)g.Value?.Cast(g.Type))?.ToBytes(this) ?? new Bytes(new byte[g.Type.Size]);
+			var def = ((IToBytes?)g.Value?.Resolve(this)?.Cast(g.Type))?.ToBytes(this) ?? new Bytes(new byte[g.Type.Size]);
 			var label = new IRLabel($"_{g.Name}");
 			StaticVariables[label.Name] = (label, def);
 			GlobalVariables[g.Name] = g.Type;

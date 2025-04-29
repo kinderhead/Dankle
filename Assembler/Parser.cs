@@ -262,7 +262,7 @@ namespace Assembler
 				var third = Tokens.Dequeue();
 				if (second.Symbol == Token.Type.Plus)
 				{
-					if (IsNum(third)) res = (0b0010, Utils.ToBytes(ParseNum<uint>(first) + ParseNum<short>(third)));
+					if (IsNum(third)) res = (0b0010, Utils.ToBytes((uint)(ParseNum<uint>(first) + ParseNum<short>(third))));
 					else res = (0b0011, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister(third)]);
 				}
 				else if (second.Symbol == Token.Type.Minus) res = (0b0111, [.. Utils.ToBytes(ParseNum<uint>(first)), ParseRegister(third)]);

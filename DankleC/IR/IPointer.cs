@@ -163,7 +163,7 @@ namespace DankleC.IR
 		public CGPointer Build<T>(IRScope scope) where T : IBinaryInteger<T> => Offset == 0 ? CGPointer<T>.Make(Address) : CGPointer<T>.Make(Address, (short)Offset);
 
 		public IPointer Get(int offset) => Get(offset, Size - offset);
-		public IPointer Get(int offset, int size) => new LabelPointer(Address, offset, size);
+		public IPointer Get(int offset, int size) => new LabelPointer(Address, Offset + offset, size);
 
 		public bool UsingRegister(int reg) => false;
 	}

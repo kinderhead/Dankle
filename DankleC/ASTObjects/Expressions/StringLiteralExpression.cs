@@ -30,20 +30,20 @@ namespace DankleC.ASTObjects.Expressions
 		}
 	}
 
-    public class ListInitializer(List<IExpression> values) : UnresolvedExpression
+    public class ListInitializer(List<IExpression> values) : UnresolvedExpression, IToBytes
     {
 		public readonly List<IExpression> Values = values;
 
-		public override ResolvedExpression Resolve(IRBuilder builder)
-		{
-			throw new NotImplementedException();
-		}
-	}
+		public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedListInitializer([.. Values.Select(i => i.Resolve(builder))], new BuiltinTypeSpecifier(BuiltinType.Void));
+
+		public IByteLike ToBytes(IRBuilder builder) => ((ResolvedListInitializer)Resolve(builder)).ToBytes(builder);
+    }
 
 	public class ResolvedListInitializer(List<ResolvedExpression> values, TypeSpecifier type) : ResolvedExpression(type), IToBytes
 	{
 		public readonly List<ResolvedExpression> Values = values;
 		public override bool IsSimpleExpression => true;
+        public override bool CanAnyCast => true;
 
 		public override ResolvedExpression ChangeType(TypeSpecifier type) => new ResolvedListInitializer(Values, type);
 		public override IValue Execute(IRBuilder builder) => throw new NotImplementedException();
@@ -51,8 +51,13 @@ namespace DankleC.ASTObjects.Expressions
 		{
 			if (Type is ArrayTypeSpecifier arr)
 			{
-				if (arr.Size != Values.Count) throw new NotImplementedException();
+				if (arr.ArraySize != Values.Count) throw new NotImplementedException();
 				return new ConstantArray([.. Values.Select(i => ((IToBytes)i.Cast(arr.Inner)).ToBytes(builder))]);
+			}
+			else if (Type is StructTypeSpecifier s)
+			{
+				if (s.Members.Count != Values.Count) throw new NotImplementedException();
+				return new ConstantArray([.. Values.Zip(s.Members).Select(i => ((IToBytes)i.First.Cast(i.Second.Type)).ToBytes(builder))]);
 			}
 			else throw new NotImplementedException();
 		}
