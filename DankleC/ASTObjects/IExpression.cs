@@ -18,6 +18,7 @@ namespace DankleC.ASTObjects
 	{
 		public readonly TypeSpecifier Type = type;
 		public abstract bool IsSimpleExpression { get; }
+		public virtual bool CanAnyCast => false;
 
 		public ResolvedExpression Resolve(IRBuilder builder) => this;
 
@@ -36,6 +37,7 @@ namespace DankleC.ASTObjects
 		public ResolvedExpression Cast(TypeSpecifier type)
 		{
 			if (Type == type) return this;
+			else if (CanAnyCast) return AsCasted(type);
 			else if (type is BuiltinTypeSpecifier v && v.Type == BuiltinType.Void) return Standalone();
 			//else if (Type is PointerTypeSpecifier || type is PointerTypeSpecifier) throw new NotImplementedException();
 			else if (Type is BuiltinTypeSpecifier actual && type is BuiltinTypeSpecifier expected)
