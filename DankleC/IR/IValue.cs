@@ -26,7 +26,7 @@ namespace DankleC.IR
 
     public interface IImmediateValue : IValue
     {
-        public byte[] ToBytes();
+        public IByteLike ToBytes();
     }
 
     public interface IRegisterValue : IValue

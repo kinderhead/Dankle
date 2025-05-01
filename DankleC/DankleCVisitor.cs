@@ -21,7 +21,7 @@ namespace DankleC
 			foreach (var i in context.children)
 			{
 				var def = Visit(i);
-				if (def is FunctionNode func) program.Functions.Add(func);
+				if (def is FunctionNode func) program.Defs.Add(func);
 				else if (def is ScopeNode decls)
 				{
 					foreach (var decl in decls.Statements)
@@ -37,9 +37,9 @@ namespace DankleC
 							{
 								UserTypes[d.Name] = d.Type;
 							}
-							else program.GlobalVariables[d.Name] = new(d.Name, d.Type, null);
+							else program.Defs.Add(new GlobalVariableDecl(d.Name, d.Type, null));
 						}
-						else if (decl is InitAssignmentStatement init) program.GlobalVariables[init.Name] = new(init.Name, init.Type, (IToBytes)init.Expression);
+						else if (decl is InitAssignmentStatement init) program.Defs.Add(new GlobalVariableDecl(init.Name, init.Type, (IToBytes)init.Expression));
 						else throw new NotImplementedException();
 					}
 				}

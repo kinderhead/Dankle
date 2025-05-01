@@ -11,6 +11,15 @@ void println(const char* txt)
     WRITE_CHAR('\n');
 }
 
+void printuln(const char* txt, char until)
+{
+    while (*txt != 0 && *txt != until)
+    {
+        WRITE_CHAR(*txt++);
+    }
+    WRITE_CHAR('\n');
+}
+
 static void reverse(char* str, int length)
 {
     int start = 0;

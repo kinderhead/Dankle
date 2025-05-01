@@ -22,10 +22,10 @@ namespace DankleC.IR
             return new CGImmediate<ushort>(Value);
         }
 
-        public byte[] ToBytes()
+        public IByteLike ToBytes()
         {
-            if (Type.Size == 1) return [(byte)Value];
-            else return [(byte)(Value >> 8), (byte)(Value & 0xFF)];
+            if (Type.Size == 1) return new Bytes([(byte)Value]);
+            else return new Bytes([(byte)(Value >> 8), (byte)(Value & 0xFF)]);
         }
 
         public IValue ToNotPointer(IRInsn insn) => this;
@@ -79,7 +79,7 @@ namespace DankleC.IR
             throw new InvalidOperationException();
         }
 
-        public byte[] ToBytes() => [(byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)];
+        public IByteLike ToBytes() => new Bytes([(byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)]);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn)
         {
@@ -128,7 +128,7 @@ namespace DankleC.IR
             throw new InvalidOperationException();
         }
 
-        public byte[] ToBytes() => [(byte)(Value >> 56), (byte)(Value >> 48), (byte)(Value >> 40), (byte)(Value >> 32), (byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)];
+        public IByteLike ToBytes() => new Bytes([(byte)(Value >> 56), (byte)(Value >> 48), (byte)(Value >> 40), (byte)(Value >> 32), (byte)(Value >> 24), (byte)(Value >> 16), (byte)(Value >> 8), (byte)(Value & 0xFF)]);
 
         public SimpleRegisterValue ToRegisters(IRInsn insn)
 		{

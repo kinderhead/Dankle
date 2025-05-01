@@ -21,8 +21,8 @@ namespace DankleC.IR
 		public HashSet<string> ExternsUsed = [];
 		public readonly List<Literal> Literals = [];
 
-		public IRFunction CurrentFunction { get; private set; }
-		public IRScope CurrentScope { get; private set; }
+		public IRFunction CurrentFunction { get; internal set; }
+		public IRScope CurrentScope { get; internal set; }
 
 		private int literalLabels = 0;
 
@@ -37,34 +37,10 @@ namespace DankleC.IR
 		{
 			Externs = AST.Externs;
 
-			foreach (var i in AST.GlobalVariables)
+			foreach (var i in AST.Defs)
 			{
-				HandleGlobalVariable(i.Value);
+				i.Handle(this);
 			}
-
-			foreach (var i in AST.Functions)
-			{
-				HandleFunction(i);
-			}
-		}
-
-		private void HandleGlobalVariable(GlobalVariableDecl g)
-		{
-			var def = ((IToBytes?)g.Value?.Resolve(this)?.Cast(g.Type))?.ToBytes(this) ?? new Bytes(new byte[g.Type.Size]);
-			var label = new IRLabel($"_{g.Name}");
-			StaticVariables[label.Name] = (label, def);
-			GlobalVariables[g.Name] = g.Type;
-		}
-
-		private void HandleFunction(FunctionNode node)
-		{
-			var func = new IRFunction(node.Name, node.Type);
-
-			CurrentFunction = func;
-			HandleScope(func, new(node.Scope, this, 0));
-			// func.Insns.Add(new ReturnInsn());
-
-			Functions.Add(func);
 		}
 
 		public void HandleScope(IRFunction func, IRScope scope)

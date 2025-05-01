@@ -191,9 +191,6 @@ namespace DankleC.IR
 		public override IValue GetRef(IRBuilder builder) => this;
 		public override IValue ToNotPointer(IRInsn insn) => this;
 
-        public byte[] ToBytes()
-        {
-            throw new NotImplementedException();
-        }
+		public IByteLike ToBytes() => new StringVariable(Name);
     }
 }

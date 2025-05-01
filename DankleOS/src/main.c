@@ -6,6 +6,8 @@ void main()
 {
     printf("Dankle OS\n\n");
 
+    fs_writetext("cmain.asm");
+
     while (true)
     {
         char cmdbuf[512];

@@ -57,8 +57,8 @@ void _putchar(char character);
  * \param format A string that specifies the format of the output
  * \return The number of characters that are written into the array, not counting the terminating null character
  */
-#define printf printf_
-int printf_(const char* format, ...);
+//#define printf printf_
+int printf(const char* format, ...);
 
 
 /**
@@ -106,7 +106,7 @@ int vprintf_(const char* format, va_list va);
 //  * \param format A string that specifies the format of the output
 //  * \return The number of characters that are sent to the output function, not counting the terminating null character
 //  */
-// int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
+int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...);
 
 
 #ifdef __cplusplus

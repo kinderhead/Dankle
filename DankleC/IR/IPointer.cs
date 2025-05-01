@@ -135,7 +135,7 @@ namespace DankleC.IR
 		public IPointer Get(int offset, int size)
 		{
 			if (Size - offset <= 0) throw new InvalidOperationException("RegisterPointer goes out of bounds");
-			return new RegisterPointer(Reg1, Reg2, Offset + offset, Size - offset);
+			return new RegisterPointer(Reg1, Reg2, Offset + offset, size);
 		}
 
 		public bool UsingRegister(int reg) => reg == Reg1 || reg == Reg2;

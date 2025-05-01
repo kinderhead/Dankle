@@ -83,7 +83,7 @@ namespace DankleC.ASTObjects.Expressions
 			else throw new NotImplementedException();
 		}
 
-		public IByteLike ToBytes(IRBuilder builder) => new Bytes(((IImmediateValue)Execute(builder)).ToBytes());
+		public IByteLike ToBytes(IRBuilder builder) => ((IImmediateValue)Execute(builder)).ToBytes();
 
 		public override void Conditional(IRBuilder builder, bool negate = false)
 		{

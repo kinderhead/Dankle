@@ -14,7 +14,7 @@ namespace DankleC.ASTObjects.Expressions
 		public override ResolvedExpression Resolve(IRBuilder builder) => new ResolvedRefExpression(Expr.Resolve<LValue>(builder));
 	}
 
-	public class ResolvedRefExpression(LValue expr, TypeSpecifier? type = null) : ResolvedExpression(type ?? expr.Type.AsPointer())
+	public class ResolvedRefExpression(LValue expr, TypeSpecifier? type = null) : ResolvedExpression(type ?? expr.Type.AsPointer()), IToBytes
 	{
 		public readonly LValue Expr = expr;
 
@@ -27,7 +27,14 @@ namespace DankleC.ASTObjects.Expressions
 			return Expr.GetRef(builder);
         }
 
-		public override void Walk(Action<ResolvedExpression> cb)
+		public IByteLike ToBytes(IRBuilder builder)
+		{
+			var ptr = Expr.GetRef(builder);
+			if (ptr is IImmediateValue i) return i.ToBytes();
+			throw new InvalidOperationException();
+		}
+
+        public override void Walk(Action<ResolvedExpression> cb)
 		{
 			cb(this);
 			Expr.Walk(cb);
