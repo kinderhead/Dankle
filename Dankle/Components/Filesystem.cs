@@ -56,7 +56,7 @@ namespace Dankle.Components
             public void TextInput(uint _, byte[] data)
             {
                 if (data[0] == 0) FS.FinishTextInput();
-                else FS.TextInput.Append(data[0]);
+                else FS.TextInput.Append((char)data[0]);
             }
 
             [ReadRegister(2, 2)]
@@ -66,7 +66,13 @@ namespace Dankle.Components
                 else return [0, FS.Buffer[FS.Index++]];
             }
 
-            [WriteRegister(4, 4)]
+            [ReadRegister(4, 4)]
+            public byte[] ReadBufferSize(uint _)
+            {
+                return Utils.ToBytes(FS.Buffer.Length);
+            }
+
+            [WriteRegister(8, 4)]
             public void SetIndex(uint _, byte[] data)
             {
                 FS.Index = Utils.FromBytes<int>(data);

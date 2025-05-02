@@ -16,5 +16,21 @@
         "string.h": "c",
         "cstring": "c"
     },
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "C_Cpp.files.exclude": {
+        "DankleC/bin/**": true,
+        "DankleTest/bin/**": true,
+    },
+    "files.watcherExclude": {
+        "DankleC/bin/**": true,
+        "DankleTest/bin/**": true,
+    },
+    "search.exclude": {
+        "DankleC/bin/**": true,
+        "DankleTest/bin/**": true,
+    },
+    "files.exclude": {
+        "DankleC/bin/**": true,
+        "DankleTest/bin/**": true,
+    },
 }

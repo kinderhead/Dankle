@@ -1,4 +1,5 @@
 #include "commands.h"
+#include <stdlib.h>
 
 char prompt[32];
 
@@ -6,7 +7,8 @@ void main()
 {
     printf("Dankle OS\n\n");
 
-    fs_writetext("cmain.asm");
+    // fs_writetext("cmain.asm");
+    // printf("Size: %d\n", fs_size());
 
     while (true)
     {

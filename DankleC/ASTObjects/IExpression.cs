@@ -45,7 +45,7 @@ namespace DankleC.ASTObjects
 				if (actual.Size == expected.Size) return ChangeType(expected);
 				return AsCasted(expected);
 			}
-			else if (Type is ArrayTypeSpecifier arr && type is PointerTypeSpecifier ptr && arr.Inner == ptr.Inner)
+			else if (Type is ArrayTypeSpecifier arr && type is PointerTypeSpecifier ptr && (arr.Inner == ptr.Inner || ptr.Inner.Size == 0))
 			{
 				return new ResolvedRefExpression((LValue)this, type);
 			}
