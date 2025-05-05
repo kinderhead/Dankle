@@ -8,4 +8,6 @@ int atoi(char* s);
 void* malloc(size_t size);
 void free(void* ptr);
 
+void exit();
+
 #endif

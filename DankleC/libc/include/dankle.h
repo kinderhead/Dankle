@@ -10,9 +10,19 @@
 #define FS_BUFF FILESYSTEM + 2 // short
 #define FS_SIZE FILESYSTEM + 4 // int
 #define FS_INDX FILESYSTEM + 8 // int
+#define FS_ERRC FILESYSTEM + 12 // byte
+
+#define FS_MODE_READ 0
+#define FS_MODE_WRITE 1
+
+#define FS_ERR_NONE 0
+#define FS_ERR_NOTFOUND 1
+#define FS_ERR_NOTWRITING 2
 
 #define WRITE_CHAR_BUF(buf, c) *((char*)(buf)) = c
 #define READ_INT_BUF(buf) *((int*)(buf))
+#define READ_SHORT_BUF(buf) *((short*)(buf))
+#define READ_CHAR_BUF(buf) *((char*)(buf))
 
 #define WRITE_CHAR(c) WRITE_CHAR_BUF(TERMINAL, c)
 #define BREAK() WRITE_CHAR_BUF(DEBUGGER, 1)
@@ -34,9 +44,43 @@ char* itoa(int num, char* str, int base);
 void fs_writetext(const char* txt);
 
 /**
+ * @brief Open file
+ * @param txt Filepath
+ * @param mode Mode
+ * @return Operation succeeded
+ */
+int fs_open(const char* txt, int mode);
+
+/**
+ * @brief Read next n bytes from loaded file
+ * @param data Pointer to destination
+ * @param size Size to read
+ * @return Bytes read
+ */
+int fs_read(char* data, int size);
+
+/**
  * @brief Get the size of the loaded file
  * @return File size
  */
 int fs_size();
+
+/**
+ * @brief Get error code for last command
+ * @return Error code
+ */
+int fs_err();
+
+/**
+ * @brief Print appropriate error messages or do nothing (WIP)
+ * @return Whether or not the previous command succeeded
+ */
+int fs_checkerr();
+
+/**
+ * @brief Set filesystem driver mode
+ * @param mode Mode
+ */
+void fs_setmode(int mode);
 
 #endif

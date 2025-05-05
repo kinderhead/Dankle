@@ -5,8 +5,15 @@ namespace Dankle.Components
 {
     public enum FSMode
     {
-        Read,
+        Read = 0,
         Write
+    }
+
+    public enum FSError
+    {
+        None = 0,
+        NotFound,
+        NotWriting
     }
 
     public class Filesystem : Component
@@ -14,30 +21,50 @@ namespace Dankle.Components
         public override string Name => "Filesystem";
 
         private readonly StringBuilder TextInput = new();
+        private readonly string Basepath = Environment.CurrentDirectory + "/fs";
         private FSMode Mode = FSMode.Read;
         private byte[] Buffer = [];
+        private FileStream? WriteFile = null;
         private int Index = 0;
+        private FSError Error = FSError.None;
 
         public Filesystem(Computer computer, uint addr) : base(computer)
         {
             Computer.AddMemoryMapEntry(new MM(addr, this));
+            Directory.CreateDirectory(Basepath);
         }
 
         private void FinishTextInput()
         {
             var text = TextInput.ToString();
 
+            if (text[0] != '@') text = Path.Join(Basepath, text);
+            else text = text[1..];
+
             switch (Mode)
             {
                 case FSMode.Read:
+                    if (!File.Exists(text))
+                    {
+                        Error = FSError.NotFound;
+                        return;
+                    }
                     Buffer = File.ReadAllBytes(text);
                     Index = 0;
                     break;
                 case FSMode.Write:
+                    if (!Directory.Exists(Path.GetDirectoryName(text)))
+                    {
+                        Error = FSError.NotFound;
+                        return;
+                    }
+                    WriteFile = File.OpenWrite(text);
                     break;
                 default:
                     throw new InvalidOperationException($"Invalid FS mode {Mode}");
             }
+
+            Error = FSError.None;
 
             TextInput.Clear();
         }
@@ -66,6 +93,24 @@ namespace Dankle.Components
                 else return [0, FS.Buffer[FS.Index++]];
             }
 
+            [ReadRegister(2, 2)]
+            public void WriteBuffer(uint _, byte[] data)
+            {
+                if (FS.WriteFile is null)
+                {
+                    FS.Error = FSError.NotWriting;
+                    return;
+                }
+
+                var inp = Utils.FromBytes<short>(data);
+                if (inp == -1)
+                {
+                    FS.WriteFile.Close();
+                    FS.WriteFile = null;
+                }
+                else FS.WriteFile.Write([data[0]]);
+            }
+
             [ReadRegister(4, 4)]
             public byte[] ReadBufferSize(uint _)
             {
@@ -76,6 +121,12 @@ namespace Dankle.Components
             public void SetIndex(uint _, byte[] data)
             {
                 FS.Index = Utils.FromBytes<int>(data);
+            }
+
+            [ReadRegister(12)]
+            public byte[] ReadError(uint _)
+            {
+                return Utils.ToBytes((byte)FS.Error);
             }
         }
     }

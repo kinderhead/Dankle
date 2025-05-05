@@ -76,7 +76,8 @@ meta_ptr extend_heap(meta_ptr last, size_t size)
     new_break = heap += (META_BLOCK_SIZE + size);
     if (new_break > 0xFFFF)
     {
-        return NULL;
+        printf("Heap overflow\n");
+        exit();
     }
     old_break->size = size;
     old_break->free = 0;
@@ -128,6 +129,7 @@ void* malloc(size_t size)
 {
     meta_ptr block, last;
     size_t s = align4(size);
+
     if (base)
     {
         last = base;
@@ -156,6 +158,7 @@ void* malloc(size_t size)
         {
             return NULL;
         }
+
         base = block;
     }
     return block->data;
@@ -187,7 +190,11 @@ void free(void* ptr)
                 base = NULL;
             }
 
-            heap = base;
+            heap = block;
         }
+    }
+    else
+    {
+        printf("Invalid free address %d\n", ptr);
     }
 }

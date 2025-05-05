@@ -89,13 +89,13 @@ char* readline(char* buf, int size)
             if (i == 0)
             {
                 i--;
-                WRITE_CHAR(' ');
+                //WRITE_CHAR(' ');
             }
             else
             {
                 i -= 2;
 
-                // WRITE_CHAR('\b');
+                WRITE_CHAR('\b');
                 WRITE_CHAR(' ');
                 WRITE_CHAR('\b');
             }

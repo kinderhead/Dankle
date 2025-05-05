@@ -88,7 +88,8 @@ namespace DankleC
             foreach (var i in LibC)
             {
                 var file = Path.Join(GetExecutableFolder(), "libc", "src", i);
-                libc[file] = new Compiler().ReadFileAndPreprocess(file, pb).Compile(pb);
+                if (file.EndsWith(".asm")) libc[file] = File.ReadAllText(file);
+                else libc[file] = new Compiler().ReadFileAndPreprocess(file, pb).Compile(pb);
             }
 
             return libc;
@@ -172,7 +173,7 @@ namespace DankleC
 			return (stdout.ToString(), stderr.ToString());
         }
 
-        public static readonly string[] LibC = ["dankle.c", "printf.c", "string.c", "stdlib.c", "filesystem.c"];
+        public static readonly string[] LibC = ["dankle.c", "printf.c", "string.c", "stdlib.c", "filesystem.c", "dankle.asm"];
         public static readonly string[] DankleOS = [.. new List<string> { "main.c", "commands.c" }.Select(i => "../../../../DankleOS/src/" + i)];
     }
 }

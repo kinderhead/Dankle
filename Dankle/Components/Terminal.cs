@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,8 +48,9 @@ namespace Dankle.Components
 			public byte[] Read(uint _)
 			{
 				char c = Console.ReadKey().KeyChar;
+
 				if (c == '\r') return [10]; // Enter
-				else if (c == '\b') return [127]; // Backspace
+				else if (c == '\b' || c == 127) return [127]; // Backspace
 
 				return [Encoding.UTF8.GetBytes([c])[0]];
 			}

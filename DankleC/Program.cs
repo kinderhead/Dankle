@@ -37,7 +37,7 @@ namespace DankleC
 				computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["cmain"];
 			}
 
-			Console.WriteLine("\n" + asm.First().Value + "\n-----------------------------");
+			//Console.WriteLine("\n" + asm.First().Value + "\n-----------------------------");
 			Console.WriteLine();
 
 			computer.Run();

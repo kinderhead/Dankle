@@ -1,7 +1,7 @@
 #include "commands.h"
 #include <stdlib.h>
 
-#define NUM_CMDS 5
+#define NUM_CMDS 6
 
 typedef struct command_s
 {
@@ -53,6 +53,23 @@ static void count(const char* num)
     }
 }
 
+static void cat(const char* path)
+{
+    if (!fs_open(path, FS_MODE_READ))
+    {
+        printf("Error opening file %s\n", path);
+        return;
+    }
+
+    char* mem = malloc(fs_size() + 1);
+    int last = fs_read(mem, fs_size());
+    mem[last] = 0;
+
+    printf("%s\n", mem);
+
+    free(mem);
+}
+
 static void help(const char* args);
 
 command_t cmds[NUM_CMDS] = {
@@ -60,6 +77,7 @@ command_t cmds[NUM_CMDS] = {
     { echo, "echo", "Print arguments to the console.\nUsage: echo <message>" },
     { set_prompt, "prompt", "Set the prompt text.\nUsage: prompt <prompt>" },
     { count, "count", "Counting!\nUsage: count <count>" },
+    { cat, "cat", "Read file to terminal\nUsage: cat <path>" },
     { help, "help", "Display available commands and query proper usage.\nUsage: help [command]" }
 };
 

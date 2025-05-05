@@ -7,9 +7,6 @@ void main()
 {
     printf("Dankle OS\n\n");
 
-    // fs_writetext("cmain.asm");
-    // printf("Size: %d\n", fs_size());
-
     while (true)
     {
         char cmdbuf[512];
