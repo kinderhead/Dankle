@@ -14,6 +14,8 @@ namespace Dankle.Components
 
 		public StringBuilder? Builder;
 
+		private Queue<char>? LineInput = null;
+
 		public Terminal(Computer computer, uint addr) : base(computer)
 		{
 			Addr = addr;
@@ -47,12 +49,33 @@ namespace Dankle.Components
 			[ReadRegister(1)]
 			public byte[] Read(uint _)
 			{
-				char c = Console.ReadKey().KeyChar;
+				var key = Console.ReadKey();
+				char c = key.KeyChar;
 
 				if (c == '\r') return [10]; // Enter
 				else if (c == '\b' || c == 127) return [127]; // Backspace
 
 				return [Encoding.UTF8.GetBytes([c])[0]];
+			}
+
+			[ReadRegister(2)]
+			[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0306:Simplify collection initialization", Justification = "<Pending>")]
+			public byte[] Readline(uint _)
+			{
+				if (Terminal.LineInput is null) Terminal.LineInput = new(Console.ReadLine()?.ToCharArray() ?? throw new InvalidOperationException());
+				else if (Terminal.LineInput.Count == 0)
+				{
+					Terminal.LineInput = null;
+					return [0];
+				}
+
+				return [Encoding.UTF8.GetBytes([Terminal.LineInput.Dequeue()])[0]];
+			}
+
+			[WriteRegister(3)]
+			public void ReadClear(uint _, byte[] data)
+			{
+				Terminal.LineInput = null;
 			}
 		}
 	}

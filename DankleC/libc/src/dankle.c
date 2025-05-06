@@ -79,32 +79,17 @@ void _putchar(char character)
 
 char* readline(char* buf, int size)
 {
+    *((char*) TERMINAL + 3) = 0;
+
     int i;
     for (i = 0; i < size - 1; i++)
     {
-        char c = readkey();
-        if (c == '\n') break;
-        else if (c == 127)
-        {
-            if (i == 0)
-            {
-                i--;
-                //WRITE_CHAR(' ');
-            }
-            else
-            {
-                i -= 2;
-
-                WRITE_CHAR('\b');
-                WRITE_CHAR(' ');
-                WRITE_CHAR('\b');
-            }
-        }
-        else buf[i] = c;
+        char c = *((char*) TERMINAL + 2);
+        if (c == 0) break;
+        buf[i] = c;
     }
 
     buf[i] = 0;
-    WRITE_CHAR('\n');
 
     return buf;
 }

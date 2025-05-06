@@ -37,11 +37,16 @@ namespace Dankle.Components
         private void FinishTextInput()
         {
             var text = TextInput.ToString();
+			TextInput.Clear();
+
+			text = text.Trim('"');
 
             if (text[0] != '@') text = Path.Join(Basepath, text);
             else text = text[1..];
 
-            switch (Mode)
+			text = text.Trim('"');
+
+			switch (Mode)
             {
                 case FSMode.Read:
                     if (!File.Exists(text))
@@ -58,6 +63,7 @@ namespace Dankle.Components
                         Error = FSError.NotFound;
                         return;
                     }
+                    WriteFile?.Close();
                     WriteFile = File.OpenWrite(text);
                     break;
                 default:
@@ -65,8 +71,6 @@ namespace Dankle.Components
             }
 
             Error = FSError.None;
-
-            TextInput.Clear();
         }
 
         public class MM(uint addr, Filesystem fs) : MemoryMapRegisters(addr)
@@ -93,7 +97,7 @@ namespace Dankle.Components
                 else return [0, FS.Buffer[FS.Index++]];
             }
 
-            [ReadRegister(2, 2)]
+            [WriteRegister(2, 2)]
             public void WriteBuffer(uint _, byte[] data)
             {
                 if (FS.WriteFile is null)

@@ -28,7 +28,7 @@ namespace DankleC.ASTObjects
 
             if (Scope.Statements.Count == 0 || Scope.Statements.Last() is not ReturnStatement)
             {
-                if (Type.ReturnType != new BuiltinTypeSpecifier(BuiltinType.Void)) throw new InvalidOperationException($"Function \"{Name}\" missing return statement");
+                if (Type.ReturnType != new BuiltinTypeSpecifier(BuiltinType.Void))  throw new InvalidOperationException($"Function \"{Name}\" missing return statement");
                 else Scope.Statements.Add(new ReturnStatement(null));
             }
         }
