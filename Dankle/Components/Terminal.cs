@@ -59,8 +59,7 @@ namespace Dankle.Components
 			}
 
 			[ReadRegister(2)]
-			[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0306:Simplify collection initialization", Justification = "<Pending>")]
-			public byte[] Readline(uint _)
+            public byte[] Readline(uint _)
 			{
 				if (Terminal.LineInput is null) Terminal.LineInput = new(Console.ReadLine()?.ToCharArray() ?? throw new InvalidOperationException());
 				else if (Terminal.LineInput.Count == 0)
@@ -69,6 +68,7 @@ namespace Dankle.Components
 					return [0];
 				}
 
+				if (Terminal.LineInput.Count == 0) return [0];
 				return [Encoding.UTF8.GetBytes([Terminal.LineInput.Dequeue()])[0]];
 			}
 

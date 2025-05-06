@@ -45,7 +45,7 @@ namespace Dankle.Components
             else text = text[1..];
 
 			text = text.Trim('"');
-
+            
 			switch (Mode)
             {
                 case FSMode.Read:
