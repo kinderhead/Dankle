@@ -1,21 +1,31 @@
 #include <dankle.h>
 
-void fs_writetext(const char* txt)
+void fs_writetext(const char* txt, bool finish)
 {
     while (*txt != 0)
     {
         WRITE_CHAR_BUF(FS_TEXT, *txt++);
     }
-    WRITE_CHAR_BUF(FS_TEXT, 0);
+
+    if (finish) WRITE_CHAR_BUF(FS_TEXT, 0);
 }
 
-int fs_open(const char* txt, int mode)
+bool fs_open(const char* txt, int mode)
 {
     fs_setmode(mode);
-    fs_writetext(txt);
+    fs_writetext(txt, true);
 
-    if (fs_err() != 0) return 0;
-    return 1;
+    if (fs_err() != 0) return false;
+    return true;
+}
+
+bool fs_mkdir(const char* path)
+{
+    fs_setmode(FS_MODE_MKDIR);
+    fs_writetext(path, true);
+    
+    if (fs_err() != 0) return false;
+    return true;
 }
 
 int fs_read(char* data, int size)

@@ -16,6 +16,7 @@
 
 #define FS_MODE_READ 0
 #define FS_MODE_WRITE 1
+#define FS_MODE_MKDIR 2
 
 #define FS_ERR_NONE 0
 #define FS_ERR_NOTFOUND 1
@@ -43,8 +44,9 @@ char* itoa(int num, char* str, int base);
 /**
  * @brief Send command to filesystem driver
  * @param txt Command
+ * @param finish Send null terminator to driver
  */
-void fs_writetext(const char* txt);
+void fs_writetext(const char* txt, bool finish);
 
 /**
  * @brief Open file
@@ -52,7 +54,13 @@ void fs_writetext(const char* txt);
  * @param mode Mode
  * @return Operation succeeded
  */
-int fs_open(const char* txt, int mode);
+bool fs_open(const char* txt, int mode);
+
+/**
+ * @brief Make directory or do nothing if it exists
+ * @return Operation succeeded
+ */
+bool fs_mkdir(const char* path);
 
 /**
  * @brief Read next n bytes from loaded file

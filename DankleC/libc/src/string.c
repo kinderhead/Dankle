@@ -21,6 +21,12 @@ char* strcpy(char* strDest, const char* strSrc)
     return temp;
 }
 
+char* strcat(char* dest, const char* src)
+{
+    strcpy(dest + strlen(dest), src);
+    return dest;
+}
+
 size_t strlen(const char* str)
 {
     const char* p;

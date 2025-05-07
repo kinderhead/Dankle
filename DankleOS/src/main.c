@@ -3,14 +3,20 @@
 
 char prompt[32];
 
+// Must always have a / at the end
+char cwd[128];
+
 void main()
 {
     printf("Dankle OS\n\n");
 
+    cwd[0] = '/';
+    cwd[1] = 0;
+
     while (true)
     {
         char cmdbuf[512];
-        printf("%s> ", prompt);
+        printf("%s%s> ", prompt, cwd);
 
         readline(cmdbuf, 128);
 

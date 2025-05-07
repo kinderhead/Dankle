@@ -6,6 +6,7 @@
 #include <dankle.h>
 #include <stdbool.h>
 
+void send_cwd();
 void run_cmd(const char* cmd, const char* args);
 
 #endif

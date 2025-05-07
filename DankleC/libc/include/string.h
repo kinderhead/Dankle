@@ -11,5 +11,6 @@ size_t strlen(const char* str);
 char* strtok(char* s, const char* delim);
 char* strtok_r(char* s, const char* delim, char** save_ptr);
 char* strcpy(char* strDest, const char* strSrc);
+char* strcat(char* dest, const char* src);
 
 #endif

@@ -1,7 +1,7 @@
 #include "commands.h"
 #include <stdlib.h>
 
-#define NUM_CMDS 7
+#define NUM_CMDS 10
 
 typedef struct command_s
 {
@@ -11,6 +11,7 @@ typedef struct command_s
 } command_t;
 
 extern char prompt[32];
+extern char cwd[128];
 
 static void about(const char* args)
 {
@@ -55,6 +56,7 @@ static void count(const char* num)
 
 static void cat(const char* path)
 {
+    send_cwd();
     if (!fs_open(path, FS_MODE_READ))
     {
         printf("Error opening file %s\n", path);
@@ -74,6 +76,7 @@ static void write(const char* args)
 {
     const char* path = strtok_r(args, " ", &args);
 
+    send_cwd();
     if (!fs_open(path, FS_MODE_WRITE))
     {
         printf("Error opening file %s\n", path);
@@ -81,6 +84,29 @@ static void write(const char* args)
     }
 
     fs_write(args, strlen(args), true);
+}
+
+static void mkdir(const char* path)
+{
+    send_cwd();
+    if (!fs_mkdir(path)) printf("Error creating directory");
+}
+
+static void cd(const char* path)
+{
+    if (strlen(cwd) + strlen(path) >= 126)
+    {
+        printf("Path too long");
+        return;
+    }
+
+    strcat(cwd, path);
+    strcat(cwd, "/");
+}
+
+static void exit_cmd(const char* path)
+{
+    exit();
 }
 
 static void help(const char* args);
@@ -92,6 +118,9 @@ command_t cmds[NUM_CMDS] = {
     { count, "count", "Counting!\nUsage: count <count>" },
     { cat, "cat", "Read file to terminal\nUsage: cat <path>" },
     { write, "write", "Write file\nUsage: write <path> <contents>" },
+    { mkdir, "mkdir", "Create directory\nUsage: mkdir <path>" },
+    { cd, "cd", "Change directory\nUsage: cd <path>" },
+    { exit_cmd, "exit", "Shutdown computer" },
     { help, "help", "Display available commands and query proper usage.\nUsage: help [command]" }
 };
 
@@ -120,6 +149,12 @@ static void help(const char* args)
 
         printf("Invalid command \"%s\"\n", args);
     }
+}
+
+void send_cwd()
+{
+    fs_writetext(cwd, false);
+    fs_writetext("/", false);
 }
 
 void run_cmd(const char* cmd, const char* args)

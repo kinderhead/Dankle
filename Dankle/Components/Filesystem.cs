@@ -6,7 +6,8 @@ namespace Dankle.Components
     public enum FSMode
     {
         Read = 0,
-        Write
+        Write,
+        MakeDirectory
     }
 
     public enum FSError
@@ -66,6 +67,9 @@ namespace Dankle.Components
                     WriteFile?.Close();
                     WriteFile = File.OpenWrite(text);
                     break;
+                case FSMode.MakeDirectory:
+                    Directory.CreateDirectory(text);
+                    break;
                 default:
                     throw new InvalidOperationException($"Invalid FS mode {Mode}");
             }
@@ -112,7 +116,7 @@ namespace Dankle.Components
                     FS.WriteFile.Close();
                     FS.WriteFile = null;
                 }
-                else FS.WriteFile.Write([data[0]]);
+                else FS.WriteFile.Write([data[1]]);
             }
 
             [ReadRegister(4, 4)]
