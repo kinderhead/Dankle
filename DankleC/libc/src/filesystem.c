@@ -31,6 +31,16 @@ int fs_read(char* data, int size)
     return index;
 }
 
+void fs_write(char* data, int size, bool close)
+{
+    for (int i = 0; i < size; i++)
+    {
+        WRITE_SHORT_BUF(FS_BUFF, data[i]);
+    }
+
+    if (close) WRITE_SHORT_BUF(FS_BUFF, -1);
+}
+
 int fs_size()
 {
     return READ_INT_BUF(FS_SIZE);

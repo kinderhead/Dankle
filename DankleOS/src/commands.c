@@ -1,7 +1,7 @@
 #include "commands.h"
 #include <stdlib.h>
 
-#define NUM_CMDS 6
+#define NUM_CMDS 7
 
 typedef struct command_s
 {
@@ -70,6 +70,19 @@ static void cat(const char* path)
     free(mem);
 }
 
+static void write(const char* args)
+{
+    const char* path = strtok_r(args, " ", &args);
+
+    if (!fs_open(path, FS_MODE_WRITE))
+    {
+        printf("Error opening file %s\n", path);
+        return;
+    }
+
+    fs_write(args, strlen(args), true);
+}
+
 static void help(const char* args);
 
 command_t cmds[NUM_CMDS] = {
@@ -78,6 +91,7 @@ command_t cmds[NUM_CMDS] = {
     { set_prompt, "prompt", "Set the prompt text.\nUsage: prompt <prompt>" },
     { count, "count", "Counting!\nUsage: count <count>" },
     { cat, "cat", "Read file to terminal\nUsage: cat <path>" },
+    { write, "write", "Write file\nUsage: write <path> <contents>" },
     { help, "help", "Display available commands and query proper usage.\nUsage: help [command]" }
 };
 

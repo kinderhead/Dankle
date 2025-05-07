@@ -1,6 +1,8 @@
 #ifndef _DANKLE_H
 #define _DANKLE_H
 
+#include <stdbool.h>
+
 #define TERMINAL 0xFFFFFFF0
 #define DEBUGGER 0xFFFFFFF2
 
@@ -20,6 +22,7 @@
 #define FS_ERR_NOTWRITING 2
 
 #define WRITE_CHAR_BUF(buf, c) *((char*)(buf)) = c
+#define WRITE_SHORT_BUF(buf, c) *((short*)(buf)) = c
 #define READ_INT_BUF(buf) *((int*)(buf))
 #define READ_SHORT_BUF(buf) *((short*)(buf))
 #define READ_CHAR_BUF(buf) *((char*)(buf))
@@ -58,6 +61,14 @@ int fs_open(const char* txt, int mode);
  * @return Bytes read
  */
 int fs_read(char* data, int size);
+
+/**
+ * @brief Write bytes to loaded file
+ * @param data Pointer to source
+ * @param size Number of bytes to write
+ * @param close Close file after writing
+ */
+void fs_write(char* data, int size, bool close);
 
 /**
  * @brief Get the size of the loaded file
