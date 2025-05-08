@@ -7,7 +7,8 @@ namespace Dankle.Components
     {
         Read = 0,
         Write,
-        MakeDirectory
+        MakeDirectory,
+        CompressPath
     }
 
     public enum FSError
@@ -69,6 +70,13 @@ namespace Dankle.Components
                     break;
                 case FSMode.MakeDirectory:
                     Directory.CreateDirectory(text);
+                    break;
+                case FSMode.CompressPath:
+                    var newpath = Path.GetRelativePath(Basepath, text);
+                    if (newpath == ".") newpath = "/";
+                    else newpath = "/" + newpath + "/";
+                    Buffer = Encoding.UTF8.GetBytes(newpath);
+                    Index = 0;
                     break;
                 default:
                     throw new InvalidOperationException($"Invalid FS mode {Mode}");

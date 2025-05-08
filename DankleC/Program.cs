@@ -34,6 +34,7 @@ namespace DankleC
 				var linker = new Linker([new("cmain.asm", File.ReadAllText("cmain.asm")), .. asm, .. libc]);
 
 				computer.WriteMem(0x10000u, linker.AssembleAndLink(0x10000u, computer, pb));
+				linker.SaveSymbolfile("dankleos.sym");
 				computer.GetComponent<CPUCore>().ProgramCounter = linker.Symbols["cmain"];
 			}
 

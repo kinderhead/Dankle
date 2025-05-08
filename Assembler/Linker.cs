@@ -1,4 +1,5 @@
 ﻿using Dankle;
+using Newtonsoft.Json.Linq;
 using ShellProgressBar;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace Assembler
         public readonly Dictionary<string, uint> Symbols = [];
         public readonly List<Parser> Parsers = [];
 
-		public byte[] AssembleAndLink(uint startAddr = 0, Computer? computer = null, ProgressBar? pb = null)
+        public byte[] AssembleAndLink(uint startAddr = 0, Computer? computer = null, ProgressBar? pb = null)
         {
             uint addr = startAddr;
 
@@ -36,11 +37,11 @@ namespace Assembler
                 pb?.Tick();
             }
 
-			var data = new byte[addr];
+            var data = new byte[addr];
 
             if (pb is not null) pb.Message = "Linking...";
 
-			foreach (var i in Parsers)
+            foreach (var i in Parsers)
             {
                 foreach (var e in Parsers)
                 {
@@ -57,6 +58,16 @@ namespace Assembler
             // if (addr - startAddr > 65536) throw new Exception("This may cause some issues");
 
             return data;
-		}
+        }
+
+        public void SaveSymbolfile(string path)
+        {
+            var data = new JObject();
+            foreach (var i in Symbols)
+            {
+                data[i.Key] = i.Value;
+            }
+            File.WriteAllText(path, data.ToString());
+        }
 	}
 }

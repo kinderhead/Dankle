@@ -17,6 +17,7 @@
 #define FS_MODE_READ 0
 #define FS_MODE_WRITE 1
 #define FS_MODE_MKDIR 2
+#define FS_MODE_PATH 3
 
 #define FS_ERR_NONE 0
 #define FS_ERR_NOTFOUND 1
@@ -61,6 +62,15 @@ bool fs_open(const char* txt, int mode);
  * @return Operation succeeded
  */
 bool fs_mkdir(const char* path);
+
+/**
+ * @brief Resolve path
+ * @param path Path to resolve
+ * @param dest Destination buffer
+ * @param maxlen Maximum length to read
+ * @return Resolved path
+ */
+char* fs_compress_path(const char* path, char* dest, int maxlen);
 
 /**
  * @brief Read next n bytes from loaded file

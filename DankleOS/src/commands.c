@@ -100,8 +100,8 @@ static void cd(const char* path)
         return;
     }
 
-    strcat(cwd, path);
-    strcat(cwd, "/");
+    fs_writetext(cwd, false);
+    fs_compress_path(path, cwd, 128);
 }
 
 static void exit_cmd(const char* path)

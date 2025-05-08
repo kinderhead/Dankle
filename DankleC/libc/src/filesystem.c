@@ -28,6 +28,14 @@ bool fs_mkdir(const char* path)
     return true;
 }
 
+char* fs_compress_path(const char* path, char* dest, int maxlen)
+{
+    fs_open(path, FS_MODE_PATH);
+    int last = fs_read(dest, maxlen - 1);
+    dest[last] = 0;
+    return dest;
+}
+
 int fs_read(char* data, int size)
 {
     short b;
