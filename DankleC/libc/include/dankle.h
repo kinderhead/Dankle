@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define TERMINAL 0xFFFFFFF0
-#define DEBUGGER 0xFFFFFFF2
+#define DEBUGGER 0xFFFFFFF6
 
 #define FILESYSTEM 0xFFFFFF00
 #define FS_MODE FILESYSTEM // byte

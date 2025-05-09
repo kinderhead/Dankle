@@ -173,6 +173,8 @@ namespace DankleC
 			return (stdout.ToString(), stderr.ToString());
         }
 
+        public static readonly KeyValuePair<string, string> CMain = new("cmain.asm", File.ReadAllText("cmain.asm"));
+        public static readonly KeyValuePair<string, string> ProgMain = new("progmain.asm", File.ReadAllText("progmain.asm"));
         public static readonly string[] LibC = ["dankle.c", "printf.c", "string.c", "stdlib.c", "filesystem.c", "dankle.asm"];
         public static readonly string[] DankleOS = [.. new List<string> { "main.c", "commands.c" }.Select(i => "../../../../DankleOS/src/" + i)];
     }

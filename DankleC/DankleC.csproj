@@ -21,6 +21,9 @@
     <None Update="cmain.asm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="progmain.asm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="simplecpp/simplecpp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

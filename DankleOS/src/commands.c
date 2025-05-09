@@ -1,7 +1,8 @@
 #include "commands.h"
+#include "program.h"
 #include <stdlib.h>
 
-#define NUM_CMDS 10
+#define NUM_CMDS 11
 
 typedef struct command_s
 {
@@ -63,13 +64,16 @@ static void cat(const char* path)
         return;
     }
 
-    char* mem = malloc(fs_size() + 1);
-    int last = fs_read(mem, fs_size());
-    mem[last] = 0;
+    int size = fs_size();
 
-    printf("%s\n", mem);
+    for (size_t i = 0; i < size; i++)
+    {
+        short data = READ_SHORT_BUF(FS_BUFF);
+        if (data == -1) break;
+        WRITE_CHAR(data);
+    }
 
-    free(mem);
+    WRITE_CHAR('\n');
 }
 
 static void write(const char* args)
@@ -84,6 +88,21 @@ static void write(const char* args)
     }
 
     fs_write(args, strlen(args), true);
+}
+
+static void run(const char* prog)
+{
+    send_cwd();
+    if (!fs_open(prog, FS_MODE_READ))
+    {
+        printf("Error opening file %s\n", prog);
+        return;
+    }
+
+    fs_read(PROG_DATA_BUF, fs_size());
+
+    void (*ptr)() = *((void**) PROG_DATA_BUF);
+    ptr();
 }
 
 static void mkdir(const char* path)
@@ -116,6 +135,7 @@ command_t cmds[NUM_CMDS] = {
     { echo, "echo", "Print arguments to the console.\nUsage: echo <message>" },
     { set_prompt, "prompt", "Set the prompt text.\nUsage: prompt <prompt>" },
     { count, "count", "Counting!\nUsage: count <count>" },
+    { run, "run", "Run a program\nUsage: run <path>" },
     { cat, "cat", "Read file to terminal\nUsage: cat <path>" },
     { write, "write", "Write file\nUsage: write <path> <contents>" },
     { mkdir, "mkdir", "Create directory\nUsage: mkdir <path>" },

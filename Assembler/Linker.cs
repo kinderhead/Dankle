@@ -12,6 +12,7 @@ namespace Assembler
     public class Linker(IEnumerable<KeyValuePair<string, string>> programs)
     {
         public readonly Dictionary<string, string> Programs = new(programs);
+        public readonly Dictionary<string, uint> ExternalSymbols = [];
         public readonly Dictionary<string, uint> Symbols = [];
         public readonly List<Parser> Parsers = [];
 
@@ -37,7 +38,7 @@ namespace Assembler
                 pb?.Tick();
             }
 
-            var data = new byte[addr];
+            var data = new byte[addr - startAddr];
 
             if (pb is not null) pb.Message = "Linking...";
 
@@ -49,13 +50,18 @@ namespace Assembler
                     i.ApplySymbols(e);
                 }
 
+                foreach (var e in ExternalSymbols)
+                {
+                    i.ImportableSymbols[e.Key] = e.Value;
+                }
+
                 i.Parse();
                 i.GetBinary().CopyTo(data, i.StartAddr - startAddr);
             }
 
             pb?.Tick();
 
-            // if (addr - startAddr > 65536) throw new Exception("This may cause some issues");
+            // if (addr - startAddr >= 65536) throw new Exception("This may cause some issues");
 
             return data;
         }
@@ -63,11 +69,24 @@ namespace Assembler
         public void SaveSymbolfile(string path)
         {
             var data = new JObject();
+
             foreach (var i in Symbols)
             {
+                if (i.Key == "_main") continue;
                 data[i.Key] = i.Value;
             }
+
             File.WriteAllText(path, data.ToString());
+        }
+
+        public void LoadSymbolFile(string path)
+        {
+            var data = JObject.Parse(File.ReadAllText(path));
+
+            foreach (var i in data)
+            {
+                ExternalSymbols[i.Key] = i.Value?.ToObject<uint>() ?? throw new InvalidOperationException($"Invalid JSON token {i.Value}");
+            }
         }
 	}
 }
