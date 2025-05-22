@@ -2,5 +2,13 @@
 
 void main()
 {
-    printf("Holy gaming!\n");
+    int x = 69;
+
+    if (x >= 32)
+    {
+        int y = 4;
+        x = y;
+    }
+
+    int z = x;
 }

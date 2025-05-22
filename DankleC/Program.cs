@@ -19,7 +19,7 @@ namespace DankleC
 			computer.AddComponent<Terminal>(0xFFFFFFF0u);
 			computer.AddComponent<Debugger>(0xFFFFFFF6u);
 			computer.AddComponent<Filesystem>(0xFFFFFF00u);
-			computer.AddMemoryMapEntry(new RAM(0xFFF00000u, 0xFFFFEFFFu)); // Program
+			computer.AddMemoryMapEntry(new RAM(0xFFF00000u, 0xFFFEFFFFu)); // Program
 			computer.AddMemoryMapEntry(new RAM(0xFFFF0000u, 0xFFFFA000u)); // Stack
 
 			Linker osLinker;
@@ -54,7 +54,7 @@ namespace DankleC
 			computer.WriteMem(0x10000u, osData);
 			computer.GetComponent<CPUCore>().ProgramCounter = osLinker.Symbols["cmain"];
 
-			//Console.WriteLine("\n" + asm.First().Value + "\n-----------------------------");
+			Console.WriteLine("\n" + asm["test.c"] + "\n-----------------------------");
 			Console.WriteLine();
 
 			computer.Run();
