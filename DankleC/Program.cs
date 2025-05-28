@@ -19,7 +19,7 @@ namespace DankleC
 			computer.AddComponent<Terminal>(0xFFFFFFF0u);
 			computer.AddComponent<Debugger>(0xFFFFFFF6u);
 			computer.AddComponent<Filesystem>(0xFFFFFF00u);
-			computer.AddMemoryMapEntry(new RAM(0xFFF00000u, 0xFFFFEFFFu)); // Program
+			computer.AddMemoryMapEntry(new RAM(0xFFF00000u, 0xFFFEFFFFu)); // Program
 			computer.AddMemoryMapEntry(new RAM(0xFFFF0000u, 0xFFFFA000u)); // Stack
 
 			Linker osLinker;
