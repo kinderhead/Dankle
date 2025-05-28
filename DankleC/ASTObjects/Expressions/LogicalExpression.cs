@@ -12,10 +12,10 @@ namespace DankleC.ASTObjects.Expressions
     public class LogicalExpression(IExpression left, LogicalOperation op, IExpression right) : UnresolvedExpression
     {
         public readonly IExpression Left = left;
-        public readonly LogicalOperation Op = op;
-        public readonly IExpression Right = right;
+		public readonly LogicalOperation Op = op;
+		public readonly IExpression Right = right;
 
-        public override ResolvedExpression Resolve(IRBuilder builder)
+		public override ResolvedExpression Resolve(IRBuilder builder)
 		{
             var left = Left.Resolve(builder);
             var right = Right.Resolve(builder);

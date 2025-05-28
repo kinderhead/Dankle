@@ -54,7 +54,7 @@ namespace DankleC
 			computer.WriteMem(0x10000u, osData);
 			computer.GetComponent<CPUCore>().ProgramCounter = osLinker.Symbols["cmain"];
 
-			//Console.WriteLine("\n" + asm.First().Value + "\n-----------------------------");
+			Console.WriteLine("\n" + asm["test.c"] + "\n-----------------------------");
 			Console.WriteLine();
 
 			computer.Run();
